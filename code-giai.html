@@ -471,6 +471,11 @@
     .excel-grid, .text-grid { grid-template-columns: 1fr; }
     header, main { padding-left: 16px; padding-right: 16px; }
   }
+
+  /* Embedded inside Hubpic: let the parent page own the scroll bar. */
+  html, body { height: auto; min-height: 0; overflow: visible; }
+  body { display: block; }
+  main { flex: none; overflow: visible; }
 </style>
 </head>
 <body>
