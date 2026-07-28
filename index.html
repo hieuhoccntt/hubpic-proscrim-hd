@@ -379,6 +379,7 @@ font-size:16px;
 .logo-export-actions .zip-btn{background:linear-gradient(135deg,#2169d3,#6baaff);}
 .logo-export-actions .remove-bg-btn{background:linear-gradient(135deg,#8d31c7,#de6cfc);}
 .logo-export-actions .design-zip-btn{background:linear-gradient(135deg,#c8501b,#ffb143);color:#241000;}
+.design-color-controls{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin:0 0 12px;padding:11px 13px;border:1px solid rgba(0,230,160,.46);border-radius:14px;background:linear-gradient(135deg,rgba(0,90,55,.28),rgba(20,24,52,.7));color:#effff8;font-weight:900;}.design-color-controls label{margin:0;font-size:13px;}.design-color-controls input[type=color]{width:43px;height:34px;padding:2px;border:2px solid rgba(255,255,255,.45);border-radius:10px;background:#0b1020;cursor:pointer;}.design-color-controls .color-arrow{color:#7bffd0;font-size:18px;}.design-color-controls small{width:100%;color:#bdebd7;font-size:11px;font-weight:700;}
 @media(max-width:560px){.avatar-card-grid{grid-template-columns:1fr;}}
 
 .color-label{
@@ -1257,6 +1258,7 @@ window.addEventListener('DOMContentLoaded',()=>{
 <p>Chọn nhiều logo rồi gán theo mã. (Demo)</p>
 <input type='file' id='logoFiles' multiple accept='image/*'><br><br>
 <div id='logoMap'></div>
+<div class="design-color-controls"><label for="designColorStart">🎨 Màu bìa ngoài</label><input type="color" id="designColorStart" value="#00FF66" title="Màu bìa ngoài thứ nhất"><span class="color-arrow">→</span><input type="color" id="designColorEnd" value="#00B83F" title="Màu bìa ngoài thứ hai"><small>Chọn 2 màu để pha gradient. Muốn một màu thì chọn hai ô giống nhau.</small></div>
 <div class="logo-export-actions"><button class="zip-btn" onclick='exportZip()'>📦 Xuất Logo ZIP</button><button class="remove-bg-btn" onclick='exportZipRemoveBg()'>✨ Xuất Logo PNG</button><button class="design-zip-btn" onclick='exportZipDesign()'>🎨 Xuất ZIP thiết kế</button></div>
 <div id='logoExportStatus' style='margin-top:8px;color:#00ff99;font-weight:800;'></div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
@@ -1595,12 +1597,19 @@ async function removeLogoBackgroundWithAI(file){
  return removeBackground(file);
 }
 
+function getLogoDesignColors(){
+ const start=document.getElementById('designColorStart')?.value||'#00FF66';
+ const end=document.getElementById('designColorEnd')?.value||'#00B83F';
+ return {start,end};
+}
+
 function drawGreenOutsideBlackCircleBase(ctx){
  ctx.clearRect(0,0,1000,1000);
+ const colors=getLogoDesignColors();
  const bg=ctx.createLinearGradient(0,0,1000,1000);
- bg.addColorStop(0,'#00FF66');
- bg.addColorStop(0.45,'#21E85F');
- bg.addColorStop(1,'#00B83F');
+ bg.addColorStop(0,colors.start);
+ bg.addColorStop(0.5,colors.end);
+ bg.addColorStop(1,colors.start);
  ctx.fillStyle=bg;
  ctx.fillRect(0,0,1000,1000);
 
