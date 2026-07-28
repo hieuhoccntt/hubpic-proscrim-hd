@@ -1,0 +1,1136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tournament File Tools</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script>
+(function (root, factory) {
+  const api = factory();
+  if (typeof module === "object" && module.exports) {
+    module.exports = api;
+  } else {
+    root.PlayerNameOverwrite = api;
+  }
+})(typeof globalThis !== "undefined" ? globalThis : this, function () {
+  const PLAYER_ID_START = 1;
+  const PLAYER_NAME_START = 6;
+  const PLAYER_SLOT_COUNT = 5;
+  const DEFAULT_TEAM_REGION = "PRO SCRIM HD";
+  const DEFAULT_COLOR = "#FFFFFF";
+  const ID_TEXT_PATTERN = "\\d+(?:\\.\\d+)?(?:e\\+?\\d+)?";
+
+  function resolveOptions(options) {
+    const opts = options && typeof options === "object" ? options : {};
+    const teamRegion = normalizeText(opts.teamRegion) || DEFAULT_TEAM_REGION;
+    const color = normalizeText(opts.color) || DEFAULT_COLOR;
+    return { teamRegion, color };
+  }
+
+  function isBlank(value) {
+    return value === null || value === undefined || String(value).trim() === "";
+  }
+
+  function isMissingMarker(value) {
+    return String(value).trim().toLowerCase() === "không có";
+  }
+
+  function normalizeId(value) {
+    if (isBlank(value) || isMissingMarker(value)) return null;
+    const text = String(value).trim();
+    if (!/^\d+(?:\.\d+)?(?:e\+?\d+)?$/i.test(text)) return null;
+    const id = Number(text);
+    if (!Number.isFinite(id) || !Number.isInteger(id)) return null;
+    return id;
+  }
+
+  function normalizeText(value) {
+    if (isBlank(value) || isMissingMarker(value)) return "";
+    return String(value).trim();
+  }
+
+  function normalizePlayerName(value) {
+    return normalizeText(value).toLocaleUpperCase("vi-VN");
+  }
+
+  function normalizePlayerNation(value) {
+    return normalizeText(value).toLocaleUpperCase("vi-VN");
+  }
+
+  function isHeaderRow(row) {
+    return normalizeText(row[0]).toLowerCase() === "team";
+  }
+
+  function createDefaultTeamRegionList(options) {
+    const { teamRegion, color } = resolveOptions(options);
+    return Array.from({ length: 15 }, (_, index) => ({
+      TeamID: index + 1,
+      TeamRegion: teamRegion,
+      Color: color,
+    }));
+  }
+
+  function buildPlayerNameList(rows, options) {
+    const { color } = resolveOptions(options);
+    const players = [];
+    for (const row of rows || []) {
+      if (!Array.isArray(row) || isHeaderRow(row)) continue;
+      const team = normalizePlayerNation(row[0]);
+      if (!team) continue;
+
+      for (let slot = 0; slot < PLAYER_SLOT_COUNT; slot++) {
+        const playerId = normalizeId(row[PLAYER_ID_START + slot]);
+        const playerName = normalizePlayerName(row[PLAYER_NAME_START + slot]);
+        if (playerId === null || !playerName) continue;
+
+        players.push({
+          PlayerID: playerId,
+          PlayerNameOverwrite: playerName,
+          PlayerNation: team,
+          Color: color,
+        });
+      }
+    }
+    return players;
+  }
+
+  function buildPlayerNameOverwriteJson(rows, options) {
+    return {
+      PlayerNameList: buildPlayerNameList(rows, options),
+      TeamRegionList: createDefaultTeamRegionList(options),
+    };
+  }
+
+  function cleanTextPlayerName(value) {
+    return normalizePlayerName(String(value || "").replace(/^[\s,;:|/\\._-]+|[\s,;:|/\\._-]+$/g, ""));
+  }
+
+  function parseTextPlayerLine(line) {
+    const text = normalizeText(line);
+    if (!text) return null;
+
+    const playerPatterns = [
+      new RegExp("^(" + ID_TEXT_PATTERN + ")\\s*[-–—:|,/\\\\]+\\s*(.+)$", "i"),
+      new RegExp("^(" + ID_TEXT_PATTERN + ")\\s+(.+)$", "i"),
+      new RegExp("^(.+?)\\s*[-–—:|,/\\\\]+\\s*(" + ID_TEXT_PATTERN + ")$", "i"),
+      new RegExp("^(.+?)\\s+(" + ID_TEXT_PATTERN + ")$", "i"),
+    ];
+
+    for (const pattern of playerPatterns) {
+      const match = text.match(pattern);
+      if (!match) continue;
+
+      const firstIsId = normalizeId(match[1]) !== null;
+      const idText = firstIsId ? match[1] : match[2];
+      const nameText = firstIsId ? match[2] : match[1];
+      const playerId = normalizeId(idText);
+      const playerName = cleanTextPlayerName(nameText);
+      if (playerId !== null && playerName) return { playerId, playerName };
+    }
+
+    return null;
+  }
+
+  function buildPlayerNameListFromText(text, options) {
+    const { color } = resolveOptions(options);
+    const players = [];
+    let currentTeam = "";
+
+    for (const rawLine of String(text || "").split(/\r?\n/)) {
+      const line = normalizeText(rawLine);
+      if (!line) continue;
+
+      const parsedPlayer = parseTextPlayerLine(line);
+      if (!parsedPlayer) {
+        currentTeam = normalizePlayerNation(line);
+        continue;
+      }
+      if (!currentTeam) continue;
+
+      players.push({
+        PlayerID: parsedPlayer.playerId,
+        PlayerNameOverwrite: parsedPlayer.playerName,
+        PlayerNation: currentTeam,
+        Color: color,
+      });
+    }
+
+    return players;
+  }
+
+  function buildPlayerNameOverwriteJsonFromText(text, options) {
+    return {
+      PlayerNameList: buildPlayerNameListFromText(text, options),
+      TeamRegionList: createDefaultTeamRegionList(options),
+    };
+  }
+
+  return {
+    buildPlayerNameList,
+    buildPlayerNameListFromText,
+    buildPlayerNameOverwriteJson,
+    buildPlayerNameOverwriteJsonFromText,
+    createDefaultTeamRegionList,
+  };
+});
+</script>
+<style>
+  :root {
+    --bg: #0f1115;
+    --panel: #171a21;
+    --panel-2: #1e222b;
+    --border: #2a2f3a;
+    --text: #e6e8ee;
+    --muted: #8b93a5;
+    --accent: #4f8cff;
+    --accent-hover: #3b78f0;
+    --ok: #2fbf71;
+    --danger: #ff5c5c;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font: 14px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+  }
+  header {
+    padding: 18px 24px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  header h1 { font-size: 18px; margin: 0; font-weight: 600; }
+  header h1 span { color: var(--accent); }
+  header .sub { color: var(--muted); font-size: 12px; }
+  .controls {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .controls label { color: var(--muted); font-size: 12px; }
+  select, button, input[type="text"], textarea {
+    background: var(--panel-2);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 7px 11px;
+    font-size: 13px;
+    outline: none;
+  }
+  select:focus, input:focus, textarea:focus { border-color: var(--accent); }
+  button { cursor: pointer; }
+  button.primary {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+    font-weight: 500;
+  }
+  button.primary:hover { background: var(--accent-hover); border-color: var(--accent-hover); }
+  button:disabled { opacity: .45; cursor: not-allowed; }
+  button.ghost { background: transparent; }
+  button.ghost:hover { border-color: var(--muted); }
+
+  main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 20px 24px;
+    gap: 16px;
+    overflow: auto;
+  }
+
+  .tool-panel {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .tool-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  .tool-title h2 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+  }
+  .tool-title p {
+    margin: 3px 0 0;
+    color: var(--muted);
+    font-size: 12px;
+  }
+  .excel-grid,
+  .text-grid {
+    display: grid;
+    grid-template-columns: minmax(260px, 360px) 1fr;
+    gap: 14px;
+  }
+  .text-input {
+    width: 100%;
+    min-height: 220px;
+    resize: vertical;
+    font: 12px/1.45 ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+  }
+  .file-picker {
+    border: 1px dashed var(--border);
+    border-radius: 10px;
+    padding: 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    min-height: 180px;
+  }
+  .file-picker { cursor: pointer; transition: all .15s ease; }
+  .file-picker:hover { border-color: var(--accent); }
+  .file-picker.dragover {
+    border-color: var(--accent);
+    background: rgba(79, 140, 255, .08);
+  }
+  .file-picker input { display: none; }
+  .file-name {
+    color: var(--muted);
+    font-size: 12px;
+    word-break: break-word;
+    min-height: 18px;
+  }
+  .json-preview {
+    width: 100%;
+    min-height: 180px;
+    resize: vertical;
+    font: 12px/1.45 ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+  }
+  .excel-options {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 10px;
+  }
+  .excel-options label { color: var(--muted); font-size: 12px; }
+  .excel-options input[type="text"] { width: 180px; }
+  .excel-options input[type="color"] {
+    width: 38px;
+    height: 32px;
+    padding: 3px;
+    cursor: pointer;
+    background: var(--panel-2);
+  }
+  .stats {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    color: var(--muted);
+    font-size: 12px;
+  }
+  .stat {
+    background: var(--panel-2);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 4px 9px;
+  }
+  .image-tool .gallery {
+    min-height: 260px;
+    max-height: 520px;
+  }
+
+  .dropzone {
+    flex: 0 0 auto;
+    border: 2px dashed var(--border);
+    border-radius: 12px;
+    padding: 28px;
+    text-align: center;
+    color: var(--muted);
+    transition: all .15s ease;
+    background: var(--panel-2);
+    cursor: pointer;
+  }
+  .dropzone:hover { border-color: var(--accent); color: var(--text); }
+  .dropzone.dragover {
+    border-color: var(--accent);
+    background: rgba(79, 140, 255, .08);
+    color: var(--text);
+  }
+  .big { font-size: 15px; color: var(--text); margin-bottom: 4px; }
+  .small { font-size: 12px; color: var(--muted); }
+  .dropzone input { display: none; }
+
+  .actions {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .actions .spacer { flex: 1; }
+  .progress {
+    font-size: 12px;
+    color: var(--muted);
+    min-width: 120px;
+  }
+
+  .gallery {
+    flex: 1;
+    overflow: auto;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 12px;
+    align-content: start;
+    padding-bottom: 8px;
+  }
+  .card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+  .card .thumb {
+    height: 130px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background:
+      linear-gradient(45deg, #20242e 25%, transparent 25%) 0 0/16px 16px,
+      linear-gradient(-45deg, #20242e 25%, transparent 25%) 0 8px/16px 16px,
+      linear-gradient(45deg, transparent 75%, #20242e 75%) 8px -8px/16px 16px,
+      linear-gradient(-45deg, transparent 75%, #20242e 75%) -8px 0/16px 16px,
+      #15181f;
+    position: relative;
+  }
+  .card .thumb img { max-width: 90%; max-height: 90%; object-fit: contain; }
+  .card .info {
+    padding: 8px 10px;
+    border-top: 1px solid var(--border);
+    font-size: 11px;
+  }
+  .card .name {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: var(--text);
+    margin-bottom: 2px;
+  }
+  .card .meta { color: var(--muted); display: flex; justify-content: space-between; }
+  .card .bar {
+    height: 3px;
+    background: var(--border);
+    overflow: hidden;
+  }
+  .card .bar > div {
+    height: 100%;
+    width: 0;
+    background: var(--accent);
+    transition: width .1s linear;
+  }
+  .card .bar.done > div { background: var(--ok); width: 100% !important; }
+  .card .bar.err > div { background: var(--danger); width: 100% !important; }
+  .card .row { display: flex; gap: 6px; padding: 6px 10px; border-top: 1px solid var(--border); }
+  .card .row button { flex: 1; padding: 5px; font-size: 11px; }
+  .empty {
+    grid-column: 1 / -1;
+    text-align: center;
+    color: var(--muted);
+    padding: 40px;
+    font-size: 13px;
+  }
+
+  .toast {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--panel-2);
+    border: 1px solid var(--border);
+    padding: 10px 16px;
+    border-radius: 8px;
+    font-size: 13px;
+    box-shadow: 0 6px 24px rgba(0,0,0,.4);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .2s, transform .2s;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(-4px); }
+
+  @media (max-width: 820px) {
+    .excel-grid, .text-grid { grid-template-columns: 1fr; }
+    header, main { padding-left: 16px; padding-right: 16px; }
+  }
+</style>
+</head>
+<body>
+  <header>
+    <div>
+      <h1>Tournament <span>File Tools</span></h1>
+      <div class="sub">Local browser utilities for tournament assets and overwrite files</div>
+    </div>
+  </header>
+
+  <main>
+    <section class="tool-panel">
+      <div class="tool-head">
+        <div class="tool-title">
+          <h2>PlayerNameOverwrite JSON</h2>
+          <p>Convert the Excel team/player sheet into the game overwrite JSON format.</p>
+        </div>
+        <div class="stats" id="excelStats">
+          <span class="stat">No file selected</span>
+        </div>
+      </div>
+      <div class="excel-grid">
+        <label class="file-picker" id="excelDropzone" for="excelInput">
+          <div>
+            <div class="big">Drop Excel file here or click to choose</div>
+            <div class="small">Expected columns: Team, ID 1-5, Ingame 1-5 (.xlsx, .xls)</div>
+          </div>
+          <button type="button" class="primary" id="chooseExcelBtn">Select .xlsx</button>
+          <div class="file-name" id="excelFileName">No file selected</div>
+          <input type="file" id="excelInput" accept=".xlsx,.xls,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel" />
+        </label>
+        <div>
+          <div class="excel-options">
+            <label for="teamRegionInput">TeamRegion</label>
+            <input type="text" id="teamRegionInput" value="PRO SCRIM HD" placeholder="PRO SCRIM HD" />
+            <label for="teamRegionColor">Color</label>
+            <input type="color" id="teamRegionColor" value="#ffffff" />
+            <span class="file-name" id="teamRegionColorText">#FFFFFF</span>
+          </div>
+          <textarea class="json-preview" id="jsonPreview" spellcheck="false" readonly placeholder="Generated JSON preview will appear here."></textarea>
+          <div class="actions" style="margin-top:10px">
+            <button class="primary" id="convertExcelBtn" disabled>Convert Excel</button>
+            <button id="downloadJsonBtn" disabled>Download PlayerNameOverwrite.json</button>
+            <button class="ghost" id="clearExcelBtn" disabled>Clear</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="tool-panel">
+      <div class="tool-head">
+        <div class="tool-title">
+          <h2>PlayerNameOverwrite Text</h2>
+          <p>Paste grouped team/player text and generate the same overwrite JSON format.</p>
+        </div>
+        <div class="stats" id="textStats">
+          <span class="stat">No text converted</span>
+        </div>
+      </div>
+      <div class="text-grid">
+        <div>
+          <textarea class="text-input" id="playerTextInput" spellcheck="false" placeholder="ASTR&#10;2829932890 - ASTR.QUOCHUY&#10;843469214 ASTR.ANBINH&#10;&#10;BỐCỦAGAME&#10;BốHoàngPhước, 809831461"></textarea>
+          <div class="actions" style="margin-top:10px">
+            <button class="primary" id="convertTextBtn">Convert Text</button>
+            <button class="ghost" id="clearTextBtn">Clear</button>
+          </div>
+        </div>
+        <div>
+          <div class="excel-options">
+            <label for="textTeamRegionInput">TeamRegion</label>
+            <input type="text" id="textTeamRegionInput" value="PRO SCRIM HD" placeholder="PRO SCRIM HD" />
+            <label for="textTeamRegionColor">Color</label>
+            <input type="color" id="textTeamRegionColor" value="#ffffff" />
+            <span class="file-name" id="textTeamRegionColorText">#FFFFFF</span>
+          </div>
+          <textarea class="json-preview" id="textJsonPreview" spellcheck="false" readonly placeholder="Generated JSON preview will appear here."></textarea>
+          <div class="actions" style="margin-top:10px">
+            <button id="downloadTextJsonBtn" disabled>Download PlayerNameOverwrite.json</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="tool-panel image-tool">
+      <div class="tool-head">
+        <div class="tool-title">
+          <h2>Logo Resizer</h2>
+          <p>Batch resize images to PNG, with fit, stretch, or crop modes.</p>
+        </div>
+        <div class="controls">
+          <label for="size">Size</label>
+          <input type="text" id="size" value="1000" style="width:70px" />
+          <label for="mode">Mode</label>
+          <select id="mode">
+            <option value="fit">Fit (transparent pad)</option>
+            <option value="stretch">Stretch</option>
+            <option value="cover">Cover (crop)</option>
+          </select>
+          <label for="bg">Background</label>
+          <select id="bg">
+            <option value="transparent">Transparent</option>
+            <option value="white">White</option>
+            <option value="black">Black</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="dropzone" id="dropzone">
+        <div class="big">Drop images here or click to choose</div>
+        <div class="small">PNG, JPG, WEBP, GIF, SVG, BMP — multiple files supported</div>
+        <input type="file" id="fileInput" multiple accept="image/*" />
+      </div>
+
+      <div class="actions">
+        <button class="primary" id="processBtn" disabled>Resize all</button>
+        <button class="ghost" id="clearBtn" disabled>Clear</button>
+        <button id="downloadAllBtn" disabled>Download all (ZIP)</button>
+        <div class="spacer"></div>
+        <div class="progress" id="progress"></div>
+      </div>
+
+      <div class="gallery" id="gallery">
+        <div class="empty">No images yet. Add some to get started.</div>
+      </div>
+    </section>
+  </main>
+
+  <div class="toast" id="toast"></div>
+
+<script>
+(function () {
+  const $ = (id) => document.getElementById(id);
+  const dropzone = $("dropzone");
+  const fileInput = $("fileInput");
+  const gallery = $("gallery");
+  const processBtn = $("processBtn");
+  const clearBtn = $("clearBtn");
+  const downloadAllBtn = $("downloadAllBtn");
+  const progressEl = $("progress");
+  const toastEl = $("toast");
+  const sizeInput = $("size");
+  const modeSel = $("mode");
+  const bgSel = $("bg");
+  const chooseExcelBtn = $("chooseExcelBtn");
+  const excelDropzone = $("excelDropzone");
+  const excelInput = $("excelInput");
+  const excelFileName = $("excelFileName");
+  const convertExcelBtn = $("convertExcelBtn");
+  const downloadJsonBtn = $("downloadJsonBtn");
+  const clearExcelBtn = $("clearExcelBtn");
+  const jsonPreview = $("jsonPreview");
+  const excelStats = $("excelStats");
+  const teamRegionInput = $("teamRegionInput");
+  const teamRegionColor = $("teamRegionColor");
+  const teamRegionColorText = $("teamRegionColorText");
+  const playerTextInput = $("playerTextInput");
+  const convertTextBtn = $("convertTextBtn");
+  const clearTextBtn = $("clearTextBtn");
+  const textJsonPreview = $("textJsonPreview");
+  const downloadTextJsonBtn = $("downloadTextJsonBtn");
+  const textStats = $("textStats");
+  const textTeamRegionInput = $("textTeamRegionInput");
+  const textTeamRegionColor = $("textTeamRegionColor");
+  const textTeamRegionColorText = $("textTeamRegionColorText");
+
+  let items = []; // { id, file, name, originalUrl, resultUrl, status, error }
+  let excelFile = null;
+  let generatedJsonText = "";
+  let generatedTextJsonText = "";
+
+  function toast(msg) {
+    toastEl.textContent = msg;
+    toastEl.classList.add("show");
+    clearTimeout(toast._t);
+    toast._t = setTimeout(() => toastEl.classList.remove("show"), 2200);
+  }
+
+  function uid() { return Math.random().toString(36).slice(2, 9); }
+
+  function setExcelStats(parts) {
+    excelStats.innerHTML = parts.map((part) => `<span class="stat">${part}</span>`).join("");
+  }
+
+  function setTextStats(parts) {
+    textStats.innerHTML = parts.map((part) => `<span class="stat">${part}</span>`).join("");
+  }
+
+  function resetGeneratedJson() {
+    generatedJsonText = "";
+    jsonPreview.value = "";
+    downloadJsonBtn.disabled = true;
+  }
+
+  function resetGeneratedTextJson() {
+    generatedTextJsonText = "";
+    textJsonPreview.value = "";
+    downloadTextJsonBtn.disabled = true;
+  }
+
+  function countTeams(players) {
+    return new Set(players.map((player) => player.PlayerNation)).size;
+  }
+
+  function setExcelFile(file) {
+    excelFile = file || null;
+    resetGeneratedJson();
+    if (!excelFile) {
+      excelFileName.textContent = "No file selected";
+      convertExcelBtn.disabled = true;
+      clearExcelBtn.disabled = true;
+      setExcelStats(["No file selected"]);
+      return;
+    }
+    excelFileName.textContent = excelFile.name;
+    convertExcelBtn.disabled = false;
+    clearExcelBtn.disabled = false;
+    setExcelStats(["Ready to convert"]);
+  }
+
+  async function convertExcelFile() {
+    if (!excelFile) return;
+    if (!window.XLSX) {
+      toast("SheetJS failed to load");
+      return;
+    }
+    if (!window.PlayerNameOverwrite) {
+      toast("Converter failed to load");
+      return;
+    }
+
+    convertExcelBtn.disabled = true;
+    convertExcelBtn.textContent = "Converting...";
+    setExcelStats(["Reading workbook"]);
+    try {
+      const workbook = XLSX.read(await excelFile.arrayBuffer(), { type: "array" });
+      const firstSheetName = workbook.SheetNames[0];
+      if (!firstSheetName) throw new Error("Workbook has no sheets");
+      const rows = XLSX.utils.sheet_to_json(workbook.Sheets[firstSheetName], {
+        header: 1,
+        blankrows: false,
+        defval: "",
+      });
+      const data = PlayerNameOverwrite.buildPlayerNameOverwriteJson(rows, {
+        teamRegion: teamRegionInput.value,
+        color: teamRegionColorText.textContent || teamRegionColor.value,
+      });
+      generatedJsonText = JSON.stringify(data, null, 2);
+      jsonPreview.value = generatedJsonText;
+      downloadJsonBtn.disabled = false;
+      setExcelStats([
+        `${data.PlayerNameList.length} players`,
+        `${data.TeamRegionList.length} team regions`,
+        `Sheet: ${firstSheetName}`,
+      ]);
+      toast("JSON generated");
+    } catch (e) {
+      resetGeneratedJson();
+      setExcelStats(["Conversion failed"]);
+      toast("Excel conversion failed: " + (e.message || e));
+    } finally {
+      convertExcelBtn.textContent = "Convert Excel";
+      convertExcelBtn.disabled = !excelFile;
+    }
+  }
+
+  function downloadGeneratedJson() {
+    downloadJsonPayload(generatedJsonText);
+  }
+
+  function downloadGeneratedTextJson() {
+    downloadJsonPayload(generatedTextJsonText);
+  }
+
+  function downloadJsonPayload(jsonText) {
+    if (!jsonText) return;
+    const blob = new Blob([jsonText + "\n"], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "PlayerNameOverwrite.json";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  }
+
+  function convertPlayerText() {
+    if (!window.PlayerNameOverwrite) {
+      toast("Converter failed to load");
+      return;
+    }
+    const sourceText = playerTextInput.value;
+    if (!sourceText.trim()) {
+      resetGeneratedTextJson();
+      setTextStats(["No text converted"]);
+      toast("Paste player text first");
+      return;
+    }
+
+    const data = PlayerNameOverwrite.buildPlayerNameOverwriteJsonFromText(sourceText, {
+      teamRegion: textTeamRegionInput.value,
+      color: textTeamRegionColorText.textContent || textTeamRegionColor.value,
+    });
+    generatedTextJsonText = JSON.stringify(data, null, 2);
+    textJsonPreview.value = generatedTextJsonText;
+    downloadTextJsonBtn.disabled = false;
+    setTextStats([
+      `${data.PlayerNameList.length} players`,
+      `${countTeams(data.PlayerNameList)} teams`,
+      `${data.TeamRegionList.length} team regions`,
+    ]);
+    toast("JSON generated");
+  }
+
+  function bgFill(value) {
+    if (value === "white") return "#ffffff";
+    if (value === "black") return "#000000";
+    return null; // transparent
+  }
+
+  function readImage(file) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        const img = new Image();
+        img.onload = () => resolve({ img, dataUrl: reader.result });
+        img.onerror = () => reject(new Error("Cannot decode image"));
+        img.src = reader.result;
+      };
+      reader.onerror = () => reject(new Error("Cannot read file"));
+      reader.readAsDataURL(file);
+    });
+  }
+
+  function drawToCanvas(img, size, mode, bgColor) {
+    const canvas = document.createElement("canvas");
+    canvas.width = size;
+    canvas.height = size;
+    const ctx = canvas.getContext("2d");
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = "high";
+
+    if (bgColor) {
+      ctx.fillStyle = bgColor;
+      ctx.fillRect(0, 0, size, size);
+    } else {
+      ctx.clearRect(0, 0, size, size);
+    }
+
+    const iw = img.naturalWidth, ih = img.naturalHeight;
+    if (!iw || !ih) throw new Error("Invalid image dimensions");
+
+    if (mode === "stretch") {
+      ctx.drawImage(img, 0, 0, size, size);
+    } else if (mode === "cover") {
+      const scale = Math.max(size / iw, size / ih);
+      const w = iw * scale, h = ih * scale;
+      ctx.drawImage(img, (size - w) / 2, (size - h) / 2, w, h);
+    } else { // fit (contain)
+      const scale = Math.min(size / iw, size / ih);
+      const w = iw * scale, h = ih * scale;
+      ctx.drawImage(img, (size - w) / 2, (size - h) / 2, w, h);
+    }
+    return canvas;
+  }
+
+  function canvasToBlob(canvas) {
+    return new Promise((resolve, reject) => {
+      canvas.toBlob((b) => b ? resolve(b) : reject(new Error("PNG encode failed")), "image/png");
+    });
+  }
+
+  function changeBaseNameToPng(name) {
+    const dot = name.lastIndexOf(".");
+    const base = dot > 0 ? name.slice(0, dot) : name;
+    return base + ".png";
+  }
+
+  function addFiles(files) {
+    const imgs = Array.from(files).filter((f) => f.type.startsWith("image/"));
+    if (!imgs.length) { toast("No image files detected"); return; }
+    for (const file of imgs) {
+      const item = { id: uid(), file, name: file.name, originalUrl: null, resultUrl: null, resultBlob: null, status: "pending", error: null };
+      items.push(item);
+      const reader = new FileReader();
+      reader.onload = () => { item.originalUrl = reader.result; render(); };
+      reader.readAsDataURL(file);
+    }
+    render();
+    updateButtons();
+  }
+
+  function render() {
+    if (!items.length) {
+      gallery.innerHTML = '<div class="empty">No images yet. Add some to get started.</div>';
+      return;
+    }
+    gallery.innerHTML = "";
+    for (const it of items) {
+      const card = document.createElement("div");
+      card.className = "card";
+      card.dataset.id = it.id;
+
+      const thumb = document.createElement("div");
+      thumb.className = "thumb";
+      const previewUrl = it.resultUrl || it.originalUrl;
+      if (previewUrl) {
+        const img = document.createElement("img");
+        img.src = previewUrl;
+        thumb.appendChild(img);
+      }
+
+      const info = document.createElement("div");
+      info.className = "info";
+      const nameDiv = document.createElement("div");
+      nameDiv.className = "name";
+      nameDiv.title = it.name;
+      nameDiv.textContent = it.name;
+      const meta = document.createElement("div");
+      meta.className = "meta";
+      const statusText =
+        it.status === "done" ? "1000×1000 PNG" :
+        it.status === "error" ? "Error" :
+        it.status === "processing" ? "Processing…" :
+        "Pending";
+      meta.innerHTML = `<span>${statusText}</span><span></span>`;
+      info.appendChild(nameDiv);
+      info.appendChild(meta);
+
+      const bar = document.createElement("div");
+      bar.className = "bar";
+      const inner = document.createElement("div");
+      bar.appendChild(inner);
+
+      const row = document.createElement("div");
+      row.className = "row";
+      const dlBtn = document.createElement("button");
+      dlBtn.textContent = "Download";
+      dlBtn.disabled = it.status !== "done";
+      dlBtn.onclick = () => downloadItem(it);
+      const rmBtn = document.createElement("button");
+      rmBtn.className = "ghost";
+      rmBtn.textContent = "Remove";
+      rmBtn.onclick = () => { items = items.filter((x) => x.id !== it.id); render(); updateButtons(); };
+      row.appendChild(dlBtn);
+      row.appendChild(rmBtn);
+
+      card.appendChild(thumb);
+      card.appendChild(bar);
+      card.appendChild(info);
+      card.appendChild(row);
+      gallery.appendChild(card);
+    }
+  }
+
+  function updateCard(it, extra) {
+    const card = gallery.querySelector(`.card[data-id="${it.id}"]`);
+    if (!card) return;
+    if (extra && extra.thumb) {
+      const thumb = card.querySelector(".thumb");
+      thumb.innerHTML = "";
+      const img = document.createElement("img");
+      img.src = extra.thumb;
+      thumb.appendChild(img);
+    }
+    const bar = card.querySelector(".bar");
+    bar.classList.remove("done", "err");
+    if (it.status === "done") bar.classList.add("done");
+    if (it.status === "error") bar.classList.add("err");
+    const meta = card.querySelector(".meta > span:first-child");
+    if (meta) meta.textContent =
+      it.status === "done" ? "1000×1000 PNG" :
+      it.status === "error" ? "Error" :
+      it.status === "processing" ? "Processing…" : "Pending";
+    card.querySelector(".row button").disabled = it.status !== "done";
+  }
+
+  function updateButtons() {
+    const has = items.length > 0;
+    processBtn.disabled = !has || items.every((i) => i.status === "done");
+    clearBtn.disabled = !has;
+    downloadAllBtn.disabled = !items.some((i) => i.status === "done");
+  }
+
+  function setProgress(done, total) {
+    progressEl.textContent = total ? `${done}/${total} done` : "";
+  }
+
+  async function processAll() {
+    const size = Math.max(1, parseInt(sizeInput.value, 10) || 1000);
+    const mode = modeSel.value;
+    const bg = bgFill(bgSel.value);
+    const queue = items.filter((i) => i.status !== "done");
+    let done = items.length - queue.length;
+    setProgress(done, items.length);
+    for (const it of queue) {
+      it.status = "processing";
+      updateCard(it);
+      try {
+        const { img } = await readImage(it.file);
+        const canvas = drawToCanvas(img, size, mode, bg);
+        const blob = await canvasToBlob(canvas);
+        if (it.resultUrl) URL.revokeObjectURL(it.resultUrl);
+        it.resultUrl = URL.createObjectURL(blob);
+        it.resultBlob = blob;
+        it.status = "done";
+        updateCard(it, { thumb: it.resultUrl });
+      } catch (e) {
+        it.status = "error";
+        it.error = e.message || String(e);
+        updateCard(it);
+      }
+      done++;
+      setProgress(done, items.length);
+    }
+    updateButtons();
+    toast("Done");
+  }
+
+  function downloadItem(it) {
+    if (!it.resultBlob) return;
+    const a = document.createElement("a");
+    a.href = it.resultUrl;
+    a.download = changeBaseNameToPng(it.name);
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+  }
+
+  async function downloadAll() {
+    const done = items.filter((i) => i.status === "done" && i.resultBlob);
+    if (!done.length) return;
+    downloadAllBtn.disabled = true;
+    downloadAllBtn.textContent = "Zipping…";
+    try {
+      const zip = new JSZip();
+      const used = new Set();
+      for (const it of done) {
+        let name = changeBaseNameToPng(it.name);
+        while (used.has(name.toLowerCase())) {
+          name = name.replace(/\.png$/i, "") + "_1.png";
+        }
+        used.add(name.toLowerCase());
+        zip.file(name, it.resultBlob);
+      }
+      const blob = await zip.generateAsync({ type: "blob" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `logos_1000x1000_${Date.now()}.zip`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    } catch (e) {
+      toast("ZIP failed: " + (e.message || e));
+    } finally {
+      downloadAllBtn.textContent = "Download all (ZIP)";
+      updateButtons();
+    }
+  }
+
+  // Excel converter events
+  chooseExcelBtn.addEventListener("click", () => excelInput.click());
+  teamRegionColor.addEventListener("input", () => {
+    teamRegionColorText.textContent = teamRegionColor.value.toUpperCase();
+  });
+  excelInput.addEventListener("change", () => {
+    setExcelFile(excelInput.files[0]);
+    excelInput.value = "";
+  });
+  ["dragenter", "dragover"].forEach((ev) =>
+    excelDropzone.addEventListener(ev, (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      excelDropzone.classList.add("dragover");
+    })
+  );
+  ["dragleave", "drop"].forEach((ev) =>
+    excelDropzone.addEventListener(ev, (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      excelDropzone.classList.remove("dragover");
+    })
+  );
+  excelDropzone.addEventListener("drop", (e) => {
+    const file = e.dataTransfer.files && e.dataTransfer.files[0];
+    if (!file) return;
+    if (!/\.(xlsx|xls)$/i.test(file.name)) {
+      toast("Please drop an Excel file (.xlsx or .xls)");
+      return;
+    }
+    setExcelFile(file);
+  });
+  convertExcelBtn.addEventListener("click", convertExcelFile);
+  downloadJsonBtn.addEventListener("click", downloadGeneratedJson);
+  clearExcelBtn.addEventListener("click", () => setExcelFile(null));
+
+  // Text converter events
+  textTeamRegionColor.addEventListener("input", () => {
+    textTeamRegionColorText.textContent = textTeamRegionColor.value.toUpperCase();
+  });
+  playerTextInput.addEventListener("input", () => {
+    resetGeneratedTextJson();
+    setTextStats(playerTextInput.value.trim() ? ["Ready to convert"] : ["No text converted"]);
+  });
+  convertTextBtn.addEventListener("click", convertPlayerText);
+  downloadTextJsonBtn.addEventListener("click", downloadGeneratedTextJson);
+  clearTextBtn.addEventListener("click", () => {
+    playerTextInput.value = "";
+    resetGeneratedTextJson();
+    setTextStats(["No text converted"]);
+  });
+
+  // Image resizer events
+  dropzone.addEventListener("click", () => fileInput.click());
+  fileInput.addEventListener("change", () => {
+    if (fileInput.files.length) addFiles(fileInput.files);
+    fileInput.value = "";
+  });
+  ["dragenter", "dragover"].forEach((ev) =>
+    dropzone.addEventListener(ev, (e) => { e.preventDefault(); dropzone.classList.add("dragover"); })
+  );
+  ["dragleave", "drop"].forEach((ev) =>
+    dropzone.addEventListener(ev, (e) => { e.preventDefault(); dropzone.classList.remove("dragover"); })
+  );
+  dropzone.addEventListener("drop", (e) => {
+    if (e.dataTransfer.files.length) addFiles(e.dataTransfer.files);
+  });
+  // Allow dropping anywhere on the page
+  window.addEventListener("dragover", (e) => e.preventDefault());
+  window.addEventListener("drop", (e) => {
+    e.preventDefault();
+    if (e.dataTransfer.files.length) addFiles(e.dataTransfer.files);
+  });
+
+  processBtn.addEventListener("click", processAll);
+  clearBtn.addEventListener("click", () => {
+    items.forEach((i) => { if (i.resultUrl) URL.revokeObjectURL(i.resultUrl); });
+    items = [];
+    render();
+    updateButtons();
+    setProgress(0, 0);
+  });
+  downloadAllBtn.addEventListener("click", downloadAll);
+
+  // Re-process when settings change if there are already-done items (keeps results consistent)
+  [sizeInput, modeSel, bgSel].forEach((el) =>
+    el.addEventListener("change", () => {
+      let changed = false;
+      for (const it of items) {
+        if (it.status === "done") { it.status = "pending"; changed = true; }
+      }
+      if (changed) { render(); updateButtons(); setProgress(0, 0); }
+    })
+  );
+
+  render();
+  updateButtons();
+})();
+</script>
+</body>
+</html>
