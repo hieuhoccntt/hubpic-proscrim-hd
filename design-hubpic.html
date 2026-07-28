@@ -1,0 +1,220 @@
+<!doctype html><html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>HUD PIC Studio v7 Group Colors</title><style>
+*{box-sizing:border-box}body{margin:0;background:#050713;color:#fff;font-family:Inter,Arial,sans-serif;overflow-x:hidden}body:before{content:"";position:fixed;inset:0;background:radial-gradient(circle at 15% 10%,#00d5ff28,transparent 34%),radial-gradient(circle at 85% 5%,#ff2bd628,transparent 34%),radial-gradient(circle at 50% 90%,#ffe25b18,transparent 36%),linear-gradient(135deg,#050713,#0c1024 55%,#080616);z-index:-2}.wrap{width:min(1380px,94vw);margin:auto;padding:24px 0 36px}.hero{border:1px solid #ffffff20;border-radius:28px;padding:22px;background:#0a0f22d8;box-shadow:0 0 60px #00d5ff1d;backdrop-filter:blur(12px)}h1{margin:0;font-size:38px;letter-spacing:.5px}.sub{color:#afbee8;margin:8px 0 18px}.layout{display:grid;grid-template-columns:320px 1fr;gap:16px}.box{background:#070b19cc;border:1px solid #ffffff18;border-radius:20px;padding:16px}.btn{width:100%;border:0;border-radius:16px;padding:15px 16px;margin:6px 0;font-weight:900;color:#fff;cursor:pointer;background:linear-gradient(135deg,#00d5ff,#325dff,#b62dff);box-shadow:0 0 20px #00c8ff45}.btn.alt{background:linear-gradient(135deg,#ffd000,#ff7a00,#ff2d55)}.btn.banner{background:linear-gradient(135deg,#19ffb7,#00a2ff,#7d4dff)}.bannerPreview{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:8px}.bannerPreview img{width:100%;height:54px;object-fit:cover;border-radius:10px;border:1px solid #ffffff22}.colorDots{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}.dot{width:30px;height:30px;border-radius:10px;border:1px solid #ffffff55;box-shadow:0 0 12px #0008}input[type=file]{width:100%;margin-top:7px;background:#101832;color:white;border:1px solid #ffffff22;border-radius:12px;padding:10px}label{display:block;color:#cfdbff;font-weight:800;margin-top:12px}select,input[type=range]{width:100%;margin-top:7px;background:#101832;color:white;border:1px solid #ffffff22;border-radius:12px;padding:11px}.stat{font-size:13px;color:#9fb1d9;line-height:1.55}.chips{display:grid;grid-template-columns:1fr 1fr;gap:6px;max-height:260px;overflow:auto;margin-top:8px}.chip{border:1px solid #ffffff22;background:#0d1730;color:#eaf2ff;border-radius:10px;padding:8px;font-size:11px;font-weight:800;cursor:pointer;text-align:left;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.chip:hover{border-color:#00eaff;box-shadow:0 0 12px #00eaff44}.badge{display:inline-block;padding:5px 9px;margin:4px 4px 0 0;border-radius:99px;background:#ffffff10;border:1px solid #ffffff1d;color:#d9e7ff;font-size:12px}.previewTop{display:grid;grid-template-columns:1fr 1fr;gap:14px}.big{height:220px;background:#020511;border:1px solid #ffffff17;border-radius:18px;display:flex;align-items:center;justify-content:center;overflow:hidden}.big canvas{max-width:96%;max-height:92%;border-radius:10px;box-shadow:0 0 28px #000}.theme{font-size:28px;font-weight:950;background:linear-gradient(90deg,#fff,#85eaff,#ffd46b);-webkit-background-clip:text;color:transparent;margin-bottom:8px}.grid{margin-top:16px;display:grid;grid-template-columns:repeat(auto-fill,minmax(205px,1fr));gap:12px}.card{background:#0a1023d4;border:1px solid #ffffff17;border-radius:16px;padding:10px}.name{font-weight:850;font-size:13px;color:#eef5ff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.thumb{height:104px;margin-top:8px;border-radius:12px;background:#020511;border:1px solid #ffffff14;display:flex;align-items:center;justify-content:center;overflow:hidden}.thumb canvas{max-width:100%;max-height:100%}.size{font-size:12px;color:#93a6cf;margin-top:7px}.progress{height:12px;border-radius:99px;background:#101832;overflow:hidden;margin:12px 0}.bar{height:100%;width:0;background:linear-gradient(90deg,#00eaff,#ff2dda,#ffd000);transition:.2s}@media(max-width:900px){.layout,.previewTop{grid-template-columns:1fr}h1{font-size:30px}}</style></head><body><div class="wrap"><div class="hero"><h1>HUD PIC Studio v7 Group Colors</h1><div class="sub">Giữ nguyên bản v7: Random vẫn chạy. TeamPlayer1–4 cùng màu, WinRate một màu riêng, NationBg + TeamRegionBg cùng một màu riêng.</div><div class="layout"><aside class="box"><button class="btn" id="randomBtn">🎲 RANDOM STYLE</button><button class="btn alt" id="exportBtn">📦 TẠO TẤT CẢ PNG + ZIP</button><label>Banner giải đấu</label><input id="bannerInput" type="file" accept="image/*" multiple><button class="btn banner" id="bannerBtn">📸 TẠO STYLE TỪ BANNER</button><div class="bannerPreview" id="bannerPreview"></div><div class="colorDots" id="colorDots"></div><p class="stat">Tải 1 hoặc nhiều banner giải lên, web sẽ tự lấy màu chính để tạo gradient/viền sạch, không lấy họa tiết nên không che chữ.</p><label>Style màu</label><select id="themeSelect"></select><label>Kiểu gradient</label><select id="modeSelect"></select><label>Kiểu viền</label><select id="borderSelect"></select><label>Độ sáng màu</label><input id="power" type="range" min="65" max="145" value="100"><div class="progress"><div class="bar" id="bar"></div></div><p class="stat">Xuất đúng tên file gốc trong thư mục <b>HUD_PIC/</b>. Bản v4 có nhiều preset màu/gradient/viền hơn. Random cả bộ cùng một style, nền sạch không họa tiết để chữ trong game rõ.</p><span class="badge">No texture</span><span class="badge">No pattern</span><span class="badge">Clean text</span><span class="badge">43 PNG</span><span class="badge">TeamPlayer cùng màu</span><span class="badge">WinRate riêng màu</span><span class="badge">Nation/Region cùng màu</span><label>Preset nhanh</label><div id="styleChips" class="chips"></div></aside><main><div class="previewTop"><div class="box"><div class="theme" id="themeName"></div><p class="stat" id="desc"></p><div class="big" id="big1"></div></div><div class="box"><div class="theme">Preview HUD</div><p class="stat">Xem trước file lớn và file nhỏ để test độ rõ chữ.</p><div class="big" id="big2"></div></div></div><div class="grid" id="grid"></div></main></div></div></div><script>
+const SPECS=[['AchievementFarthestBg.png',574,114],['AchievementFarthestIcon.png',140,140],['AchievementGrenadeKillLeaderBg.png',574,114],['AchievementGrenadeKillLeaderIcon.png',140,140],['AchievementHealMaxBg.png',574,114],['AchievementHealMaxIcon.png',140,140],['AchievementHighestDamageBg.png',574,114],['AchievementHighestDamageIcon.png',140,140],['AchievementKillLeaderBg.png',574,114],['AchievementKillLeaderIcon.png',140,140],['AchievementMoveFarthestBg.png',574,114],['AchievementMoveFarthestIcon.png',140,140],['AchievementResureBg.png',574,114],['AchievementResureIcon.png',140,140],['ArmorBackground.png',26,38],['GloowallBackground.png',54,38],['GrenadeBackground.png',54,38],['hp1.png',1105,207],['hp12.png',989,374],['hp13.png',989,374],['hp2.png',1105,207],['hp3.png',813,376],['hp4.png',813,376],['hp5.png',1037,372],['KillFeedsBackground.png',227,54],['LastTeamBackground.png',286,53],['MapTeamBG.png',292,122],['MedkitBackground.png',54,38],['NationBg.png',157,39],['ReviveFeedsBackground.png',227,54],['ScoreboardBackground.png',1105,207],['ScoreboardTab.png',169,22],['TeamPlayer1.png',37,30],['TeamPlayer2.png',37,30],['TeamPlayer3.png',37,30],['TeamPlayer4.png',37,30],['TeamPlayerBackground1.png',297,30],['TeamPlayerBackground2.png',297,30],['TeamPlayerBackground3.png',297,30],['TeamPlayerBackground4.png',297,30],['TeamRegionBg.png',174,39],['WeaponBackground.png',110,38],['WinRateBackground.png',149,33]];
+const THEMES=[['Cyber Blue','#061728','#00eaff','#245bff','#ffffff'],['Ocean Aqua','#042126','#00ffd5','#008cff','#e7ffff'],['Royal Purple','#13061f','#a54dff','#ff37d6','#fff1ff'],['Inferno Red','#260606','#ff2d2d','#ff9b00','#fff0c8'],['Gold Premium','#1d1304','#ffd36b','#ff7a00','#ffffff'],['Emerald','#031d12','#00ff88','#0aa34f','#ecfff2'],['Ice Crystal','#071622','#a8ffff','#6b8cff','#ffffff'],['Pink Sakura','#230817','#ff5ab7','#ff9dcc','#fff2fb'],['Titan Silver','#0a0d12','#dfe8ff','#6c7a96','#ffffff'],['Carbon Blue','#03060d','#1b62ff','#00d5ff','#eaf8ff'],['Sunset','#220910','#ff5f6d','#ffc371','#fff1d7'],['Lime Neon','#081c08','#a6ff00','#00ff88','#f5ffe6'],['Deep Space','#08051b','#7c4dff','#00c2ff','#ffffff'],['Rose Gold','#1a0b09','#ffb199','#ff0844','#fff1e9'],['White Pearl','#151719','#ffffff','#9fd7ff','#ffffff'],['Orange Fire','#201006','#ff8a00','#ff2d00','#fff0d0'],['Mint Glass','#062018','#9affd8','#00c896','#ffffff'],['Violet Gold','#100616','#bf5fff','#ffd36b','#fff5d6'],['Sky Blue','#061725','#5ee7ff','#1b6cff','#ffffff'],['Dark Red','#150205','#b90022','#ff5e00','#ffe0d0'],['Aqua Pink','#06151d','#00f0ff','#ff4fd8','#ffffff'],['Green Gold','#0b1604','#7dff3a','#ffd000','#ffffdc'],['Blue Silver','#050d1c','#4ba3ff','#dfe8ff','#ffffff'],['Purple Ice','#0c061d','#7d5cff','#b7ffff','#ffffff'],['Red Gold','#1c0505','#ff3131','#ffd36b','#fff0c0'],['Black Gold','#070605','#ffcc4d','#8b5a00','#fff2bd'],['Neon RGB','#050615','#00eaff','#ff2dda','#ffffff'],['Lavender','#11081d','#d69cff','#8d65ff','#fff8ff'],['Teal Night','#031616','#00d2b8','#0057ff','#e9fffb'],['Candy','#170914','#ff7ad9','#7afcff','#fff'],['Zeus Blue','#05091a','#0ab6ff','#001dff','#eaffff'],['Neon Green','#061604','#10ff00','#00a2ff','#ffffff'],['Purple Match','#12051f','#8f37ff','#29ff7a','#ffffff'],['Pro Scrim HD','#071122','#138bff','#792fff','#ffffff'],['Victory Gold','#151006','#ffcf43','#875cff','#fff7d8'],['Elite Cyan','#03151c','#00ffff','#0068ff','#ffffff'],['Ruby Dark','#170308','#e40039','#7e2bff','#ffe8ee'],['Booyah Lime','#071706','#65ff21','#00d5ff','#ffffff'],['Midnight Navy','#030814','#183bff','#00c8ff','#f0fbff'],['Aqua Violet','#061222','#00ffd8','#a14dff','#ffffff'],['Royal Blue','#020d22','#006dff','#00eaff','#ffffff'],['Plasma Pink','#1c0417','#ff2bd6','#7d4dff','#fff3ff'],['Lava Gold','#190604','#ff3d00','#ffc400','#fff4c8'],['Chrome Cyan','#0b1018','#d7f7ff','#00a6ff','#ffffff'],['Matte Purple','#0d0615','#6f42ff','#ad77ff','#faf0ff'],['Soft Peach','#1b0b08','#ff9a76','#ffd0a6','#ffffff'],['Arctic Blue','#07151e','#69f0ff','#a8c8ff','#ffffff'],['Toxic Lime','#071303','#c7ff00','#28ff6a','#f8ffe8'],['Royal Wine','#160313','#ba2cff','#ff477e','#fff0f7'],['Electric Sky','#05101e','#00aaff','#73ffef','#ffffff'],['Black Ice','#05070b','#86f7ff','#365eff','#ffffff'],['Bronze','#171007','#d98a2b','#ffd08a','#fff0d5'],['Minimal Gray','#0c0f15','#aab4c8','#465062','#ffffff'],['Future Tech','#051320','#00e0ff','#0066ff','#ffffff'],['Galaxy Purple','#08051c','#563bff','#ff4df0','#ffffff'],['Diamond Blue','#03121c','#76ffff','#008cff','#ffffff'],['Evo Purple','#11051d','#8d20ff','#24ffbb','#ffffff'],['Scrim Green','#031307','#00e35c','#14a8ff','#ffffff'],['FFPL Orange','#190b03','#ff7b00','#ffcf2e','#fff7d0'],['Night Sakura','#160516','#ff4ecb','#754dff','#fff4ff'],['Premium White','#101419','#f9fbff','#73cfff','#ffffff'],['Dark Carbon','#02040a','#2a66ff','#00d5ff','#ffffff'],['Blue Purple','#04091d','#0066ff','#b300ff','#ffffff'],['Green Purple','#051207','#00ff72','#7d4dff','#ffffff'],['Red Purple','#150409','#ff1744','#a64dff','#ffffff'],['Yellow Green','#101505','#ffe600','#16ff72','#ffffef'],['Cyan Gold','#041519','#00f0ff','#ffd04d','#ffffff'],['Pink Gold','#180916','#ff3ec8','#ffd36b','#fff2fb'],['Ice Gold','#07151d','#9af8ff','#ffd56b','#ffffff'],['Blood Neon','#120105','#ff003c','#ff7a00','#ffe5e5'],['Sea Glass','#041819','#2fffd2','#3a8dff','#ffffff'],['Violet Cyber','#0b041c','#5a2dff','#ff2df7','#ffffff'],['Green Cyber','#031009','#00ff99','#00a3ff','#ffffff'],['Orange Cyber','#180903','#ff8a00','#00d5ff','#fff2d9'],['Blue Lime','#04121a','#008cff','#95ff00','#ffffff'],['Purple Lime','#100619','#a020ff','#b6ff00','#fffaff'],['Cherry','#19060c','#ff2d7a','#ff8a8a','#fff0f5'],['Cobalt','#030d1e','#165dff','#00d5ff','#ffffff'],['Azure','#031524','#16c7ff','#005dff','#ffffff'],['Matrix Green','#021208','#00ff41','#007a2b','#eefff4'],['Solar','#190e02','#ffcc00','#ff5400','#fff5cc'],['Amethyst','#0e061a','#9966ff','#ff66f2','#ffffff'],['Moonlight','#080c16','#ccd7ff','#4e73ff','#ffffff'],['Neon Mint','#031713','#00ffc8','#3dff6b','#ffffff'],['Hot Magenta','#170214','#ff00cc','#ff5a00','#fff1fb'],['Royal Cyan','#06101f','#00e1ff','#375dff','#ffffff'],['Purple Flame','#110411','#d600ff','#ff5a00','#fff0ff'],['Cyber Gold','#0c0a04','#ffd000','#00c8ff','#fff8d0'],['Emerald Gold','#061406','#00d85f','#ffd34f','#f3ffe8'],['Steel Blue','#07101a','#789cff','#d8e6ff','#ffffff'],['Frost Purple','#0a061a','#b58cff','#cfffff','#ffffff'],['Storm Blue','#050b17','#1d6dff','#6bffef','#ffffff'],['Thunder Yellow','#151005','#ffe600','#ff8a00','#fffbd0'],['Mint Pink','#071513','#6fffd8','#ff75c8','#ffffff'],['Ocean Gold','#041420','#00aaff','#ffc857','#ffffff'],['Carbon Red','#080305','#ff214f','#393d4f','#ffe8ee'],['Carbon Green','#030806','#22ff79','#293b33','#effff5'],['Carbon Purple','#07040d','#a855ff','#303047','#ffffff'],['Glass Blue','#081320','#7bdfff','#3973ff','#ffffff'],['Glass Purple','#10091b','#d493ff','#754dff','#ffffff'],['Glass Green','#071812','#a4ffd8','#00b76b','#ffffff'],['Glass Red','#1a0808','#ff8b8b','#ff245a','#ffffff'],['Pearl Gold','#16120a','#fff0a8','#ffc04d','#ffffff'],['Pearl Pink','#160d15','#ffd1f1','#ff65c7','#ffffff'],['Pearl Blue','#0a111a','#c9f6ff','#5ab7ff','#ffffff'],['Pearl Green','#0a1510','#c7ffe6','#33d17a','#ffffff'],['Ultra Violet','#080319','#6d00ff','#00eaff','#ffffff'],['Hyper Blue','#020817','#0047ff','#00ffff','#ffffff'],['Hyper Red','#150205','#ff0033','#ffcc00','#ffffff'],['Hyper Green','#021004','#00ff55','#bfff00','#ffffff'],['Royal Gold 2','#0e0902','#f7b500','#fff0a2','#ffffff'],['Ocean Purple','#06101b','#00a6ff','#8e44ff','#ffffff'],['Sakura Blue','#130817','#ff68c8','#4ac7ff','#ffffff'],['Aqua Orange','#051517','#00ffd5','#ff8a00','#ffffff'],['Blue Fire','#050918','#00a8ff','#ff5a00','#ffffff'],['Green Fire','#061105','#00ff6a','#ff7a00','#ffffff'],['Pink Fire','#160615','#ff2bc8','#ffb000','#ffffff'],['Purple Gold Pro','#100519','#8f37ff','#ffd24d','#ffffff'],['Cyan Purple Pro','#06121d','#00d5ff','#be2dff','#ffffff'],['Lime Purple Pro','#091307','#9dff00','#a64dff','#ffffff'],['Orange Purple Pro','#160803','#ff7b00','#8f37ff','#ffffff'],['Silver Cyan Pro','#0c1016','#dce8ff','#00d5ff','#ffffff'],['Blue Clean Pro','#031022','#0c7dff','#65e7ff','#ffffff'],['Green Clean Pro','#031407','#00c853','#8affc1','#ffffff'],['Red Clean Pro','#180407','#f02445','#ff8a65','#ffffff'],['Purple Clean Pro','#0e0618','#8e44ff','#df9cff','#ffffff']];
+const MODES=['Linear ngang','Linear dọc','Linear chéo','Mirror center','Aurora mềm','Glass sáng','Metallic','Dark center','Light edge','Soft glow','Split 2 màu','HUD bar sáng','Neon left-right','Top highlight','Game overlay'];
+const BORDERS=['Không viền','Viền mỏng','Viền neon','Viền đôi','Viền kính','Viền vàng/bạc','Viền glow mạnh','Viền tối giản','Góc cắt gaming','Viền điện mép','Zeus style','Scoreboard xanh tím','Killfeed đỏ xanh','Glass thin pro'];
+let seed=Date.now(),theme=THEMES[0],mode=0,border=2,power=1;const $=id=>document.getElementById(id);function rnd(){seed=(seed*1664525+1013904223)>>>0;return seed/4294967296}function hex(h){h=h.replace('#','');return [parseInt(h.slice(0,2),16),parseInt(h.slice(2,4),16),parseInt(h.slice(4,6),16)]}function rgba(h,a){let r=hex(h);return `rgba(${r[0]},${r[1]},${r[2]},${a})`}function mix(a,b,t){a=hex(a);b=hex(b);let c=a.map((v,i)=>Math.round(v+(b[i]-v)*t));return '#'+c.map(v=>v.toString(16).padStart(2,'0')).join('')}function rr(ctx,x,y,w,h,r,fill,stroke){ctx.beginPath();ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.quadraticCurveTo(x+w,y,x+w,y+r);ctx.lineTo(x+w,y+h-r);ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);ctx.lineTo(x+r,y+h);ctx.quadraticCurveTo(x,y+h,x,y+h-r);ctx.lineTo(x,y+r);ctx.quadraticCurveTo(x,y,x+r,y); if(fill)ctx.fill(); if(stroke)ctx.stroke()}
+function gradient(ctx,w,h,t=theme){let [name,bg,c1,c2,hot]=t,g;if(mode===0)g=ctx.createLinearGradient(0,0,w,0);else if(mode===1)g=ctx.createLinearGradient(0,0,0,h);else if(mode===2)g=ctx.createLinearGradient(0,0,w,h);else if(mode===3)g=ctx.createRadialGradient(w/2,h/2,0,w/2,h/2,Math.max(w,h)*.7);else if(mode===4)g=ctx.createLinearGradient(0,h,w,0);else if(mode===5)g=ctx.createLinearGradient(0,0,w,h);else if(mode===6)g=ctx.createLinearGradient(0,0,w,0);else if(mode===7)g=ctx.createRadialGradient(w/2,h/2,0,w/2,h/2,Math.max(w,h)*.75);else if(mode===8)g=ctx.createRadialGradient(w/2,0,0,w/2,0,Math.max(w,h)*.85);else if(mode===10)g=ctx.createLinearGradient(0,0,w,0);else if(mode===11)g=ctx.createLinearGradient(0,0,w,0);else if(mode===12)g=ctx.createLinearGradient(0,0,w,0);else if(mode===13)g=ctx.createLinearGradient(0,0,0,h);else if(mode===14)g=ctx.createRadialGradient(w*.5,h*.5,0,w*.5,h*.5,Math.max(w,h)*.8);else g=ctx.createLinearGradient(0,h,w,0);
+if(mode===10){g.addColorStop(0,c1);g.addColorStop(.49,c1);g.addColorStop(.5,bg);g.addColorStop(1,c2)}else if(mode===11){g.addColorStop(0,bg);g.addColorStop(.12,c1);g.addColorStop(.55,mix(bg,c1,.22));g.addColorStop(1,bg)}else if(mode===12){g.addColorStop(0,c1);g.addColorStop(.18,bg);g.addColorStop(.82,bg);g.addColorStop(1,c2)}else if(mode===13){g.addColorStop(0,hot);g.addColorStop(.2,c1);g.addColorStop(.55,bg);g.addColorStop(1,mix(bg,c2,.35))}else if(mode===14){g.addColorStop(0,mix(bg,c1,.55));g.addColorStop(.5,bg);g.addColorStop(1,c2)}else if(mode===3){g.addColorStop(0,c1);g.addColorStop(.42,c2);g.addColorStop(1,bg)}else if(mode===5){g.addColorStop(0,rgba(hot,.95));g.addColorStop(.22,c1);g.addColorStop(.68,c2);g.addColorStop(1,bg)}else if(mode===6){g.addColorStop(0,bg);g.addColorStop(.24,mix(c1,hot,.45));g.addColorStop(.5,c1);g.addColorStop(.76,mix(c2,hot,.35));g.addColorStop(1,bg)}else if(mode===7){g.addColorStop(0,bg);g.addColorStop(.42,mix(bg,c1,.45));g.addColorStop(1,c2)}else if(mode===8){g.addColorStop(0,rgba(hot,.95));g.addColorStop(.28,c1);g.addColorStop(1,bg)}else{g.addColorStop(0,bg);g.addColorStop(.45,c1);g.addColorStop(1,c2)}return g}
+
+function poly(ctx,pts,fill){ctx.beginPath();ctx.moveTo(pts[0][0],pts[0][1]);for(let i=1;i<pts.length;i++)ctx.lineTo(pts[i][0],pts[i][1]);ctx.closePath();ctx.fillStyle=fill;ctx.fill()}
+function drawCleanEdge(x,w,h,c1,c2,hot,bg,border,r){
+  const thin=Math.max(1,Math.min(w,h)*.025), cut=Math.min(w*.12,h*.7,42);
+  x.save();
+  if(border===8||border===10){
+    x.globalAlpha=.9; x.shadowColor=c1; x.shadowBlur=Math.max(4,Math.min(18,w/35));
+    poly(x,[[0,0],[cut,0],[0,cut*.55]],rgba(c1,.72));
+    poly(x,[[w,0],[w-cut,0],[w,cut*.55]],rgba(c2,.72));
+    poly(x,[[0,h],[cut,h],[0,h-cut*.55]],rgba(c2,.55));
+    poly(x,[[w,h],[w-cut,h],[w,h-cut*.55]],rgba(c1,.55));
+    x.shadowBlur=0;
+  }
+  if(border===9||border===10){
+    x.lineCap='round'; x.lineWidth=Math.max(1.3,thin); x.strokeStyle=c1; x.shadowColor=c1; x.shadowBlur=Math.max(5,Math.min(16,w/40));
+    x.beginPath(); x.moveTo(w*.04,h*.12); x.lineTo(w*.26,h*.12); x.lineTo(w*.31,h*.22); x.lineTo(w*.52,h*.22); x.stroke();
+    x.strokeStyle=c2; x.shadowColor=c2; x.beginPath(); x.moveTo(w*.96,h*.88); x.lineTo(w*.72,h*.88); x.lineTo(w*.68,h*.78); x.lineTo(w*.48,h*.78); x.stroke();
+    x.shadowBlur=0;
+  }
+  if(border===11){
+    let gh=x.createLinearGradient(0,0,w,0); gh.addColorStop(0,rgba(c1,.7)); gh.addColorStop(.5,rgba(bg,.05)); gh.addColorStop(1,rgba(c2,.7));
+    x.fillStyle=gh; x.globalAlpha=.85; x.fillRect(0,0,w,Math.max(2,h*.18)); x.globalAlpha=1;
+    x.strokeStyle=rgba(hot,.7); x.lineWidth=Math.max(1,thin); x.strokeRect(0,0,w,h);
+  }
+  if(border===12){
+    x.fillStyle=rgba(c1,.45); x.fillRect(0,0,w*.34,h);
+    x.fillStyle=rgba(c2,.45); x.fillRect(w*.66,0,w*.34,h);
+    x.fillStyle=rgba(bg,.18); x.fillRect(w*.34,0,w*.32,h);
+  }
+  if(border===13){
+    x.globalAlpha=.55; x.strokeStyle=rgba(hot,.65); x.lineWidth=Math.max(1,thin*.7); rr(x,thin,thin,w-thin*2,h-thin*2,Math.max(2,r-2),false,true);
+    x.globalAlpha=.18; x.fillStyle=rgba(hot,.35); x.fillRect(0,0,w,h*.18); x.globalAlpha=1;
+  }
+  x.restore();
+}
+
+
+const TEAM_COLORS=[
+ ['Royal Blue','#06122e','#005cff','#00d5ff','#ffffff'],['Deep Navy','#020a22','#1238ff','#00a6ff','#ffffff'],['Indigo','#0a0630','#6b3dff','#00eaff','#ffffff'],['Electric Purple','#14042c','#9b35ff','#ff3de8','#ffffff'],['Violet Dark','#12051f','#7b2fff','#c779ff','#ffffff'],['Crimson','#26040b','#e00035','#ff6a00','#ffffff'],['Ruby Red','#21030a','#b9002b','#ff4060','#ffffff'],['Dark Orange','#241003','#ff7a00','#ff2d00','#ffffff'],['Burnt Amber','#201006','#d86b00','#ffb000','#ffffff'],['Emerald Dark','#031c12','#00a65a','#00ff9d','#ffffff'],['Forest Green','#061b0b','#088b38','#36ff73','#ffffff'],['Teal Dark','#031b1b','#009a8a','#00f5d4','#ffffff'],['Deep Cyan','#031624','#0086ff','#00f0ff','#ffffff'],['Sapphire','#03112c','#0051cc','#43b8ff','#ffffff'],['Wine','#230414','#a00052','#ff4db8','#ffffff'],['Magenta Dark','#210420','#c000ba','#ff4dea','#ffffff'],['Ocean Dark','#041827','#006bbb','#00dfc8','#ffffff'],['Graphite Blue','#070d18','#284dff','#00b7ff','#ffffff']
+];
+function hexToRgb(h){h=(h||'#000').replace('#','');if(h.length===3)h=h.split('').map(c=>c+c).join('');return [parseInt(h.slice(0,2),16)||0,parseInt(h.slice(2,4),16)||0,parseInt(h.slice(4,6),16)||0]}
+function hueOf(hex){let [r,g,b]=hexToRgb(hex).map(v=>v/255),mx=Math.max(r,g,b),mn=Math.min(r,g,b),d=mx-mn,h=0;if(d===0)h=0;else if(mx===r)h=60*(((g-b)/d)%6);else if(mx===g)h=60*((b-r)/d+2);else h=60*((r-g)/d+4);return (h+360)%360}
+function hueDiff(a,b){let d=Math.abs(a-b)%360;return d>180?360-d:d}
+function luminanceHex(h){let [r,g,b]=hexToRgb(h);return r*.299+g*.587+b*.114}
+let cachedTeamKey='', cachedTeamTheme=null, cachedWinKey='', cachedWinTheme=null, cachedNationKey='', cachedNationTheme=null;
+function farFromTheme(t, other, minMain=34, minAlt=22){
+  return hueDiff(hueOf(t[2]),hueOf(other[2]))>minMain && hueDiff(hueOf(t[2]),hueOf(other[3]))>minAlt;
+}
+function pickFromPalette(excludes, salt){
+  // Chỉ dùng các màu đậm/trung bình để chữ trắng nổi, đồng thời tránh trùng màu giữa các nhóm.
+  let candidates=TEAM_COLORS.filter(t=>
+    luminanceHex(t[1])<74 &&
+    luminanceHex(t[2])<170 &&
+    excludes.every(e=>farFromTheme(t,e,30,18))
+  );
+  if(candidates.length<1)candidates=TEAM_COLORS.filter(t=>luminanceHex(t[1])<85&&luminanceHex(t[2])<185);
+  let base=Math.floor((seed||1)/salt)+excludes.reduce((a,e)=>a+Math.floor(hueOf(e[2])*3+hueOf(e[3])),0);
+  return candidates[Math.abs(base)%candidates.length];
+}
+function pickTeamTheme(){
+  const key=[seed, theme[0], theme[2], theme[3]].join('|');
+  if(cachedTeamKey===key && cachedTeamTheme) return cachedTeamTheme;
+  cachedTeamKey=key;
+  cachedTeamTheme=pickFromPalette([theme],97);
+  return cachedTeamTheme;
+}
+function pickWinTheme(){
+  const teamT=pickTeamTheme();
+  const key=[seed, theme[0], teamT[0], theme[2], teamT[2]].join('|');
+  if(cachedWinKey===key && cachedWinTheme) return cachedWinTheme;
+  cachedWinKey=key;
+  cachedWinTheme=pickFromPalette([theme,teamT],131);
+  return cachedWinTheme;
+}
+function pickNationTheme(){
+  const teamT=pickTeamTheme(), winT=pickWinTheme();
+  const key=[seed, theme[0], teamT[0], winT[0], theme[2], teamT[2], winT[2]].join('|');
+  if(cachedNationKey===key && cachedNationTheme) return cachedNationTheme;
+  cachedNationKey=key;
+  cachedNationTheme=pickFromPalette([theme,teamT,winT],173);
+  return cachedNationTheme;
+}
+function themeForFile(file){
+  if(file==='WinRateBackground.png') return pickWinTheme();
+  if(file==='NationBg.png'||file==='TeamRegionBg.png') return pickNationTheme();
+  return theme;
+}
+function drawTeamPlayer(spec,i){
+  let [file,w,h]=spec,c=document.createElement('canvas'),x=c.getContext('2d');c.width=w;c.height=h;
+  // TeamPlayer1-4 luôn dùng cùng 1 màu/style, không random khác nhau.
+  const t=pickTeamTheme(), bg=t[1], c1=t[2], c2=t[3], hot=t[4];
+  const innerW=Math.max(1,Math.round(w*0.70));
+  let g=x.createLinearGradient(0,0,innerW,h);
+  g.addColorStop(0,bg);g.addColorStop(.45,c1);g.addColorStop(1,c2);
+  x.fillStyle=g; x.fillRect(0,0,innerW,h);
+  let shade=x.createLinearGradient(0,0,0,h);
+  shade.addColorStop(0,'rgba(255,255,255,.18)');shade.addColorStop(.45,'rgba(0,0,0,.06)');shade.addColorStop(1,'rgba(0,0,0,.38)');
+  x.fillStyle=shade; x.fillRect(0,0,innerW,h);
+  // Viền rõ, nền tối để chữ trắng nổi. Không vẽ họa tiết ở giữa.
+  x.save();
+  x.shadowColor=c1;x.shadowBlur=3;x.strokeStyle=c1;x.lineWidth=1;
+  x.strokeRect(.5,.5,innerW-1,h-1);
+  x.shadowBlur=0;x.strokeStyle='rgba(255,255,255,.45)';x.beginPath();x.moveTo(1,1.5);x.lineTo(innerW-2,1.5);x.stroke();
+  x.strokeStyle='rgba(0,0,0,.45)';x.beginPath();x.moveTo(1,h-1.5);x.lineTo(innerW-2,h-1.5);x.stroke();
+  // Mép kết thúc có glow nhẹ, chừa phần phải trong suốt cho tên player trong game.
+  const edge=x.createLinearGradient(innerW-4,0,innerW+1,0);
+  edge.addColorStop(0,'rgba(0,0,0,0)');edge.addColorStop(.45,rgba(c1,.9));edge.addColorStop(1,rgba(hot,.18));
+  x.fillStyle=edge;x.fillRect(Math.max(0,innerW-4),1,4,h-2);
+  x.restore();
+  return c;
+}
+
+function draw(spec,i){let [file,w,h]=spec;if(/^TeamPlayer[1-4]\.png$/.test(file))return drawTeamPlayer(spec,i);let c=document.createElement('canvas'),x=c.getContext('2d');c.width=w;c.height=h;let activeTheme=themeForFile(file);let [name,bg,c1,c2,hot]=activeTheme;x.fillStyle=gradient(x,w,h,activeTheme);x.fillRect(0,0,w,h);
+// phủ mượt, không họa tiết
+let v=x.createLinearGradient(0,0,0,h);v.addColorStop(0,'rgba(255,255,255,.08)');v.addColorStop(.48,'rgba(0,0,0,.06)');v.addColorStop(1,'rgba(0,0,0,.28)');x.fillStyle=v;x.fillRect(0,0,w,h);
+let glow=x.createRadialGradient(w*.18,h*.08,0,w*.18,h*.08,Math.max(w,h)*.8);glow.addColorStop(0,rgba(hot,.12*power));glow.addColorStop(.35,rgba(c1,.08*power));glow.addColorStop(1,'rgba(255,255,255,0)');x.fillStyle=glow;x.fillRect(0,0,w,h);
+// mép sáng tối giản, không nằm giữa chữ
+x.globalAlpha=.22*power;x.fillStyle=rgba(hot,.7);x.fillRect(0,0,w,Math.max(1,h*.08));x.fillStyle=rgba(bg,.9);x.fillRect(0,h-Math.max(1,h*.12),w,Math.max(1,h*.12));x.globalAlpha=1;
+let r=Math.min(16,Math.max(3,Math.min(w,h)*.22));if(border!==0){x.save();x.lineJoin='round';let lw=Math.max(1.2,Math.min(w,h)*(border===2||border===6?.07:.045));x.lineWidth=lw;x.strokeStyle=border===5?hot:c1;x.shadowColor=x.strokeStyle;x.shadowBlur=border===2?Math.max(4,Math.min(18,w/45)):border===6?Math.max(8,Math.min(26,w/28)):0;rr(x,lw/2,lw/2,w-lw,h-lw,r,false,true);x.shadowBlur=0;if(border===3||border===4||border===5){x.lineWidth=Math.max(1,Math.min(w,h)*.018);x.strokeStyle=border===5?c1:rgba(hot,.72);rr(x,Math.max(3,w*.015),Math.max(3,h*.04),w-Math.max(6,w*.03),h-Math.max(6,h*.08),Math.max(2,r-3),false,true)}if(border===7){x.lineWidth=Math.max(1,Math.min(w,h)*.025);x.strokeStyle=rgba(hot,.38);rr(x,1,1,w-2,h-2,r,false,true)}
+if(border>=8){drawCleanEdge(x,w,h,c1,c2,hot,bg,border,r)}x.restore()}
+// Riêng TeamPlayer1-4: giữ canvas gốc 37x30 nhưng phần thiết kế chỉ dài 70% chiều ngang
+// để phần tên player trong game không bị che.
+if(/^TeamPlayer[1-4]\.png$/.test(file)){
+  const innerW=Math.max(1,Math.round(w*0.70));
+  x.clearRect(innerW,0,w-innerW,h);
+  x.save();
+  x.globalAlpha=.95;
+  x.shadowColor=c1;
+  x.shadowBlur=3;
+  const edge=x.createLinearGradient(innerW-3,0,innerW+1,0);
+  edge.addColorStop(0,rgba(bg,0));
+  edge.addColorStop(.45,rgba(c1,.8));
+  edge.addColorStop(1,rgba(hot,.25));
+  x.fillStyle=edge;
+  x.fillRect(Math.max(0,innerW-3),Math.max(1,h*.12),3,Math.max(1,h*.76));
+  x.shadowBlur=0;
+  x.globalAlpha=.45;
+  x.strokeStyle=rgba(hot,.75);
+  x.lineWidth=1;
+  x.beginPath();
+  x.moveTo(innerW-.5,Math.max(2,h*.16));
+  x.lineTo(innerW-.5,Math.max(2,h*.84));
+  x.stroke();
+  x.restore();
+}
+return c}
+function render(){ $('themeName').textContent=theme[0];$('desc').textContent='Style: '+theme[0]+'  •  '+MODES[mode]+'  •  '+BORDERS[border];$('grid').innerHTML='';$('big1').innerHTML='';$('big2').innerHTML='';$('big1').appendChild(draw(SPECS[17],17));$('big2').appendChild(draw(SPECS[24],24));SPECS.forEach((s,i)=>{let card=document.createElement('div');card.className='card';let n=document.createElement('div');n.className='name';n.title=s[0];n.textContent=s[0];let th=document.createElement('div');th.className='thumb';th.appendChild(draw(s,i));let sz=document.createElement('div');sz.className='size';sz.textContent=s[1]+' × '+s[2]+' px';card.append(n,th,sz);$('grid').appendChild(card)})}
+THEMES.forEach((t,i)=>{let o=document.createElement('option');o.value=i;o.textContent=t[0];$('themeSelect').appendChild(o); if(i<60){let ch=document.createElement('button');ch.className='chip';ch.textContent=t[0];ch.style.background='linear-gradient(90deg,'+t[1]+','+t[2]+','+t[3]+')';ch.onclick=()=>{theme=THEMES[i];$('themeSelect').value=i;render()};$('styleChips').appendChild(ch)}});MODES.forEach((m,i)=>{let o=document.createElement('option');o.value=i;o.textContent=m;$('modeSelect').appendChild(o)});BORDERS.forEach((b,i)=>{let o=document.createElement('option');o.value=i;o.textContent=b;$('borderSelect').appendChild(o)});$('themeSelect').onchange=e=>{theme=THEMES[+e.target.value];render()};$('modeSelect').onchange=e=>{mode=+e.target.value;render()};$('borderSelect').onchange=e=>{border=+e.target.value;render()};$('power').oninput=e=>{power=e.target.value/100;render()};$('randomBtn').onclick=()=>{seed=Date.now()+Math.floor(Math.random()*999999);theme=THEMES[Math.floor(rnd()*THEMES.length)];mode=Math.floor(rnd()*MODES.length);border=Math.floor(rnd()*BORDERS.length);if(border===0&&rnd()<.7)border=2;power=.82+rnd()*.48;$('themeSelect').value=THEMES.indexOf(theme);$('modeSelect').value=mode;$('borderSelect').value=border;$('power').value=Math.round(power*100);render()};
+let crcTable=null;function crc32(buf){if(!crcTable){crcTable=[];for(let n=0;n<256;n++){let c=n;for(let k=0;k<8;k++)c=(c&1)?(0xedb88320^(c>>>1)):(c>>>1);crcTable[n]=c>>>0}}let u=new Uint8Array(buf),c=0xffffffff;for(let b of u)c=crcTable[(c^b)&255]^(c>>>8);return (c^0xffffffff)>>>0}function u16(n){return [n&255,n>>>8&255]}function u32(n){return [n&255,n>>>8&255,n>>>16&255,n>>>24&255]}function enc(s){return new TextEncoder().encode(s)}function makeZip(files){let chunks=[],central=[],off=0;for(let f of files){let name=enc(f.name),data=new Uint8Array(f.data),crc=crc32(data.buffer);let head=new Uint8Array([...u32(0x04034b50),...u16(20),...u16(0),...u16(0),...u16(0),...u16(0),...u32(crc),...u32(data.length),...u32(data.length),...u16(name.length),...u16(0),...name]);chunks.push(head,data);central.push({name,data,crc,off});off+=head.length+data.length}let start=off;for(let f of central){let h=new Uint8Array([...u32(0x02014b50),...u16(20),...u16(20),...u16(0),...u16(0),...u16(0),...u16(0),...u32(f.crc),...u32(f.data.length),...u32(f.data.length),...u16(f.name.length),...u16(0),...u16(0),...u16(0),...u16(0),...u32(0),...u32(f.off),...f.name]);chunks.push(h);off+=h.length}chunks.push(new Uint8Array([...u32(0x06054b50),...u16(0),...u16(0),...u16(central.length),...u16(central.length),...u32(off-start),...u32(start),...u16(0)]));return new Blob(chunks,{type:'application/zip'})}function pngBlob(c){return new Promise(r=>c.toBlob(r,'image/png'))}
+
+let bannerFiles=[];
+function rgbToHex(r,g,b){return '#'+[r,g,b].map(v=>Math.max(0,Math.min(255,Math.round(v))).toString(16).padStart(2,'0')).join('')}
+function colorDist(a,b){let dr=a[0]-b[0],dg=a[1]-b[1],db=a[2]-b[2];return Math.sqrt(dr*dr+dg*dg+db*db)}
+function brightness(c){return c[0]*0.299+c[1]*0.587+c[2]*0.114}
+function sat(c){let mx=Math.max(...c),mn=Math.min(...c);return mx-mn}
+function loadImageFile(file){return new Promise((res,rej)=>{let img=new Image();img.onload=()=>res(img);img.onerror=rej;img.src=URL.createObjectURL(file)})}
+async function extractBannerColors(files){
+  let buckets=new Map();
+  for(const file of files){
+    const img=await loadImageFile(file);
+    const c=document.createElement('canvas'),x=c.getContext('2d',{willReadFrequently:true});
+    c.width=120;c.height=Math.max(20,Math.round(img.height/img.width*120));
+    x.drawImage(img,0,0,c.width,c.height);
+    const d=x.getImageData(0,0,c.width,c.height).data;
+    for(let i=0;i<d.length;i+=16){
+      let r=d[i],g=d[i+1],b=d[i+2],a=d[i+3]; if(a<180)continue;
+      if(brightness([r,g,b])<28 || brightness([r,g,b])>242) continue;
+      let key=[Math.round(r/24)*24,Math.round(g/24)*24,Math.round(b/24)*24].join(',');
+      let val=buckets.get(key)||{rgb:[0,0,0],n:0,score:0};
+      val.rgb[0]+=r;val.rgb[1]+=g;val.rgb[2]+=b;val.n++;val.score+=sat([r,g,b])+Math.abs(brightness([r,g,b])-128)*.12;
+      buckets.set(key,val);
+    }
+  }
+  let arr=[...buckets.values()].map(v=>({rgb:v.rgb.map(x=>x/v.n),score:v.score/v.n*Math.log(v.n+1)})).sort((a,b)=>b.score-a.score);
+  let chosen=[];
+  for(const item of arr){
+    if(chosen.length>=5)break;
+    if(chosen.every(c=>colorDist(c,item.rgb)>58)) chosen.push(item.rgb);
+  }
+  if(chosen.length<2) chosen=[[0,210,255],[120,70,255],[255,255,255]];
+  chosen.sort((a,b)=>brightness(a)-brightness(b));
+  return chosen;
+}
+$('bannerInput').onchange=e=>{
+  bannerFiles=[...e.target.files];
+  $('bannerPreview').innerHTML='';
+  bannerFiles.slice(0,6).forEach(f=>{let img=document.createElement('img');img.src=URL.createObjectURL(f);$('bannerPreview').appendChild(img)});
+};
+$('bannerBtn').onclick=async()=>{
+  if(!bannerFiles.length){alert('Bạn chọn ít nhất 1 banner trước nha.');return}
+  $('bannerBtn').textContent='Đang lấy màu...';
+  try{
+    const colors=await extractBannerColors(bannerFiles);
+    const hex=colors.map(c=>rgbToHex(c[0],c[1],c[2]));
+    $('colorDots').innerHTML=''; hex.forEach(h=>{let d=document.createElement('span');d.className='dot';d.style.background=h;d.title=h;$('colorDots').appendChild(d)});
+    const bg=mix(hex[0]||'#061020','#000000',.45);
+    const c1=hex[hex.length-1]||'#00eaff';
+    const c2=hex[Math.max(1,Math.floor(hex.length/2))]||'#7d4dff';
+    const hot=hex.find(h=>brightness([parseInt(h.slice(1,3),16),parseInt(h.slice(3,5),16),parseInt(h.slice(5,7),16)])>150)||'#ffffff';
+    theme=['Banner Auto Style',bg,c1,c2,hot];
+    mode=[4,5,6,8,11,13,14][Math.floor(Math.random()*7)];
+    border=[2,3,4,5,6,8,9,10,13][Math.floor(Math.random()*9)];
+    power=1.08;
+    $('themeSelect').value=0; $('modeSelect').value=mode; $('borderSelect').value=border; $('power').value=108;
+    render();
+  }catch(err){alert('Không đọc được banner này, thử ảnh PNG/JPG khác nha.');console.error(err)}
+  $('bannerBtn').textContent='📸 TẠO STYLE TỪ BANNER';
+};
+
+$('exportBtn').onclick=async()=>{let files=[];$('bar').style.width='2%';for(let i=0;i<SPECS.length;i++){let b=await pngBlob(draw(SPECS[i],i));files.push({name:'HUD_PIC/'+SPECS[i][0],data:await b.arrayBuffer()});$('bar').style.width=Math.round((i+1)/SPECS.length*92)+'%'}let z=makeZip(files);$('bar').style.width='100%';let a=document.createElement('a');a.href=URL.createObjectURL(z);a.download='HUD_PIC_STUDIO_V7_GROUP_COLORS_FIXED.zip';a.click();setTimeout(()=>$('bar').style.width='0%',1200)};render();
+</script></body></html>
