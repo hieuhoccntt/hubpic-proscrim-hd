@@ -25,7 +25,8 @@ border:3px solid transparent;
 background:linear-gradient(rgba(15,15,15,.85),rgba(15,15,15,.85)) padding-box,linear-gradient(90deg,red,orange,yellow,green,cyan,blue,violet,red) border-box;
 background-origin:border-box;
 background-clip:padding-box,border-box;
-animation:rainbow 6s linear infinite;
+background-size:auto,400% 100%;
+animation:containerBorderRainbow 6s linear infinite;
 border-radius:20px;
 padding:25px;
 box-shadow:0 0 30px rgba(255,179,0,.35);
@@ -88,6 +89,7 @@ button:hover{transform:scale(1.05)}
 .game-art-left{left:-70px;transform:translateY(-50%) rotate(-9deg);}.game-art-right{right:-70px;transform:translateY(-50%) rotate(9deg);animation-delay:-2.5s;}.game-art-right::before{background:linear-gradient(145deg,#ffd36e 0%,#c65732 36%,#2a1720 68%,#54cfff 100%);}.game-art-right::after{transform:translate(-50%,-50%) rotate(12deg);}
 @keyframes gameFloat{0%,100%{margin-top:-10px;filter:drop-shadow(0 18px 28px rgba(0,0,0,.55));}50%{margin-top:14px;filter:drop-shadow(0 25px 38px rgba(65,175,255,.42));}}
 @keyframes rainbow{from{filter:hue-rotate(0deg)}to{filter:hue-rotate(360deg)}}
+@keyframes containerBorderRainbow{from{background-position:0 0,0% 50%}to{background-position:0 0,400% 50%}}
 @keyframes snowFall{from{transform:translate3d(0,-20px,0) rotate(0deg)}to{transform:translate3d(90px,110vh,0) rotate(360deg)}}
 @media(max-width:800px){.login-game-art{opacity:.35;width:38vw;}.game-art-left{left:-100px;}.game-art-right{right:-100px;}}
 
