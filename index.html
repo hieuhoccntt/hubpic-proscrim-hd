@@ -379,7 +379,7 @@ font-size:16px;
 .logo-export-actions .zip-btn{background:linear-gradient(135deg,#2169d3,#6baaff);}
 .logo-export-actions .remove-bg-btn{background:linear-gradient(135deg,#8d31c7,#de6cfc);}
 .logo-export-actions .design-zip-btn{background:linear-gradient(135deg,#c8501b,#ffb143);color:#241000;}
-.design-color-controls{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin:0 0 12px;padding:11px 13px;border:1px solid rgba(0,230,160,.46);border-radius:14px;background:linear-gradient(135deg,rgba(0,90,55,.28),rgba(20,24,52,.7));color:#effff8;font-weight:900;}.design-color-controls label{margin:0;font-size:13px;}.design-color-controls input[type=color]{width:43px;height:34px;padding:2px;border:2px solid rgba(255,255,255,.45);border-radius:10px;background:#0b1020;cursor:pointer;}.design-color-controls .color-arrow{color:#7bffd0;font-size:18px;}.design-color-controls small{width:100%;color:#bdebd7;font-size:11px;font-weight:700;}
+.design-color-controls{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin:0 0 12px;padding:11px 13px;border:1px solid rgba(0,230,160,.46);border-radius:14px;background:linear-gradient(135deg,rgba(0,90,55,.28),rgba(20,24,52,.7));color:#effff8;font-weight:900;}.design-color-controls label{margin:0;font-size:13px;}.design-color-controls input[type=color]{width:43px;height:34px;padding:2px;border:2px solid rgba(255,255,255,.45);border-radius:10px;background:#0b1020;cursor:pointer;}.design-color-controls .color-arrow{color:#7bffd0;font-size:18px;}.design-color-controls .color-mode-btn{border:0;border-radius:10px;padding:8px 11px;color:#07141d;font-weight:950;cursor:pointer;box-shadow:0 4px 13px rgba(0,0,0,.28);transition:.2s transform,.2s filter;}.design-color-controls .color-mode-btn:hover{transform:translateY(-2px);filter:brightness(1.1);}.design-color-controls .solid-color-btn{background:linear-gradient(135deg,#d9fff0,#46f4b0);}.design-color-controls .random-color-btn{background:linear-gradient(135deg,#ffc750,#ff5a9e);}.design-color-controls small{width:100%;color:#bdebd7;font-size:11px;font-weight:700;}
 @media(max-width:560px){.avatar-card-grid{grid-template-columns:1fr;}}
 
 .color-label{
@@ -1258,7 +1258,7 @@ window.addEventListener('DOMContentLoaded',()=>{
 <p>Chọn nhiều logo rồi gán theo mã. (Demo)</p>
 <input type='file' id='logoFiles' multiple accept='image/*'><br><br>
 <div id='logoMap'></div>
-<div class="design-color-controls"><label for="designColorStart">🎨 Màu bìa ngoài</label><input type="color" id="designColorStart" value="#00FF66" title="Màu bìa ngoài thứ nhất"><span class="color-arrow">→</span><input type="color" id="designColorEnd" value="#00B83F" title="Màu bìa ngoài thứ hai"><small>Chọn 2 màu để pha gradient. Muốn một màu thì chọn hai ô giống nhau.</small></div>
+<div class="design-color-controls"><label for="designColorStart">🎨 Màu bìa ngoài</label><input type="color" id="designColorStart" value="#00FF66" title="Màu bìa ngoài thứ nhất"><span class="color-arrow">→</span><input type="color" id="designColorEnd" value="#00B83F" title="Màu bìa ngoài thứ hai"><button type="button" class="color-mode-btn solid-color-btn" onclick="useOneDesignColor()">● Một màu</button><button type="button" class="color-mode-btn random-color-btn" onclick="randomizeDesignColors()">🎲 Random pha màu</button><small>Chọn màu ở ô đầu, bấm Một màu để dùng màu đơn. Bấm Random pha màu để tự tạo hai màu khác nhau.</small></div>
 <div class="logo-export-actions"><button class="zip-btn" onclick='exportZip()'>📦 Xuất Logo ZIP</button><button class="remove-bg-btn" onclick='exportZipRemoveBg()'>✨ Xuất Logo PNG</button><button class="design-zip-btn" onclick='exportZipDesign()'>🎨 Xuất ZIP thiết kế</button></div>
 <div id='logoExportStatus' style='margin-top:8px;color:#00ff99;font-weight:800;'></div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
@@ -1601,6 +1601,31 @@ function getLogoDesignColors(){
  const start=document.getElementById('designColorStart')?.value||'#00FF66';
  const end=document.getElementById('designColorEnd')?.value||'#00B83F';
  return {start,end};
+}
+
+function useOneDesignColor(){
+ const start=document.getElementById('designColorStart');
+ const end=document.getElementById('designColorEnd');
+ if(start&&end) end.value=start.value;
+}
+
+function randomizeDesignColors(){
+ const start=document.getElementById('designColorStart');
+ const end=document.getElementById('designColorEnd');
+ if(!start||!end) return;
+ const hue1=Math.floor(Math.random()*360);
+ const hue2=(hue1+95+Math.floor(Math.random()*170))%360;
+ const toHex=h=>{
+   const saturation=(76+Math.floor(Math.random()*20))/100;
+   const lightness=(43+Math.floor(Math.random()*20))/100;
+   const chroma=(1-Math.abs(2*lightness-1))*saturation;
+   const part=h/60, x=chroma*(1-Math.abs(part%2-1));
+   const rgb=part<1?[chroma,x,0]:part<2?[x,chroma,0]:part<3?[0,chroma,x]:part<4?[0,x,chroma]:part<5?[x,0,chroma]:[chroma,0,x];
+   const m=lightness-chroma/2;
+   return '#'+rgb.map(v=>Math.round((v+m)*255).toString(16).padStart(2,'0')).join('');
+ };
+ start.value=toHex(hue1);
+ end.value=toHex(hue2);
 }
 
 function drawGreenOutsideBlackCircleBase(ctx){
