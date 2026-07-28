@@ -476,6 +476,106 @@
   html, body { height: auto; min-height: 0; overflow: visible; }
   body { display: block; }
   main { flex: none; overflow: visible; }
+
+  /* HUBPIC neon visual system */
+  :root {
+    --bg: #07070f;
+    --panel: rgba(15, 12, 28, .96);
+    --panel-2: #111024;
+    --border: rgba(255, 184, 0, .55);
+    --text: #fbf8ff;
+    --muted: #b9b2ca;
+    --accent: #ff9d00;
+    --accent-hover: #ffcd38;
+    --ok: #00e69a;
+    --danger: #ff5e88;
+  }
+  body {
+    color: var(--text);
+    background:
+      radial-gradient(circle at 6% 12%, rgba(0, 255, 167, .14), transparent 28%),
+      radial-gradient(circle at 94% 20%, rgba(255, 0, 164, .16), transparent 31%),
+      radial-gradient(circle at 48% 100%, rgba(99, 76, 255, .18), transparent 42%),
+      #07070f;
+  }
+  header {
+    position: relative;
+    overflow: hidden;
+    padding: 24px 28px;
+    border-bottom: 1px solid rgba(255, 196, 0, .7);
+    background: linear-gradient(105deg, rgba(12, 10, 27, .98), rgba(25, 13, 31, .94), rgba(7, 29, 31, .96));
+    box-shadow: 0 8px 24px rgba(0, 0, 0, .34);
+  }
+  header:after {
+    content: "";
+    position: absolute;
+    left: 0; right: 0; bottom: 0;
+    height: 2px;
+    background: linear-gradient(90deg, #ff4b8b, #ffbd00, #00e6a0, #5b7cff, #ff4b8b);
+    background-size: 300% 100%;
+    animation: hubpicFlow 5s linear infinite;
+  }
+  header h1 {
+    font-size: 24px;
+    font-weight: 900;
+    letter-spacing: 1px;
+    color: #fff;
+    text-shadow: 0 0 14px rgba(255, 183, 0, .55);
+  }
+  header h1 span { color: #00e6a0; }
+  header .sub { color: #ffe092; font-weight: 700; letter-spacing: .2px; }
+  main { padding: 24px; gap: 20px; }
+  .tool-panel {
+    position: relative;
+    overflow: hidden;
+    padding: 20px;
+    border: 1px solid rgba(255, 181, 0, .65);
+    border-radius: 18px;
+    background: linear-gradient(135deg, rgba(24, 13, 32, .97), rgba(8, 20, 28, .95));
+    box-shadow: 0 12px 28px rgba(0, 0, 0, .35), 0 0 20px rgba(255, 129, 0, .08);
+  }
+  .tool-panel:before {
+    content: "";
+    position: absolute;
+    left: 0; top: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #ff4b8b, #ffbd00, #00e6a0, #657cff);
+  }
+  .tool-title { border-left: 4px solid #00e6a0; padding-left: 12px; }
+  .tool-title h2 { font-size: 19px; font-weight: 900; letter-spacing: .4px; color: #fff4c3; }
+  .tool-title p, .file-name, .small, .stats, .excel-options label, .controls label { color: #c7bce0; }
+  select, button, input[type="text"], textarea {
+    border-color: rgba(255, 197, 25, .46);
+    border-radius: 10px;
+    background: rgba(7, 7, 16, .88);
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .025);
+  }
+  select:focus, input:focus, textarea:focus { border-color: #00e6a0; box-shadow: 0 0 0 3px rgba(0, 230, 160, .13); }
+  button { font-weight: 800; transition: transform .16s ease, box-shadow .16s ease, border-color .16s ease; }
+  button:hover:not(:disabled) { transform: translateY(-2px); border-color: #00e6a0; box-shadow: 0 6px 16px rgba(0, 230, 160, .15); }
+  button.primary {
+    color: #170b00;
+    border-color: #ffbd00;
+    background: linear-gradient(135deg, #ff6a55, #ffae00 52%, #ffe060);
+    box-shadow: 0 6px 18px rgba(255, 139, 0, .3);
+  }
+  button.primary:hover { background: linear-gradient(135deg, #ff8e6f, #ffc52d 52%, #fff0a0); }
+  .file-picker, .dropzone {
+    border-color: rgba(0, 230, 160, .55);
+    background: linear-gradient(135deg, rgba(0, 230, 160, .06), rgba(128, 65, 255, .08));
+  }
+  .file-picker:hover, .dropzone:hover { border-color: #ffbd00; box-shadow: 0 0 20px rgba(255, 189, 0, .12); }
+  .stat { background: rgba(89, 50, 142, .25); border-color: rgba(255, 92, 166, .4); color: #ffe0f0; }
+  .card { border-color: rgba(111, 115, 255, .48); background: rgba(12, 10, 25, .94); }
+  .card .info, .card .row { border-color: rgba(255, 255, 255, .08); }
+  .card .bar > div { background: linear-gradient(90deg, #ff4b8b, #ffbd00, #00e6a0); }
+  .toast { border-color: #00e6a0; background: #101025; box-shadow: 0 0 24px rgba(0, 230, 160, .22); }
+  @keyframes hubpicFlow { to { background-position: 300% 0; } }
+  @media (max-width: 820px) {
+    header, main { padding-left: 15px; padding-right: 15px; }
+    header h1 { font-size: 20px; }
+    .tool-panel { padding: 15px; border-radius: 14px; }
+  }
 </style>
 </head>
 <body>
