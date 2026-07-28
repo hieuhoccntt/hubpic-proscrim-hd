@@ -1182,28 +1182,35 @@ async function downloadScrimTimeslotJson(){
   const teamsUrl='https://server-ecru-phi-88.vercel.app/api/teams/timeslot/'+encodeURIComponent(slotValue);
   const payload=await fetchScrimJson(teamsUrl);
   const rows=extractTeamRows(payload);
-  const exportData={
-   source:'Pro Scrim HD',
-   exportedAt:new Date().toISOString(),
-   timeSlot:String(slotValue),
-   timeSlotLabel:getSlotLabel(slot,Number(select.value)),
-   totalTeams:rows.length,
-   teams:rows.map((row,index)=>({
-    stt:index+1,
-    name:row.name,
-    players:Array.isArray(row.team?.players) ? row.team.players : [],
-    logo:getScrimLogoUrl(row.team)||null
-   }))
-  };
+  // Dùng đúng format file "code tên" của Pro Scrim HD, không xuất dữ liệu logo/team phụ.
+  // Code tên được lưu riêng theo từng team nên đọc các player-overrides của khung giờ đã chọn.
+  const overrideResults=await Promise.all(rows.map(async row=>{
+   if(!row.team?.id) return [];
+   try{
+    const overridePayload=await fetchScrimJson('https://server-ecru-phi-88.vercel.app/api/teams/'+encodeURIComponent(row.team.id)+'/player-overrides');
+    return Array.isArray(overridePayload?.data) ? overridePayload.data : [];
+   }catch(error){ return []; }
+  }));
+  const playerNameList=overrideResults.flat().map(item=>({
+   PlayerID:parseInt(item.player_id,10),
+   PlayerNameOverwrite:item.rename_override,
+   PlayerNation:item.team_full||'CUSTOM SCRIM HD',
+   Color:'#FFFFFF'
+  })).filter(item=>Number.isFinite(item.PlayerID)&&item.PlayerNameOverwrite);
+  const teamRegionList=[];
+  for(let teamId=1;teamId<=15;teamId++){
+   teamRegionList.push({TeamID:teamId,TeamRegion:'PRO SCRIM HD',Color:'#FFFFFF'});
+  }
+  const exportData={PlayerNameList:playerNameList,TeamRegionList:teamRegionList};
   const blob=new Blob([JSON.stringify(exportData,null,2)],{type:'application/json;charset=utf-8'});
   const link=document.createElement('a');
   link.href=URL.createObjectURL(blob);
-  link.download='ProScrimHD-'+String(slotValue).replace(/[^a-z0-9_-]+/gi,'-')+'.json';
+  link.download='PlayerNameOverwrite.json';
   document.body.appendChild(link);
   link.click();
   link.remove();
   URL.revokeObjectURL(link.href);
-  status.textContent='Đã tải file JSON gồm '+rows.length+' team của '+getSlotLabel(slot,Number(select.value))+'.';
+  status.textContent='Đã tải file code tên gồm '+playerNameList.length+' người chơi của '+getSlotLabel(slot,Number(select.value))+'.';
  }catch(error){
   status.textContent='Không tải được JSON: '+error.message;
  }
@@ -1240,7 +1247,7 @@ window.addEventListener('DOMContentLoaded',()=>{
   <strong>⚡ Lấy team tự động từ Pro Scrim HD</strong><br><br>
   <select id="scrimTimeslot" style="max-width:360px;padding:10px;border-radius:8px;font-weight:700;"><option>Đang tải khung giờ...</option></select>
   <button type="button" class="scrim-reset-btn" onclick="resetScrimImport()">↻ Đặt lại</button>
-  <button type="button" class="scrim-json-btn" onclick="downloadScrimTimeslotJson()">⬇ Tải JSON khung giờ</button>
+  <button type="button" class="scrim-json-btn" onclick="downloadScrimTimeslotJson()">⬇ Tải code tên JSON</button>
   <div id="scrimImportStatus" style="margin-top:8px;color:#ffd166;font-weight:700;"></div>
 </div>
 <textarea id="teamInput" placeholder="Mỗi dòng là một team..."></textarea><br>
