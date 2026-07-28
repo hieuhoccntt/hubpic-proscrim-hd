@@ -1787,8 +1787,9 @@ async function buildDesignedLogoZip(){
   c.height=1000;
   const ctx=c.getContext('2d');
 
-  // Bản thiết kế FIX: bên ngoài vòng tròn là xanh lá, bên trong vòng tròn là nền đen.
-  const logoCanvas=makeLogoCanvasForBlackCircle(img);
+  // Bên ngoài vòng tròn là xanh lá; phần trong giữ nguyên ảnh logo gốc.
+  // Nhờ vậy logo đen trên nền trắng vẫn rõ, không bị chìm vào nền đen.
+  const logoCanvas=makeLogoCanvasForBlackCircle(img,false);
   drawGreenOutsideBlackCircleBase(ctx);
 
   const cx=500, cy=500, r=475;
