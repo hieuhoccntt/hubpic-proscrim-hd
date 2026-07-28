@@ -374,6 +374,7 @@ font-size:16px;
 .team-control-actions button:hover,.logo-export-actions button:hover,.scrim-reset-btn:hover,.scrim-json-btn:hover{transform:translateY(-2px) scale(1.01);filter:brightness(1.1);box-shadow:0 11px 20px rgba(0,0,0,.36);}
 .scrim-reset-btn{background:linear-gradient(135deg,#b2431d,#f48135);}
 .scrim-json-btn{background:linear-gradient(135deg,#1768d6,#00b9df 55%,#56f0c6);}
+.scrim-import-panel{margin:0 0 12px;padding:16px;border:1px solid rgba(255,179,0,.82);border-radius:16px;background:radial-gradient(circle at 85% 10%,rgba(55,255,175,.12),transparent 36%),linear-gradient(135deg,#19100d,#081b18);box-shadow:0 12px 28px rgba(0,0,0,.24);}.scrim-import-title{display:flex;align-items:center;gap:9px;font-weight:950;font-size:16px;color:#fff4d2;letter-spacing:.15px;}.scrim-import-title i{display:grid;place-items:center;width:28px;height:28px;border-radius:9px;background:linear-gradient(135deg,#ffd34e,#ff7b35);font-style:normal;box-shadow:0 0 14px rgba(255,179,0,.38);}.scrim-select-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:13px;}.scrim-timeslot{appearance:none;min-width:255px;max-width:360px;padding:12px 43px 12px 14px;border:1px solid rgba(255,205,77,.86);border-radius:12px;background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%238c4900' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") no-repeat right 14px center;color:#221204;font-weight:950;box-shadow:0 5px 14px rgba(0,0,0,.2);outline:none;cursor:pointer;}.scrim-timeslot:focus{border-color:#43ffc7;box-shadow:0 0 0 3px rgba(67,255,199,.22),0 5px 14px rgba(0,0,0,.2);}.scrim-timeslot option{font-weight:800;color:#1b140d;background:#fff;}
 .team-update-btn{background:linear-gradient(135deg,#0b8d8d,#38d6c7);}
 .team-clear-btn{background:linear-gradient(135deg,#b51f45,#f35f78);}
 .logo-export-actions .zip-btn{background:linear-gradient(135deg,#2169d3,#6baaff);}
@@ -984,6 +985,22 @@ function getSlotLabel(slot,index){
  if(!slot || typeof slot!=='object') return 'Khung giờ '+(index+1);
  return slot.value||slot.name||slot.title||slot.label||slot.time||slot.start_time||slot.startTime||('Khung giờ '+(index+1));
 }
+function getSlotOrder(label){
+ const text=String(label||'');
+ const match=text.match(/(\d{1,2})\s*(?:h|H|giờ)?\s*(\d{2})?/i);
+ if(!match) return {time:99999,tail:text};
+ const hour=Number(match[1]), minute=Number(match[2]||0);
+ const tail=text.slice((match.index||0)+match[0].length).replace(/^[\s:._-]+/,'').trim();
+ return {time:hour*60+minute,tail};
+}
+function sortScrimTimeslots(slots){
+ return [...slots].sort((a,b)=>{
+   const labelA=getSlotLabel(a,0), labelB=getSlotLabel(b,0);
+   const orderA=getSlotOrder(labelA), orderB=getSlotOrder(labelB);
+   if(orderA.time!==orderB.time) return orderA.time-orderB.time;
+   return orderA.tail.localeCompare(orderB.tail,'vi',{numeric:true,sensitivity:'base'})||labelA.localeCompare(labelB,'vi',{numeric:true,sensitivity:'base'});
+ });
+}
 async function fetchScrimJson(url){
  const sources=[url,'https://api.allorigins.win/raw?url='+encodeURIComponent(url)];
  let lastError;
@@ -1115,7 +1132,7 @@ async function loadScrimTimeslots(){
  const status=document.getElementById('scrimImportStatus');
  status.textContent='Đang tải các khung giờ...';
  try{
-   scrimTimeSlots=getApiList(await fetchScrimJson(SCRIM_TIMESLOTS_API));
+   scrimTimeSlots=sortScrimTimeslots(getApiList(await fetchScrimJson(SCRIM_TIMESLOTS_API)));
    if(!scrimTimeSlots.length) throw new Error('API chưa trả về khung giờ nào.');
    window.__scrimTimeSlots=scrimTimeSlots;
    select.innerHTML='<option value="">-- Chọn khung giờ --</option>';
@@ -1244,11 +1261,13 @@ window.addEventListener('DOMContentLoaded',()=>{
 <h2 class="hubpic-animated">CODE HUBPIC LOGO</h2>
 <hr>
 <h3>Danh sách Team (tối đa 24 dòng)</h3>
-<div style="margin:0 0 12px;padding:12px;border:1px solid #ffb300;border-radius:10px;background:#15100a;">
-  <strong>⚡ Lấy team tự động từ Pro Scrim HD</strong><br><br>
-  <select id="scrimTimeslot" style="max-width:360px;padding:10px;border-radius:8px;font-weight:700;"><option>Đang tải khung giờ...</option></select>
+<div class="scrim-import-panel">
+  <div class="scrim-import-title"><i>⚡</i> Lấy team tự động từ Pro Scrim HD</div>
+  <div class="scrim-select-row">
+  <select id="scrimTimeslot" class="scrim-timeslot"><option>Đang tải khung giờ...</option></select>
   <button type="button" class="scrim-reset-btn" onclick="resetScrimImport()">↻ Đặt lại</button>
   <button type="button" class="scrim-json-btn" onclick="downloadScrimTimeslotJson()">⬇ Tải code tên JSON</button>
+  </div>
   <div id="scrimImportStatus" style="margin-top:8px;color:#ffd166;font-weight:700;"></div>
 </div>
 <textarea id="teamInput" placeholder="Mỗi dòng là một team..."></textarea><br>
