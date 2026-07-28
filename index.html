@@ -370,9 +370,10 @@ font-size:16px;
 .avatar-preview-actions .random-download{background:linear-gradient(135deg,#9b36d8,#ef54a9);}
 .avatar-preview-actions .copy-random-preview-btn{background:linear-gradient(135deg,#dd6b12,#ffd147);color:#211100;}
 .team-control-actions,.logo-export-actions{display:flex;flex-wrap:wrap;gap:10px;margin:12px 0;}
-.team-control-actions button,.logo-export-actions button,.scrim-reset-btn{margin:0;min-height:43px;padding:10px 16px;border:1px solid rgba(255,255,255,.22);border-radius:13px;color:#fff;font-size:14px;font-weight:900;letter-spacing:.15px;box-shadow:0 7px 16px rgba(0,0,0,.27);transition:transform .18s ease,filter .18s ease,box-shadow .18s ease;}
-.team-control-actions button:hover,.logo-export-actions button:hover,.scrim-reset-btn:hover{transform:translateY(-2px) scale(1.01);filter:brightness(1.1);box-shadow:0 11px 20px rgba(0,0,0,.36);}
+.team-control-actions button,.logo-export-actions button,.scrim-reset-btn,.scrim-json-btn{margin:0;min-height:43px;padding:10px 16px;border:1px solid rgba(255,255,255,.22);border-radius:13px;color:#fff;font-size:14px;font-weight:900;letter-spacing:.15px;box-shadow:0 7px 16px rgba(0,0,0,.27);transition:transform .18s ease,filter .18s ease,box-shadow .18s ease;}
+.team-control-actions button:hover,.logo-export-actions button:hover,.scrim-reset-btn:hover,.scrim-json-btn:hover{transform:translateY(-2px) scale(1.01);filter:brightness(1.1);box-shadow:0 11px 20px rgba(0,0,0,.36);}
 .scrim-reset-btn{background:linear-gradient(135deg,#b2431d,#f48135);}
+.scrim-json-btn{background:linear-gradient(135deg,#1768d6,#00b9df 55%,#56f0c6);}
 .team-update-btn{background:linear-gradient(135deg,#0b8d8d,#38d6c7);}
 .team-clear-btn{background:linear-gradient(135deg,#b51f45,#f35f78);}
 .logo-export-actions .zip-btn{background:linear-gradient(135deg,#2169d3,#6baaff);}
@@ -1163,6 +1164,50 @@ async function importTeamsFromScrim(){
    status.textContent='Chưa lấy được team: '+error.message;
  }
 }
+async function downloadScrimTimeslotJson(){
+ const select=document.getElementById('scrimTimeslot');
+ const status=document.getElementById('scrimImportStatus');
+ if(select.value==='' || !scrimTimeSlots.length){
+  status.textContent='Hãy chọn khung giờ trước khi tải JSON.';
+  return;
+ }
+ const slot=scrimTimeSlots[Number(select.value)];
+ const slotValue=slot && (slot.value||slot.time||slot.name||slot.label);
+ if(!slotValue){
+  status.textContent='Khung giờ không hợp lệ. Hãy chọn lại.';
+  return;
+ }
+ status.textContent='Đang tạo file JSON cho '+getSlotLabel(slot,Number(select.value))+'...';
+ try{
+  const teamsUrl='https://server-ecru-phi-88.vercel.app/api/teams/timeslot/'+encodeURIComponent(slotValue);
+  const payload=await fetchScrimJson(teamsUrl);
+  const rows=extractTeamRows(payload);
+  const exportData={
+   source:'Pro Scrim HD',
+   exportedAt:new Date().toISOString(),
+   timeSlot:String(slotValue),
+   timeSlotLabel:getSlotLabel(slot,Number(select.value)),
+   totalTeams:rows.length,
+   teams:rows.map((row,index)=>({
+    stt:index+1,
+    name:row.name,
+    players:Array.isArray(row.team?.players) ? row.team.players : [],
+    logo:getScrimLogoUrl(row.team)||null
+   }))
+  };
+  const blob=new Blob([JSON.stringify(exportData,null,2)],{type:'application/json;charset=utf-8'});
+  const link=document.createElement('a');
+  link.href=URL.createObjectURL(blob);
+  link.download='ProScrimHD-'+String(slotValue).replace(/[^a-z0-9_-]+/gi,'-')+'.json';
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  URL.revokeObjectURL(link.href);
+  status.textContent='Đã tải file JSON gồm '+rows.length+' team của '+getSlotLabel(slot,Number(select.value))+'.';
+ }catch(error){
+  status.textContent='Không tải được JSON: '+error.message;
+ }
+}
 function resetScrimImport(keepSelectedSlot=false){
  const select=document.getElementById('scrimTimeslot');
  const status=document.getElementById('scrimImportStatus');
@@ -1195,6 +1240,7 @@ window.addEventListener('DOMContentLoaded',()=>{
   <strong>⚡ Lấy team tự động từ Pro Scrim HD</strong><br><br>
   <select id="scrimTimeslot" style="max-width:360px;padding:10px;border-radius:8px;font-weight:700;"><option>Đang tải khung giờ...</option></select>
   <button type="button" class="scrim-reset-btn" onclick="resetScrimImport()">↻ Đặt lại</button>
+  <button type="button" class="scrim-json-btn" onclick="downloadScrimTimeslotJson()">⬇ Tải JSON khung giờ</button>
   <div id="scrimImportStatus" style="margin-top:8px;color:#ffd166;font-weight:700;"></div>
 </div>
 <textarea id="teamInput" placeholder="Mỗi dòng là một team..."></textarea><br>
