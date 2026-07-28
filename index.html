@@ -1277,7 +1277,7 @@ window.addEventListener('DOMContentLoaded',()=>{
 <p>Chọn nhiều logo rồi gán theo mã. (Demo)</p>
 <input type='file' id='logoFiles' multiple accept='image/*'><br><br>
 <div id='logoMap'></div>
-<div class="design-color-controls"><label for="designColorStart">🎨 Màu bìa ngoài</label><input type="color" id="designColorStart" value="#00FF66" title="Màu bìa ngoài thứ nhất"><span class="color-arrow">→</span><input type="color" id="designColorEnd" value="#00B83F" title="Màu bìa ngoài thứ hai"><button type="button" class="color-mode-btn base-color-btn" onclick="resetDesignGreen()">↺ Màu gốc xanh</button><button type="button" class="color-mode-btn solid-color-btn" onclick="useOneDesignColor()">● Một màu</button><button type="button" class="color-mode-btn random-color-btn" onclick="randomizeDesignColors()">🎲 Random pha màu</button><small>Màu gốc là xanh lá. Bấm Màu gốc xanh để quay lại, hoặc chọn màu riêng / random pha màu.</small></div>
+<div class="design-color-controls"><label for="designColorStart">🎨 Màu bìa ngoài</label><input type="color" id="designColorStart" value="#00FF66" title="Màu bìa ngoài thứ nhất"><span class="color-arrow">→</span><input type="color" id="designColorEnd" value="#00B83F" title="Màu bìa ngoài thứ hai"><button type="button" class="color-mode-btn base-color-btn" onclick="resetDesignGreen()">↺ Màu gốc xanh</button><button type="button" class="color-mode-btn solid-color-btn" onclick="randomizeOneDesignColor()">🎲 Random 1 màu</button><button type="button" class="color-mode-btn random-color-btn" onclick="randomizeDesignColors()">🎲 Random pha màu</button><small>Màu gốc là xanh lá. Random 1 màu sẽ dùng cùng một màu cho cả bìa; Random pha màu sẽ tạo hai màu.</small></div>
 <div class="logo-export-actions"><button class="zip-btn" onclick='exportZip()'>📦 Xuất Logo ZIP</button><button class="remove-bg-btn" onclick='exportZipRemoveBg()'>✨ Xuất Logo PNG</button><button class="design-zip-btn" onclick='exportZipDesign()'>🎨 Xuất ZIP thiết kế</button></div>
 <div id='logoExportStatus' style='margin-top:8px;color:#00ff99;font-weight:800;'></div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
@@ -1626,6 +1626,22 @@ function useOneDesignColor(){
  const start=document.getElementById('designColorStart');
  const end=document.getElementById('designColorEnd');
  if(start&&end) end.value=start.value;
+}
+
+function randomizeOneDesignColor(){
+ const start=document.getElementById('designColorStart');
+ const end=document.getElementById('designColorEnd');
+ if(!start||!end) return;
+ const hue=Math.floor(Math.random()*360);
+ const saturation=76+Math.floor(Math.random()*20);
+ const lightness=43+Math.floor(Math.random()*20);
+ const chroma=(1-Math.abs(2*lightness/100-1))*saturation/100;
+ const part=hue/60, x=chroma*(1-Math.abs(part%2-1));
+ const rgb=part<1?[chroma,x,0]:part<2?[x,chroma,0]:part<3?[0,chroma,x]:part<4?[0,x,chroma]:part<5?[x,0,chroma]:[chroma,0,x];
+ const m=lightness/100-chroma/2;
+ const color='#'+rgb.map(v=>Math.round((v+m)*255).toString(16).padStart(2,'0')).join('');
+ start.value=color;
+ end.value=color;
 }
 
 function resetDesignGreen(){
