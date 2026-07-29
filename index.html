@@ -371,6 +371,7 @@ font-size:16px;
 }
 .avatar-preview-actions .random-download{background:linear-gradient(135deg,#9b36d8,#ef54a9);}
 .avatar-preview-actions .copy-random-preview-btn{background:linear-gradient(135deg,#dd6b12,#ffd147);color:#211100;}
+.avatar-preview-actions .white-palette-download{background:linear-gradient(135deg,#1687c5,#47e1be);color:#041d20;}
 .team-control-actions,.logo-export-actions{display:flex;flex-wrap:wrap;gap:10px;margin:12px 0;}
 .team-control-actions button,.logo-export-actions button,.scrim-reset-btn,.scrim-json-btn{margin:0;min-height:43px;padding:10px 16px;border:1px solid rgba(255,255,255,.22);border-radius:13px;color:#fff;font-size:14px;font-weight:900;letter-spacing:.15px;box-shadow:0 7px 16px rgba(0,0,0,.27);transition:transform .18s ease,filter .18s ease,box-shadow .18s ease;}
 .team-control-actions button:hover,.logo-export-actions button:hover,.scrim-reset-btn:hover,.scrim-json-btn:hover{transform:translateY(-2px) scale(1.01);filter:brightness(1.1);box-shadow:0 11px 20px rgba(0,0,0,.36);}
@@ -883,7 +884,7 @@ function renderAvatarPreview(){
    preview.innerHTML='';
    return;
  }
- preview.innerHTML='<div class="avatar-preview-title">Đối chiếu Team &amp; Avatar</div><div class="avatar-preview-actions"><button type="button" class="table-download" onclick="downloadAvatarPreviewImage()">📥 Tải ảnh bảng</button><button type="button" class="copy-preview-btn" onclick="copyAvatarPreviewImage()">📋 Copy ảnh</button><button type="button" class="random-download" onclick="downloadAvatarPreviewImage(true)">🎨 Tải ảnh random màu</button><button type="button" class="copy-random-preview-btn" onclick="copyAvatarPreviewImage(true)">🌈 Copy ảnh random màu</button></div><div class="avatar-preview-table-wrap"><table class="avatar-preview-table"><thead><tr><th>STT</th><th>Tên Team</th><th>Avatar</th><th>Chủ Team Mang Avatar</th></tr></thead><tbody></tbody></table></div>';
+ preview.innerHTML='<div class="avatar-preview-title">Đối chiếu Team &amp; Avatar</div><div class="avatar-preview-actions"><button type="button" class="table-download" onclick="downloadAvatarPreviewImage()">📥 Tải ảnh bảng</button><button type="button" class="copy-preview-btn" onclick="copyAvatarPreviewImage()">📋 Copy ảnh</button><button type="button" class="random-download" onclick="downloadAvatarPreviewImage(true)">🎨 Tải ảnh random màu</button><button type="button" class="white-palette-download" onclick="downloadAvatarPreviewImage(\'white15\')">🌈 Tải random 15 màu khác nhau</button><button type="button" class="copy-random-preview-btn" onclick="copyAvatarPreviewImage(true)">🌈 Copy ảnh random màu</button></div><div class="avatar-preview-table-wrap"><table class="avatar-preview-table"><thead><tr><th>STT</th><th>Tên Team</th><th>Avatar</th><th>Chủ Team Mang Avatar</th></tr></thead><tbody></tbody></table></div>';
  const tableBody=preview.querySelector('tbody');
  teamNames.slice(0,codes.length).forEach((teamName,index)=>{
    const row=document.createElement('tr');
@@ -912,7 +913,7 @@ function renderAvatarPreview(){
  });
 }
 
-async function captureAvatarPreviewImage(randomColors=false){
+async function captureAvatarPreviewImage(colorMode=false){
  const table=document.querySelector('#avatarPreview .avatar-preview-table-wrap');
  if(!table) throw new Error('Chưa có bảng để xuất ảnh.');
  if(typeof html2canvas!=='function') throw new Error('Không tải được công cụ tạo ảnh. Hãy kiểm tra kết nối mạng rồi thử lại.');
@@ -922,7 +923,23 @@ async function captureAvatarPreviewImage(randomColors=false){
    ['#11998e','#38ef7d'],['#f7971e','#ffd200'],['#ee0979','#ff6a00'],
    ['#396afc','#2948ff'],['#f12711','#f5af19']
  ];
- if(randomColors){
+ if(colorMode==='white15'){
+   const whiteMixColors=['#009ee8','#00a878','#f2a900','#f15b35','#d73f8c','#7b61ff','#e63946','#3b82f6','#0f9d58','#ff7a00','#9c27b0','#009688','#c62828','#5d8aa8','#8db600'].sort(()=>Math.random()-.5);
+   exportTable.querySelectorAll('th').forEach(header=>{
+     header.style.background='linear-gradient(135deg,#073b4c,#0f6b78)';
+     header.style.color='#ffffff';
+   });
+   exportTable.querySelectorAll('tbody tr').forEach((row,index)=>{
+     const color=whiteMixColors[index%whiteMixColors.length];
+     row.querySelectorAll('td').forEach(cell=>{
+       cell.style.background='linear-gradient(90deg,'+color+' 0%,#ffffff 92%)';
+       cell.style.color='#07131c';
+       cell.style.textShadow='none';
+       cell.style.borderColor='rgba(6,36,49,.24)';
+     });
+     row.querySelectorAll('img').forEach(img=>{img.style.borderColor=color;});
+   });
+ }else if(colorMode){
    const headerColors=colorPairs.sort(()=>Math.random()-.5);
    exportTable.querySelectorAll('th').forEach((header,index)=>{
      const headerColor=headerColors[index%headerColors.length];
@@ -945,11 +962,11 @@ async function captureAvatarPreviewImage(randomColors=false){
  }
 }
 
-async function downloadAvatarPreviewImage(randomColors=false){
+async function downloadAvatarPreviewImage(colorMode=false){
  try{
-   const canvas=await captureAvatarPreviewImage(randomColors);
+   const canvas=await captureAvatarPreviewImage(colorMode);
    const link=document.createElement('a');
-   link.download='doi-chieu-team-avatar.jpg';
+   link.download=colorMode==='white15'?'doi-chieu-15-mau-trang.jpg':'doi-chieu-team-avatar.jpg';
    link.href=canvas.toDataURL('image/jpeg',.95);
    link.click();
  }catch(error){ alert(error.message); }
