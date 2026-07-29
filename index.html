@@ -372,6 +372,7 @@ font-size:16px;
 .avatar-preview-actions .random-download{background:linear-gradient(135deg,#9b36d8,#ef54a9);}
 .avatar-preview-actions .copy-random-preview-btn{background:linear-gradient(135deg,#dd6b12,#ffd147);color:#211100;}
 .avatar-preview-actions .white-palette-download{background:linear-gradient(135deg,#1687c5,#47e1be);color:#041d20;}
+.avatar-preview-actions .white-palette-copy{background:linear-gradient(135deg,#6856e8,#b298ff);color:#f8f6ff;}
 .team-control-actions,.logo-export-actions{display:flex;flex-wrap:wrap;gap:10px;margin:12px 0;}
 .team-control-actions button,.logo-export-actions button,.scrim-reset-btn,.scrim-json-btn{margin:0;min-height:43px;padding:10px 16px;border:1px solid rgba(255,255,255,.22);border-radius:13px;color:#fff;font-size:14px;font-weight:900;letter-spacing:.15px;box-shadow:0 7px 16px rgba(0,0,0,.27);transition:transform .18s ease,filter .18s ease,box-shadow .18s ease;}
 .team-control-actions button:hover,.logo-export-actions button:hover,.scrim-reset-btn:hover,.scrim-json-btn:hover{transform:translateY(-2px) scale(1.01);filter:brightness(1.1);box-shadow:0 11px 20px rgba(0,0,0,.36);}
@@ -885,7 +886,7 @@ function renderAvatarPreview(){
    preview.innerHTML='';
    return;
  }
- preview.innerHTML='<div class="avatar-preview-title">Đối chiếu Team &amp; Avatar</div><div class="avatar-preview-actions"><button type="button" class="table-download" onclick="downloadAvatarPreviewImage()">📥 Tải ảnh bảng</button><button type="button" class="copy-preview-btn" onclick="copyAvatarPreviewImage()">📋 Copy ảnh</button><button type="button" class="random-download" onclick="downloadAvatarPreviewImage(true)">🎨 Tải ảnh random màu</button><button type="button" class="white-palette-download" onclick="downloadAvatarPreviewImage(\'white15\')">🌈 Tải random 15 màu khác nhau</button><button type="button" class="copy-random-preview-btn" onclick="copyAvatarPreviewImage(true)">🌈 Copy ảnh random màu</button></div><div class="avatar-preview-table-wrap"><table class="avatar-preview-table"><thead><tr><th>STT</th><th>Tên Team</th><th>Avatar</th><th>Chủ Team Mang Avatar</th></tr></thead><tbody></tbody></table></div>';
+ preview.innerHTML='<div class="avatar-preview-title">Đối chiếu Team &amp; Avatar</div><div class="avatar-preview-actions"><button type="button" class="table-download" onclick="downloadAvatarPreviewImage()">📥 Tải ảnh bảng</button><button type="button" class="copy-preview-btn" onclick="copyAvatarPreviewImage()">📋 Copy ảnh</button><button type="button" class="random-download" onclick="downloadAvatarPreviewImage(true)">🎨 Tải ảnh random màu</button><button type="button" class="white-palette-download" onclick="downloadAvatarPreviewImage(\'white15\')">🌈 Tải random 15 màu khác nhau</button><button type="button" class="copy-random-preview-btn" onclick="copyAvatarPreviewImage(true)">🌈 Copy ảnh random màu</button><button type="button" class="white-palette-copy" onclick="copyAvatarPreviewImage(\'white15\')">📋 Copy random 15 màu khác nhau</button></div><div class="avatar-preview-table-wrap"><table class="avatar-preview-table"><thead><tr><th>STT</th><th>Tên Team</th><th>Avatar</th><th>Chủ Team Mang Avatar</th></tr></thead><tbody></tbody></table></div>';
  const tableBody=preview.querySelector('tbody');
  teamNames.slice(0,codes.length).forEach((teamName,index)=>{
    const row=document.createElement('tr');
@@ -973,13 +974,13 @@ async function downloadAvatarPreviewImage(colorMode=false){
  }catch(error){ alert(error.message); }
 }
 
-async function copyAvatarPreviewImage(randomColors=false){
+async function copyAvatarPreviewImage(colorMode=false){
  try{
-   const canvas=await captureAvatarPreviewImage(randomColors);
+   const canvas=await captureAvatarPreviewImage(colorMode);
    const blob=await new Promise(resolve=>canvas.toBlob(resolve,'image/png'));
    if(!blob || !navigator.clipboard || !window.ClipboardItem) throw new Error('Trình duyệt chưa cho phép copy ảnh. Hãy dùng nút Tải ảnh bảng.');
    await navigator.clipboard.write([new ClipboardItem({'image/png':blob})]);
-   const button=document.querySelector(randomColors ? '.copy-random-preview-btn' : '.copy-preview-btn');
+   const button=document.querySelector(colorMode==='white15'?'.white-palette-copy':(colorMode?'.copy-random-preview-btn':'.copy-preview-btn'));
    const previous=button.textContent;
    button.textContent='✓ Đã copy ảnh';
    setTimeout(()=>button.textContent=previous,1800);
