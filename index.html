@@ -373,10 +373,9 @@ font-size:16px;
 .avatar-preview-actions .copy-random-preview-btn{background:linear-gradient(135deg,#dd6b12,#ffd147);color:#211100;}
 .avatar-preview-actions .white-palette-download{background:linear-gradient(135deg,#1687c5,#47e1be);color:#041d20;}
 .avatar-preview-actions .white-palette-copy{background:linear-gradient(135deg,#6856e8,#b298ff);color:#f8f6ff;}
-.avatar-template-toggle{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin:8px 0 12px;padding:9px 11px;border:1px solid rgba(0,223,255,.42);border-radius:14px;background:rgba(4,20,32,.78);color:#d9f8ff;font-size:13px;font-weight:900;}
-.avatar-template-toggle button{margin:0;padding:7px 11px;border:1px solid rgba(255,255,255,.24);border-radius:10px;background:#162d42;color:#dceeff;font-size:12px;font-weight:900;cursor:pointer;transition:.18s ease;}
-.avatar-template-toggle button:hover{transform:translateY(-1px);filter:brightness(1.15);}
-.avatar-template-toggle button.is-active{border-color:#fff;background:linear-gradient(135deg,#13dcb5,#288dff);color:#04131c;box-shadow:0 0 13px rgba(36,200,255,.42);}
+.avatar-actions-break{flex-basis:100%;height:0;}
+.avatar-preview-actions .classic-template-download{background:linear-gradient(135deg,#e9edf1,#aeb8c5);color:#17212b;border-color:#fff;}
+.avatar-preview-actions .classic-template-copy{background:linear-gradient(135deg,#f8f9fb,#c9d1da);color:#17212b;border-color:#fff;}
 .avatar-preview-table.avatar-template-classic{min-width:720px;background:#fff;border:1px solid #17202a;border-radius:0;color:#111;}
 .avatar-preview-table.avatar-template-classic th{height:72px;padding:15px 16px;border-bottom:1px solid #7b8188;background:#f0f2f4;color:#101419;font-size:20px;text-align:center;letter-spacing:.4px;}
 .avatar-preview-table.avatar-template-classic th:first-child{width:80px;}
@@ -895,22 +894,13 @@ function downloadJson(){
 let teamNames=[];
 const avatarOwners=['Andrew','Kelly','Olivia','Ford','Nikita','Misha','Maxim','Kla','Paloma','Miguel','Caroline','Antonio','Ngộ Không','Moco','Hayato','Laura','Rafel','A124','Joseph','Shani','Alok','Notora','Alvaro','Jota'];
 const avatarCardColors=['#f3c277','#ff8dcc','#e78589','#67c7ff','#a8dcff','#a9ea73','#ffe06c','#ff9c31','#ff6b72','#ef72ad','#c59aff','#659fff','#ff4c4c','#75f0ca','#ffd25c','#b9e1ff','#d4b3ff','#77d9f4','#ffd28b','#ff9ab8','#c6a66d','#e8b9ff','#ffc278','#a9dbff'];
-let avatarTableTemplate=localStorage.getItem('hubpicAvatarTableTemplate')||'neon';
-
-function setAvatarTableTemplate(template){
- avatarTableTemplate=template==='classic'?'classic':'neon';
- localStorage.setItem('hubpicAvatarTableTemplate',avatarTableTemplate);
- renderAvatarPreview();
-}
-
 function renderAvatarPreview(){
  const preview=document.getElementById('avatarPreview');
  if(!teamNames.length){
    preview.innerHTML='';
    return;
  }
- const isClassic=avatarTableTemplate==='classic';
- preview.innerHTML='<div class="avatar-preview-title">Đối chiếu Team &amp; Avatar</div><div class="avatar-template-toggle"><span>🎨 Mẫu bảng:</span><button type="button" class="'+(!isClassic?'is-active':'')+'" onclick="setAvatarTableTemplate(\'neon\')">⚡ Mẫu Neon</button><button type="button" class="'+(isClassic?'is-active':'')+'" onclick="setAvatarTableTemplate(\'classic\')">📄 Mẫu trắng chuyên nghiệp</button></div><div class="avatar-preview-actions"><button type="button" class="table-download" onclick="downloadAvatarPreviewImage()">📥 Tải ảnh bảng</button><button type="button" class="copy-preview-btn" onclick="copyAvatarPreviewImage()">📋 Copy ảnh</button><button type="button" class="random-download" onclick="downloadAvatarPreviewImage(true)">🎨 Tải ảnh random màu</button><button type="button" class="copy-random-preview-btn" onclick="copyAvatarPreviewImage(true)">🌈 Copy ảnh random màu</button><button type="button" class="white-palette-download" onclick="downloadAvatarPreviewImage(\'white15\')">🌈 Tải random 15 màu khác nhau</button><button type="button" class="white-palette-copy" onclick="copyAvatarPreviewImage(\'white15\')">📋 Copy random 15 màu khác nhau</button></div><div class="avatar-preview-table-wrap"><table class="avatar-preview-table '+(isClassic?'avatar-template-classic':'')+'"><thead><tr><th>'+(isClassic?'NO.':'STT')+'</th><th>Tên Team</th><th>Avatar</th><th>'+(isClassic?'Tên Nhân Vật':'Chủ Team Mang Avatar')+'</th></tr></thead><tbody></tbody></table></div>';
+ preview.innerHTML='<div class="avatar-preview-title">Đối chiếu Team &amp; Avatar</div><div class="avatar-preview-actions"><button type="button" class="table-download" onclick="downloadAvatarPreviewImage()">📥 Tải ảnh bảng</button><button type="button" class="copy-preview-btn" onclick="copyAvatarPreviewImage()">📋 Copy ảnh</button><button type="button" class="random-download" onclick="downloadAvatarPreviewImage(true)">🎨 Tải ảnh random màu</button><button type="button" class="copy-random-preview-btn" onclick="copyAvatarPreviewImage(true)">🌈 Copy ảnh random màu</button><button type="button" class="white-palette-download" onclick="downloadAvatarPreviewImage(\'white15\')">🌈 Tải random 15 màu khác nhau</button><button type="button" class="white-palette-copy" onclick="copyAvatarPreviewImage(\'white15\')">📋 Copy random 15 màu khác nhau</button><span class="avatar-actions-break"></span><button type="button" class="classic-template-download" onclick="downloadAvatarPreviewImage(\'classic\')">📄 Tải mẫu trắng</button><button type="button" class="classic-template-copy" onclick="copyAvatarPreviewImage(\'classic\')">📋 Copy mẫu trắng</button></div><div class="avatar-preview-table-wrap"><table class="avatar-preview-table"><thead><tr><th>STT</th><th>Tên Team</th><th>Avatar</th><th>Chủ Team Mang Avatar</th></tr></thead><tbody></tbody></table></div>';
  const tableBody=preview.querySelector('tbody');
  teamNames.slice(0,codes.length).forEach((teamName,index)=>{
    const row=document.createElement('tr');
@@ -918,7 +908,7 @@ function renderAvatarPreview(){
 
    const no=document.createElement('td');
    no.className='table-number';
-   no.textContent=isClassic?String(index+1):String(index+1).padStart(2,'0');
+   no.textContent=String(index+1).padStart(2,'0');
 
    const avatar=document.createElement('img');
    avatar.src=avatarData[index]||extraAvatarData[index-avatarData.length];
@@ -944,7 +934,15 @@ async function captureAvatarPreviewImage(colorMode=false){
  if(!table) throw new Error('Chưa có bảng để xuất ảnh.');
  if(typeof html2canvas!=='function') throw new Error('Không tải được công cụ tạo ảnh. Hãy kiểm tra kết nối mạng rồi thử lại.');
  const exportTable=table.cloneNode(true);
- const isClassicTable=exportTable.querySelector('.avatar-template-classic')!==null;
+ const exportInnerTable=exportTable.querySelector('.avatar-preview-table');
+ const isClassicTable=colorMode==='classic' || exportTable.querySelector('.avatar-template-classic')!==null;
+ if(colorMode==='classic' && exportInnerTable){
+   exportInnerTable.classList.add('avatar-template-classic');
+   const headers=exportInnerTable.querySelectorAll('th');
+   if(headers[0]) headers[0].textContent='NO.';
+   if(headers[3]) headers[3].textContent='TÊN NHÂN VẬT';
+   exportInnerTable.querySelectorAll('.table-number').forEach(cell=>{cell.textContent=String(Number(cell.textContent)||0);});
+ }
  const colorPairs=[
    ['#ff5f6d','#ffc371'],['#7f00ff','#e100ff'],['#00c6ff','#0072ff'],
    ['#11998e','#38ef7d'],['#f7971e','#ffd200'],['#ee0979','#ff6a00'],
@@ -966,6 +964,8 @@ async function captureAvatarPreviewImage(colorMode=false){
      });
      row.querySelectorAll('img').forEach(img=>{img.style.borderColor=color;});
    });
+ }else if(colorMode==='classic'){
+   // Giữ nguyên nền trắng và viền mảnh của mẫu chuyên nghiệp.
  }else if(colorMode){
    const headerColors=colorPairs.sort(()=>Math.random()-.5);
    exportTable.querySelectorAll('th').forEach((header,index)=>{
@@ -993,7 +993,7 @@ async function downloadAvatarPreviewImage(colorMode=false){
  try{
    const canvas=await captureAvatarPreviewImage(colorMode);
    const link=document.createElement('a');
-   link.download=colorMode==='white15'?'doi-chieu-15-mau-trang.jpg':'doi-chieu-team-avatar.jpg';
+   link.download=colorMode==='white15'?'doi-chieu-15-mau-trang.jpg':(colorMode==='classic'?'doi-chieu-mau-trang.jpg':'doi-chieu-team-avatar.jpg');
    link.href=canvas.toDataURL('image/jpeg',.95);
    link.click();
  }catch(error){ alert(error.message); }
@@ -1005,7 +1005,7 @@ async function copyAvatarPreviewImage(colorMode=false){
    const blob=await new Promise(resolve=>canvas.toBlob(resolve,'image/png'));
    if(!blob || !navigator.clipboard || !window.ClipboardItem) throw new Error('Trình duyệt chưa cho phép copy ảnh. Hãy dùng nút Tải ảnh bảng.');
    await navigator.clipboard.write([new ClipboardItem({'image/png':blob})]);
-   const button=document.querySelector(colorMode==='white15'?'.white-palette-copy':(colorMode?'.copy-random-preview-btn':'.copy-preview-btn'));
+   const button=document.querySelector(colorMode==='white15'?'.white-palette-copy':(colorMode==='classic'?'.classic-template-copy':(colorMode?'.copy-random-preview-btn':'.copy-preview-btn')));
    const previous=button.textContent;
    button.textContent='✓ Đã copy ảnh';
    setTimeout(()=>button.textContent=previous,1800);
