@@ -373,6 +373,22 @@ font-size:16px;
 .avatar-preview-actions .copy-random-preview-btn{background:linear-gradient(135deg,#dd6b12,#ffd147);color:#211100;}
 .avatar-preview-actions .white-palette-download{background:linear-gradient(135deg,#1687c5,#47e1be);color:#041d20;}
 .avatar-preview-actions .white-palette-copy{background:linear-gradient(135deg,#6856e8,#b298ff);color:#f8f6ff;}
+.avatar-template-toggle{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin:8px 0 12px;padding:9px 11px;border:1px solid rgba(0,223,255,.42);border-radius:14px;background:rgba(4,20,32,.78);color:#d9f8ff;font-size:13px;font-weight:900;}
+.avatar-template-toggle button{margin:0;padding:7px 11px;border:1px solid rgba(255,255,255,.24);border-radius:10px;background:#162d42;color:#dceeff;font-size:12px;font-weight:900;cursor:pointer;transition:.18s ease;}
+.avatar-template-toggle button:hover{transform:translateY(-1px);filter:brightness(1.15);}
+.avatar-template-toggle button.is-active{border-color:#fff;background:linear-gradient(135deg,#13dcb5,#288dff);color:#04131c;box-shadow:0 0 13px rgba(36,200,255,.42);}
+.avatar-preview-table.avatar-template-classic{min-width:720px;background:#fff;border:1px solid #17202a;border-radius:0;color:#111;}
+.avatar-preview-table.avatar-template-classic th{height:72px;padding:15px 16px;border-bottom:1px solid #7b8188;background:#f0f2f4;color:#101419;font-size:20px;text-align:center;letter-spacing:.4px;}
+.avatar-preview-table.avatar-template-classic th:first-child{width:80px;}
+.avatar-preview-table.avatar-template-classic th:nth-child(2){text-align:center;}
+.avatar-preview-table.avatar-template-classic td{height:78px;padding:7px 14px;border-top:1px solid #303842;border-right:1px solid #303842;background:#fff;color:#111;font-size:18px;font-weight:700;text-align:center;}
+.avatar-preview-table.avatar-template-classic td:last-child{border-right:0;}
+.avatar-preview-table.avatar-template-classic tr:hover td{background:#f7f9fb;}
+.avatar-preview-table.avatar-template-classic .table-number{color:#111;font-size:18px;font-weight:500;}
+.avatar-preview-table.avatar-template-classic .table-team{color:#111;font-size:20px;font-weight:800;text-align:left;text-transform:none;}
+.avatar-preview-table.avatar-template-classic .table-avatar{width:96px;padding:6px;text-align:center;}
+.avatar-preview-table.avatar-template-classic img{width:58px;height:58px;margin:auto;border:0;border-radius:0;box-shadow:none;}
+.avatar-preview-table.avatar-template-classic .table-owner{color:#111;font-size:20px;font-weight:800;text-shadow:none;}
 .team-control-actions,.logo-export-actions{display:flex;flex-wrap:wrap;gap:10px;margin:12px 0;}
 .team-control-actions button,.logo-export-actions button,.scrim-reset-btn,.scrim-json-btn{margin:0;min-height:43px;padding:10px 16px;border:1px solid rgba(255,255,255,.22);border-radius:13px;color:#fff;font-size:14px;font-weight:900;letter-spacing:.15px;box-shadow:0 7px 16px rgba(0,0,0,.27);transition:transform .18s ease,filter .18s ease,box-shadow .18s ease;}
 .team-control-actions button:hover,.logo-export-actions button:hover,.scrim-reset-btn:hover,.scrim-json-btn:hover{transform:translateY(-2px) scale(1.01);filter:brightness(1.1);box-shadow:0 11px 20px rgba(0,0,0,.36);}
@@ -879,6 +895,13 @@ function downloadJson(){
 let teamNames=[];
 const avatarOwners=['Andrew','Kelly','Olivia','Ford','Nikita','Misha','Maxim','Kla','Paloma','Miguel','Caroline','Antonio','Ngộ Không','Moco','Hayato','Laura','Rafel','A124','Joseph','Shani','Alok','Notora','Alvaro','Jota'];
 const avatarCardColors=['#f3c277','#ff8dcc','#e78589','#67c7ff','#a8dcff','#a9ea73','#ffe06c','#ff9c31','#ff6b72','#ef72ad','#c59aff','#659fff','#ff4c4c','#75f0ca','#ffd25c','#b9e1ff','#d4b3ff','#77d9f4','#ffd28b','#ff9ab8','#c6a66d','#e8b9ff','#ffc278','#a9dbff'];
+let avatarTableTemplate=localStorage.getItem('hubpicAvatarTableTemplate')||'neon';
+
+function setAvatarTableTemplate(template){
+ avatarTableTemplate=template==='classic'?'classic':'neon';
+ localStorage.setItem('hubpicAvatarTableTemplate',avatarTableTemplate);
+ renderAvatarPreview();
+}
 
 function renderAvatarPreview(){
  const preview=document.getElementById('avatarPreview');
@@ -886,7 +909,8 @@ function renderAvatarPreview(){
    preview.innerHTML='';
    return;
  }
- preview.innerHTML='<div class="avatar-preview-title">Đối chiếu Team &amp; Avatar</div><div class="avatar-preview-actions"><button type="button" class="table-download" onclick="downloadAvatarPreviewImage()">📥 Tải ảnh bảng</button><button type="button" class="copy-preview-btn" onclick="copyAvatarPreviewImage()">📋 Copy ảnh</button><button type="button" class="random-download" onclick="downloadAvatarPreviewImage(true)">🎨 Tải ảnh random màu</button><button type="button" class="copy-random-preview-btn" onclick="copyAvatarPreviewImage(true)">🌈 Copy ảnh random màu</button><button type="button" class="white-palette-download" onclick="downloadAvatarPreviewImage(\'white15\')">🌈 Tải random 15 màu khác nhau</button><button type="button" class="white-palette-copy" onclick="copyAvatarPreviewImage(\'white15\')">📋 Copy random 15 màu khác nhau</button></div><div class="avatar-preview-table-wrap"><table class="avatar-preview-table"><thead><tr><th>STT</th><th>Tên Team</th><th>Avatar</th><th>Chủ Team Mang Avatar</th></tr></thead><tbody></tbody></table></div>';
+ const isClassic=avatarTableTemplate==='classic';
+ preview.innerHTML='<div class="avatar-preview-title">Đối chiếu Team &amp; Avatar</div><div class="avatar-template-toggle"><span>🎨 Mẫu bảng:</span><button type="button" class="'+(!isClassic?'is-active':'')+'" onclick="setAvatarTableTemplate(\'neon\')">⚡ Mẫu Neon</button><button type="button" class="'+(isClassic?'is-active':'')+'" onclick="setAvatarTableTemplate(\'classic\')">📄 Mẫu trắng chuyên nghiệp</button></div><div class="avatar-preview-actions"><button type="button" class="table-download" onclick="downloadAvatarPreviewImage()">📥 Tải ảnh bảng</button><button type="button" class="copy-preview-btn" onclick="copyAvatarPreviewImage()">📋 Copy ảnh</button><button type="button" class="random-download" onclick="downloadAvatarPreviewImage(true)">🎨 Tải ảnh random màu</button><button type="button" class="copy-random-preview-btn" onclick="copyAvatarPreviewImage(true)">🌈 Copy ảnh random màu</button><button type="button" class="white-palette-download" onclick="downloadAvatarPreviewImage(\'white15\')">🌈 Tải random 15 màu khác nhau</button><button type="button" class="white-palette-copy" onclick="copyAvatarPreviewImage(\'white15\')">📋 Copy random 15 màu khác nhau</button></div><div class="avatar-preview-table-wrap"><table class="avatar-preview-table '+(isClassic?'avatar-template-classic':'')+'"><thead><tr><th>'+(isClassic?'NO.':'STT')+'</th><th>Tên Team</th><th>Avatar</th><th>'+(isClassic?'Tên Nhân Vật':'Chủ Team Mang Avatar')+'</th></tr></thead><tbody></tbody></table></div>';
  const tableBody=preview.querySelector('tbody');
  teamNames.slice(0,codes.length).forEach((teamName,index)=>{
    const row=document.createElement('tr');
@@ -894,7 +918,7 @@ function renderAvatarPreview(){
 
    const no=document.createElement('td');
    no.className='table-number';
-   no.textContent=String(index+1).padStart(2,'0');
+   no.textContent=isClassic?String(index+1):String(index+1).padStart(2,'0');
 
    const avatar=document.createElement('img');
    avatar.src=avatarData[index]||extraAvatarData[index-avatarData.length];
@@ -920,6 +944,7 @@ async function captureAvatarPreviewImage(colorMode=false){
  if(!table) throw new Error('Chưa có bảng để xuất ảnh.');
  if(typeof html2canvas!=='function') throw new Error('Không tải được công cụ tạo ảnh. Hãy kiểm tra kết nối mạng rồi thử lại.');
  const exportTable=table.cloneNode(true);
+ const isClassicTable=exportTable.querySelector('.avatar-template-classic')!==null;
  const colorPairs=[
    ['#ff5f6d','#ffc371'],['#7f00ff','#e100ff'],['#00c6ff','#0072ff'],
    ['#11998e','#38ef7d'],['#f7971e','#ffd200'],['#ee0979','#ff6a00'],
@@ -948,7 +973,7 @@ async function captureAvatarPreviewImage(colorMode=false){
      header.style.background='linear-gradient(135deg,'+headerColor[0]+','+headerColor[1]+')';
      header.style.color='#101010';
    });
- }else{
+ }else if(!isClassicTable){
    const headerColor=colorPairs[Math.floor(Math.random()*colorPairs.length)];
    exportTable.querySelectorAll('th').forEach(header=>{
      header.style.background='linear-gradient(135deg,'+headerColor[0]+','+headerColor[1]+')';
@@ -958,7 +983,7 @@ async function captureAvatarPreviewImage(colorMode=false){
  exportTable.style.cssText='position:fixed;left:-10000px;top:0;width:'+table.offsetWidth+'px;z-index:-1;';
  document.body.appendChild(exportTable);
  try{
-   return await html2canvas(exportTable,{backgroundColor:'#090909',scale:2,useCORS:true,logging:false});
+   return await html2canvas(exportTable,{backgroundColor:isClassicTable?'#f0f2f4':'#090909',scale:2,useCORS:true,logging:false});
  }finally{
    exportTable.remove();
  }
