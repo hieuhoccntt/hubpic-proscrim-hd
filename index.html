@@ -1871,6 +1871,17 @@ async function buildLogoZip(removeBg=false){
 }
 
 
+function createUniqueWhiteMixColors(total=15){
+ const offset=Math.floor(Math.random()*360);
+ const toHex=(h,s,l)=>{
+   const c=(1-Math.abs(2*l-1))*s, part=h/60, x=c*(1-Math.abs(part%2-1));
+   const rgb=part<1?[c,x,0]:part<2?[x,c,0]:part<3?[0,c,x]:part<4?[0,x,c]:part<5?[x,0,c]:[c,0,x];
+   const m=l-c/2;
+   return '#'+rgb.map(v=>Math.round((v+m)*255).toString(16).padStart(2,'0')).join('');
+ };
+ return Array.from({length:total},(_,index)=>toHex((offset+index*(360/total))%360,.78,.44)).sort(()=>Math.random()-.5);
+}
+
 function drawVietnamStar(ctx,cx,cy,r){
   ctx.beginPath();
   for(let i=0;i<10;i++){
@@ -1891,7 +1902,8 @@ async function buildDesignedLogoZip(useWhitePalette=false){
  const status=document.getElementById('logoExportStatus');
  let count=0;
 
- const whiteMixColors=['#009ee8','#00a878','#f2a900','#f15b35','#d73f8c','#7b61ff','#e63946','#3b82f6','#0f9d58','#ff7a00','#9c27b0','#009688','#c62828','#5d8aa8','#8db600'].sort(()=>Math.random()-.5);
+ // 15 màu được tạo theo vòng tròn sắc độ nên không trùng nhau trong cùng một lần xuất.
+ const whiteMixColors=createUniqueWhiteMixColors(15);
  if(status) status.textContent=useWhitePalette?'Đang xuất logo 15 màu pha trắng...':'Đang xuất logo có thiết kế...';
 
  for(let i=0;i<codes.length;i++){
@@ -1916,7 +1928,7 @@ async function buildDesignedLogoZip(useWhitePalette=false){
   // Bên ngoài vòng tròn là xanh lá; phần trong giữ nguyên ảnh logo gốc.
   // Nhờ vậy logo đen trên nền trắng vẫn rõ, không bị chìm vào nền đen.
   const logoCanvas=makeLogoCanvasForBlackCircle(img,false);
-  if(useWhitePalette) drawWhiteMixOutsideCircleBase(ctx,whiteMixColors[count%whiteMixColors.length]);
+  if(useWhitePalette) drawWhiteMixOutsideCircleBase(ctx,whiteMixColors[count]||whiteMixColors[count%whiteMixColors.length]);
   else drawGreenOutsideBlackCircleBase(ctx);
 
   const cx=500, cy=500, r=475;
