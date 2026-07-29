@@ -988,11 +988,12 @@ async function copyAvatarPreviewImage(colorMode=false){
 }
 
 function updateTeams(){
+ rememberCurrentLogoAssignments();
  teamNames=document.getElementById('teamInput').value.split(/\r?\n/).map(v=>v.trim()).filter(Boolean);
- document.querySelectorAll('.team-label').forEach((e,i)=>{
-   e.textContent=teamNames[i]||('Team '+(i+1));
- });
+ logoAssignments.fill('');
+ autoAssignKnownTeamLogos();
  renderAvatarPreview();
+ render();
 }
 
 const SCRIM_TIMESLOTS_API='https://server-ecru-phi-88.vercel.app/api/timeslots/';
@@ -1299,6 +1300,7 @@ window.addEventListener('DOMContentLoaded',()=>{
 <hr>
 <p>Chọn nhiều logo rồi gán theo mã. (Demo)</p>
 <input type='file' id='logoFiles' multiple accept='image/*'><br><br>
+<div id="logoMemoryStatus" style="margin:-7px 0 13px;padding:9px 12px;border:1px solid #16d9bd;border-radius:12px;background:#071f22;color:#a9fff0;font-size:13px;font-weight:700;">🧠 Web sẽ nhớ team và logo đã gán trên trình duyệt này.</div>
 <div id='logoMap'></div>
 <div class="design-color-controls"><label for="designColorStart">🎨 Màu bìa ngoài</label><input type="color" id="designColorStart" value="#00FF66" title="Màu bìa ngoài thứ nhất" oninput="updateDesignColorReadout()"><span class="color-code" id="designColorStartCode">#00FF66</span><span class="color-arrow">→</span><input type="color" id="designColorEnd" value="#00B83F" title="Màu bìa ngoài thứ hai" oninput="updateDesignColorReadout()"><span class="color-code" id="designColorEndCode">#00B83F</span><button type="button" class="color-mode-btn base-color-btn" onclick="resetDesignGreen()">↺ Màu gốc xanh</button><button type="button" class="color-mode-btn solid-color-btn" onclick="randomizeOneDesignColor()">🎲 Random 1 màu</button><button type="button" class="color-mode-btn random-color-btn" onclick="randomizeDesignColors()">🎲 Random pha màu</button><small>Mã màu hiển thị rõ ở hai ô đen. Random 1 màu dùng cùng mã; Random pha màu dùng hai mã khác nhau.</small></div>
 <div class="logo-export-actions"><button class="zip-btn" onclick='exportZip()'>📦 Xuất Logo ZIP</button><button class="remove-bg-btn" onclick='exportZipRemoveBg()'>✨ Xuất Logo PNG</button><button class="design-zip-btn" onclick='exportZipDesign()'>🎨 Xuất ZIP thiết kế</button><button class="white-palette-logo-btn" onclick='exportZipDesignWhite15()'>🌈 Xuất logo 15 màu trắng</button></div>
@@ -1313,6 +1315,60 @@ const map=document.getElementById('logoMap');
 const logoFilesInput=document.getElementById('logoFiles');
 const logoFileStore=[];
 const logoAssignments=Array(codes.length).fill('');
+const TEAM_LOGO_MEMORY_KEY='hubpicTeamLogoMemoryV1';
+
+function normalizeTeamLogoKey(value){
+ return String(value||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+  .toLowerCase().replace(/\.[a-z0-9]{2,5}$/i,'').replace(/[^a-z0-9]+/g,'');
+}
+function getTeamLogoMemory(){
+ try{return JSON.parse(localStorage.getItem(TEAM_LOGO_MEMORY_KEY)||'{}');}
+ catch(error){return {};}
+}
+function saveTeamLogoMemory(memory){
+ try{localStorage.setItem(TEAM_LOGO_MEMORY_KEY,JSON.stringify(memory));}catch(error){}
+}
+function rememberTeamLogo(teamName,file){
+ const key=normalizeTeamLogoKey(teamName);
+ if(!key || !file || !file.name) return;
+ const memory=getTeamLogoMemory();
+ memory[key]={fileName:file.name,normalizedFileName:normalizeTeamLogoKey(file.name),savedAt:Date.now()};
+ saveTeamLogoMemory(memory);
+}
+function updateLogoMemoryStatus(){
+ const status=document.getElementById('logoMemoryStatus');
+ if(!status) return;
+ const total=Object.keys(getTeamLogoMemory()).length;
+ status.textContent=total
+  ? '🧠 Đã nhớ '+total+' team. Tải lại logo cùng tên file để web tự gán.'
+  : '🧠 Web sẽ nhớ team và logo đã gán trên trình duyệt này.';
+}
+function rememberCurrentLogoAssignments(){
+ logoAssignments.forEach((assignment,index)=>{
+  const file=assignment!=='' ? logoFileStore[Number(assignment)] : null;
+  if(file) rememberTeamLogo(teamNames[index],file);
+ });
+}
+function autoAssignKnownTeamLogos(){
+ const memory=getTeamLogoMemory();
+ const used=new Set();
+ logoAssignments.forEach(value=>{if(value!=='' && logoFileStore[Number(value)]) used.add(Number(value));});
+ teamNames.forEach((teamName,index)=>{
+  if(logoAssignments[index]!=='' && logoFileStore[Number(logoAssignments[index])]) return;
+  const key=normalizeTeamLogoKey(teamName);
+  if(!key) return;
+  const known=memory[key];
+  let fileIndex=-1;
+  if(known?.fileName) fileIndex=logoFileStore.findIndex((file,i)=>!used.has(i) && file.name===known.fileName);
+  if(fileIndex<0 && known?.normalizedFileName) fileIndex=logoFileStore.findIndex((file,i)=>!used.has(i) && normalizeTeamLogoKey(file.name)===known.normalizedFileName);
+  if(fileIndex<0) fileIndex=logoFileStore.findIndex((file,i)=>{
+   const fileKey=normalizeTeamLogoKey(file.name);
+   return !used.has(i) && fileKey && (fileKey.includes(key)||key.includes(fileKey));
+  });
+  if(fileIndex>=0){logoAssignments[index]=String(fileIndex);used.add(fileIndex);}
+ });
+ updateLogoMemoryStatus();
+}
 
 function addLogoFiles(files){
   [...files].forEach(file=>{
@@ -1427,6 +1483,7 @@ const av=document.createElement('img');
      e.stopPropagation();
      picker.dataset.value=String(i);
      logoAssignments[idx]=String(i);
+     rememberTeamLogo(teamNames[idx],f);
      selectedImg.src=im.src;
      selectedImg.style.display='block';
      selectedText.textContent=f.name;
@@ -1455,6 +1512,7 @@ const av=document.createElement('img');
 logoFilesInput.onchange=function(){
   addLogoFiles(this.files);
   this.value='';
+  autoAssignKnownTeamLogos();
   render();
 };
 
@@ -2193,6 +2251,7 @@ hubpicLogout.addEventListener('click',()=>{
   setHubpicAdminAccess(false);
 });
 setHubpicAdminAccess(sessionStorage.getItem('hubpicAdminAccess')==='yes');
+updateLogoMemoryStatus();
 </script>
 </body>
 </html>
