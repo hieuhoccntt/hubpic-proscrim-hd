@@ -373,9 +373,14 @@ font-size:16px;
 .avatar-preview-actions .copy-random-preview-btn{background:linear-gradient(135deg,#dd6b12,#ffd147);color:#211100;}
 .avatar-preview-actions .white-palette-download{background:linear-gradient(135deg,#1687c5,#47e1be);color:#041d20;}
 .avatar-preview-actions .white-palette-copy{background:linear-gradient(135deg,#6856e8,#b298ff);color:#f8f6ff;}
-.avatar-actions-break{flex-basis:100%;height:0;}
 .avatar-preview-actions .classic-template-download{background:linear-gradient(135deg,#e9edf1,#aeb8c5);color:#17212b;border-color:#fff;}
 .avatar-preview-actions .classic-template-copy{background:linear-gradient(135deg,#f8f9fb,#c9d1da);color:#17212b;border-color:#fff;}
+.avatar-preview-actions{align-items:stretch;gap:0;padding:8px 0;border-top:1px solid rgba(90,224,255,.25);border-bottom:1px solid rgba(90,224,255,.25);}
+.avatar-action-group{display:flex;flex-direction:column;gap:8px;padding:0 12px;border-right:1px dashed rgba(99,225,255,.5);}
+.avatar-action-group:first-child{padding-left:0;}
+.avatar-action-group:last-child{border-right:0;padding-right:0;}
+.avatar-action-group button{width:100%;white-space:nowrap;}
+@media(max-width:760px){.avatar-preview-actions{gap:10px;}.avatar-action-group{width:100%;padding:0 0 10px;border-right:0;border-bottom:1px dashed rgba(99,225,255,.45);}.avatar-action-group:last-child{border-bottom:0;padding-bottom:0;}}
 .avatar-preview-table.avatar-template-classic{min-width:720px;background:#fff;border:1px solid #17202a;border-radius:0;color:#111;}
 .avatar-preview-table.avatar-template-classic th{height:72px;padding:15px 16px;border-bottom:1px solid #7b8188;background:#f0f2f4;color:#101419;font-size:20px;text-align:center;letter-spacing:.4px;}
 .avatar-preview-table.avatar-template-classic th:first-child{width:80px;}
@@ -900,7 +905,7 @@ function renderAvatarPreview(){
    preview.innerHTML='';
    return;
  }
- preview.innerHTML='<div class="avatar-preview-title">Đối chiếu Team &amp; Avatar</div><div class="avatar-preview-actions"><button type="button" class="table-download" onclick="downloadAvatarPreviewImage()">📥 Tải ảnh bảng</button><button type="button" class="copy-preview-btn" onclick="copyAvatarPreviewImage()">📋 Copy ảnh</button><button type="button" class="random-download" onclick="downloadAvatarPreviewImage(true)">🎨 Tải ảnh random màu</button><button type="button" class="copy-random-preview-btn" onclick="copyAvatarPreviewImage(true)">🌈 Copy ảnh random màu</button><button type="button" class="white-palette-download" onclick="downloadAvatarPreviewImage(\'white15\')">🌈 Tải random 15 màu khác nhau</button><button type="button" class="white-palette-copy" onclick="copyAvatarPreviewImage(\'white15\')">📋 Copy random 15 màu khác nhau</button><span class="avatar-actions-break"></span><button type="button" class="classic-template-download" onclick="downloadAvatarPreviewImage(\'classic\')">📄 Tải mẫu trắng</button><button type="button" class="classic-template-copy" onclick="copyAvatarPreviewImage(\'classic\')">📋 Copy mẫu trắng</button></div><div class="avatar-preview-table-wrap"><table class="avatar-preview-table"><thead><tr><th>STT</th><th>Tên Team</th><th>Avatar</th><th>Chủ Team Mang Avatar</th></tr></thead><tbody></tbody></table></div>';
+ preview.innerHTML='<div class="avatar-preview-title">Đối chiếu Team &amp; Avatar</div><div class="avatar-preview-actions"><div class="avatar-action-group"><button type="button" class="table-download" onclick="downloadAvatarPreviewImage()">📥 Tải ảnh bảng</button><button type="button" class="copy-preview-btn" onclick="copyAvatarPreviewImage()">📋 Copy ảnh</button></div><div class="avatar-action-group"><button type="button" class="random-download" onclick="downloadAvatarPreviewImage(true)">🎨 Tải ảnh random màu</button><button type="button" class="copy-random-preview-btn" onclick="copyAvatarPreviewImage(true)">🌈 Copy ảnh random màu</button></div><div class="avatar-action-group"><button type="button" class="white-palette-download" onclick="downloadAvatarPreviewImage(\'white15\')">🌈 Tải random 15 màu</button><button type="button" class="white-palette-copy" onclick="copyAvatarPreviewImage(\'white15\')">📋 Copy random 15 màu</button></div><div class="avatar-action-group"><button type="button" class="classic-template-download" onclick="downloadAvatarPreviewImage(\'classic\')">📄 Tải mẫu trắng</button><button type="button" class="classic-template-copy" onclick="copyAvatarPreviewImage(\'classic\')">📋 Copy mẫu trắng</button></div></div><div class="avatar-preview-table-wrap"><table class="avatar-preview-table"><thead><tr><th>STT</th><th>Tên Team</th><th>Avatar</th><th>Chủ Team Mang Avatar</th></tr></thead><tbody></tbody></table></div>';
  const tableBody=preview.querySelector('tbody');
  teamNames.slice(0,codes.length).forEach((teamName,index)=>{
    const row=document.createElement('tr');
