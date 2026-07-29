@@ -916,8 +916,9 @@ function renderAvatarPreview(){
 
    const team=document.createElement('td');
    team.className='table-team';
-   team.textContent=teamName;
-   team.title=teamName;
+   const displayTeamName=teamName.toLocaleUpperCase('vi-VN');
+   team.textContent=displayTeamName;
+   team.title=displayTeamName;
    const avatarCell=document.createElement('td');
    avatarCell.className='table-avatar';
    avatarCell.appendChild(avatar);
