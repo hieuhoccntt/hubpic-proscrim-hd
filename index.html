@@ -1966,6 +1966,23 @@ for(let i=0;i<80;i++){
 .code-giai-frame{display:block;width:100%;height:1260px;border:0;background:#050713;overflow:hidden;}
 .design-hubpic-frame-wrap{margin:0;overflow:hidden;background:#050713;}
 .design-hubpic-frame{display:block;width:100%;height:1450px;border:0;background:#050713;overflow:hidden;}
+
+/* Giao diện Esports đồng bộ */
+body{padding:28px;background:radial-gradient(circle at 12% 0%,rgba(0,225,166,.13),transparent 30%),radial-gradient(circle at 95% 8%,rgba(68,105,255,.13),transparent 28%),linear-gradient(145deg,#050812 0%,#080d18 48%,#03070d 100%);background-attachment:fixed;color:#eaf4ff;}
+.container{max-width:1320px;padding:clamp(18px,3vw,38px);border:1px solid rgba(94,255,202,.42);border-radius:28px;background:linear-gradient(145deg,rgba(11,19,31,.96),rgba(4,10,18,.98)) padding-box,linear-gradient(110deg,#00d998,#36a9ff,#8c52ff,#00d998) border-box;background-size:auto,280% 100%;animation:containerBorderRainbow 10s linear infinite;box-shadow:0 28px 70px rgba(0,0,0,.52),0 0 38px rgba(0,218,153,.08);}
+h2{position:relative;margin:34px 0 18px;padding:0 0 13px;text-align:left;font-size:clamp(25px,3vw,39px);letter-spacing:.4px;color:#f1fbff;text-shadow:none;background:none!important;-webkit-text-fill-color:initial!important;animation:none!important;}
+h2:after{content:"";position:absolute;left:0;bottom:0;width:min(220px,36%);height:3px;border-radius:99px;background:linear-gradient(90deg,#00e6a0,#47b7ff,transparent);box-shadow:0 0 14px rgba(0,230,160,.6);}
+h3{color:#caffea!important;letter-spacing:.3px;}
+hr{height:1px;margin:34px 0;border:0;background:linear-gradient(90deg,transparent,rgba(74,235,190,.6),rgba(86,156,255,.4),transparent);}
+textarea,input,select{border-color:rgba(116,199,255,.42)!important;background:rgba(5,11,20,.92)!important;color:#eff8ff!important;box-shadow:inset 0 0 0 1px rgba(255,255,255,.025),0 5px 16px rgba(0,0,0,.16)!important;}
+textarea:focus,input:focus,select:focus{outline:none;border-color:#41e9b3!important;box-shadow:0 0 0 3px rgba(65,233,179,.12),inset 0 0 0 1px rgba(255,255,255,.04)!important;}
+button{margin:5px 3px;padding:11px 17px;border:1px solid rgba(255,255,255,.2);border-radius:12px;background:linear-gradient(135deg,#00b97d,#32dbab)!important;color:#04130f!important;font-weight:900;letter-spacing:.15px;box-shadow:0 7px 17px rgba(0,0,0,.25);transition:transform .18s ease,filter .18s ease,box-shadow .18s ease;}
+button:hover{transform:translateY(-2px)!important;filter:brightness(1.1);box-shadow:0 11px 24px rgba(0,0,0,.35);}
+.json-studio{margin:0 0 34px;padding:clamp(18px,3vw,32px);border:1px solid rgba(87,217,255,.38);border-radius:24px;background:linear-gradient(135deg,rgba(9,22,32,.96),rgba(10,14,30,.98))!important;box-shadow:0 18px 42px rgba(0,0,0,.3);}
+.json-studio:before{display:none;}.json-studio .hubpic-animated{color:#f4fbff!important;-webkit-text-fill-color:initial!important;background:none!important;text-shadow:none!important;animation:none!important;}.json-studio-desc{color:#a9c0d5!important;}.json-config{border-color:rgba(108,187,255,.25)!important;background:rgba(2,8,16,.58)!important;}.json-studio button{background:linear-gradient(135deg,#00b97d,#35d6ca)!important;color:#031510!important;border-color:rgba(145,255,226,.42)!important;}
+.team-label{background:linear-gradient(135deg,#073f42,#0c8f75)!important;color:#ecfff8!important;border:1px solid rgba(99,255,202,.5);box-shadow:0 7px 16px rgba(0,0,0,.24)!important;}.logo-picker-selected{background:#09111e!important;border-color:rgba(112,207,255,.42)!important;border-radius:14px!important;}.logo-picker-list{background:#071019!important;border-color:#34d7aa!important;border-radius:14px!important;}.logo-picker-option:hover{background:rgba(0,208,155,.14)!important;}
+.code-giai-frame-wrap,.design-hubpic-frame-wrap{border:1px solid rgba(98,198,255,.28);border-radius:22px;box-shadow:0 16px 35px rgba(0,0,0,.32);}
+@media(max-width:620px){body{padding:12px;}.container{border-radius:20px;padding:16px;}h2{margin-top:26px;}.team-label{min-width:135px;width:135px;font-size:14px;}.logo-picker,.logo-picker-selected{width:180px;}}
 </style>
 <script>
 // Gộp phần Design Hubpic vào luồng cuộn của trang chính, không tạo thanh cuộn riêng.
