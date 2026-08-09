@@ -405,6 +405,7 @@ font-size:16px;
 .logo-export-actions .remove-bg-btn{background:linear-gradient(135deg,#8d31c7,#de6cfc);}
 .logo-export-actions .design-zip-btn{background:linear-gradient(135deg,#c8501b,#ffb143);color:#241000;}
 .logo-export-actions .white-palette-logo-btn{background:linear-gradient(135deg,#188bc9,#56ebc0);color:#042129;}
+.logo-export-actions .gold-corner-logo-btn{background:linear-gradient(135deg,#8b5a04,#ffd65a 52%,#a56b06);color:#231500;text-shadow:0 1px 0 rgba(255,255,255,.42);}
 .design-color-controls{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin:0 0 12px;padding:11px 13px;border:1px solid #169f6a;border-radius:14px;background:#071713;color:#effff8;font-weight:900;box-shadow:inset 0 0 0 1px rgba(255,255,255,.04),0 8px 20px rgba(0,0,0,.35);isolation:isolate;}.design-color-controls label{margin:0;font-size:13px;}.design-color-controls input[type=color]{width:43px;height:34px;padding:2px;border:2px solid rgba(255,255,255,.45);border-radius:10px;background:#0b1020;cursor:pointer;}.design-color-controls .color-code{min-width:59px;padding:7px 7px;border:1px solid rgba(255,255,255,.26);border-radius:8px;background:#020806;color:#f0fff8;font:800 11px/1 ui-monospace,SFMono-Regular,Consolas,monospace;text-align:center;letter-spacing:.2px;}.design-color-controls .color-arrow{color:#7bffd0;font-size:18px;}.design-color-controls .color-mode-btn{border:0;border-radius:10px;padding:8px 11px;color:#07141d;font-weight:950;cursor:pointer;box-shadow:0 4px 13px rgba(0,0,0,.28);transition:.2s transform,.2s filter;}.design-color-controls .color-mode-btn:hover{transform:translateY(-2px);filter:brightness(1.1);}.design-color-controls .base-color-btn{background:linear-gradient(135deg,#00ef6e,#04a949);color:#fff;text-shadow:0 1px 1px rgba(0,0,0,.25);}.design-color-controls .solid-color-btn{background:linear-gradient(135deg,#d9fff0,#46f4b0);}.design-color-controls .random-color-btn{background:linear-gradient(135deg,#ffc750,#ff5a9e);}.design-color-controls small{width:100%;color:#bdebd7;font-size:11px;font-weight:700;}
 @media(max-width:560px){.avatar-card-grid{grid-template-columns:1fr;}}
 
@@ -1333,8 +1334,8 @@ window.addEventListener('DOMContentLoaded',()=>{
 <input type='file' id='logoFiles' multiple accept='image/*'><br><br>
 <div id="logoMemoryStatus" style="margin:-7px 0 13px;padding:9px 12px;border:1px solid #16d9bd;border-radius:12px;background:#071f22;color:#a9fff0;font-size:13px;font-weight:700;">🧠 Web sẽ nhớ team và logo đã gán trên trình duyệt này.</div>
 <div id='logoMap'></div>
-<div class="design-color-controls"><label for="designColorStart">🎨 Màu bìa ngoài</label><input type="color" id="designColorStart" value="#00FF66" title="Màu bìa ngoài thứ nhất" oninput="updateDesignColorReadout()"><span class="color-code" id="designColorStartCode">#00FF66</span><span class="color-arrow">→</span><input type="color" id="designColorEnd" value="#00B83F" title="Màu bìa ngoài thứ hai" oninput="updateDesignColorReadout()"><span class="color-code" id="designColorEndCode">#00B83F</span><button type="button" class="color-mode-btn base-color-btn" onclick="resetDesignGreen()">↺ Màu gốc xanh</button><button type="button" class="color-mode-btn solid-color-btn" onclick="randomizeOneDesignColor()">🎲 Random 1 màu</button><button type="button" class="color-mode-btn random-color-btn" onclick="randomizeDesignColors()">🎲 Random pha màu</button><small>Mã màu hiển thị rõ ở hai ô đen. Random 1 màu dùng cùng mã; Random pha màu dùng hai mã khác nhau.</small></div>
-<div class="logo-export-actions"><button class="zip-btn" onclick='exportZip()'>📦 Xuất Logo ZIP</button><button class="remove-bg-btn" onclick='exportZipRemoveBg()'>✨ Xuất Logo PNG</button><button class="design-zip-btn" onclick='exportZipDesign()'>🎨 Xuất ZIP thiết kế</button><button class="white-palette-logo-btn" onclick='exportZipDesignWhite15()'>🌈 Xuất logo 15 màu trắng</button></div>
+<div class="design-color-controls"><label for="designColorStart">🎨 Màu bìa ngoài</label><input type="color" id="designColorStart" value="#00FF66" title="Màu bìa ngoài thứ nhất" oninput="updateDesignColorReadout()"><span class="color-code" id="designColorStartCode">#00FF66</span><span class="color-arrow">→</span><input type="color" id="designColorEnd" value="#00B83F" title="Màu bìa ngoài thứ hai" oninput="updateDesignColorReadout()"><span class="color-code" id="designColorEndCode">#00B83F</span><label for="goldCornerColor">👑 Viền 4 góc</label><input type="color" id="goldCornerColor" value="#FFD447" title="Màu viền 4 góc" oninput="updateDesignColorReadout()"><span class="color-code" id="goldCornerColorCode">#FFD447</span><button type="button" class="color-mode-btn base-color-btn" onclick="resetDesignGreen()">↺ Màu gốc xanh</button><button type="button" class="color-mode-btn solid-color-btn" onclick="randomizeOneDesignColor()">🎲 Random 1 màu</button><button type="button" class="color-mode-btn random-color-btn" onclick="randomizeDesignColors()">🎲 Random pha màu</button><small>Mã màu hiển thị rõ ở các ô đen. Random chỉ đổi màu bìa ngoài; màu viền 4 góc do bạn chọn riêng.</small></div>
+<div class="logo-export-actions"><button class="zip-btn" onclick='exportZip()'>📦 Xuất Logo ZIP</button><button class="remove-bg-btn" onclick='exportZipRemoveBg()'>✨ Xuất Logo PNG</button><button class="design-zip-btn" onclick='exportZipDesign()'>🎨 Xuất ZIP thiết kế</button><button class="white-palette-logo-btn" onclick='exportZipDesignWhite15()'>🌈 Xuất logo 15 màu trắng</button><button class="gold-corner-logo-btn" onclick='exportZipGoldCorner()'>👑 Xuất logo 4 góc vàng</button></div>
 <div id='logoExportStatus' style='margin-top:8px;color:#00ff99;font-weight:800;'></div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
@@ -1737,10 +1738,13 @@ function getLogoDesignColors(){
 function updateDesignColorReadout(){
  const start=document.getElementById('designColorStart');
  const end=document.getElementById('designColorEnd');
+ const goldCorner=document.getElementById('goldCornerColor');
  const startCode=document.getElementById('designColorStartCode');
  const endCode=document.getElementById('designColorEndCode');
+ const goldCornerCode=document.getElementById('goldCornerColorCode');
  if(start&&startCode) startCode.textContent=start.value.toUpperCase();
  if(end&&endCode) endCode.textContent=end.value.toUpperCase();
+ if(goldCorner&&goldCornerCode) goldCornerCode.textContent=goldCorner.value.toUpperCase();
 }
 
 function useOneDesignColor(){
@@ -1794,7 +1798,7 @@ function randomizeDesignColors(){
  updateDesignColorReadout();
 }
 
-function drawGreenOutsideBlackCircleBase(ctx){
+function drawDesignColorBackground(ctx){
  ctx.clearRect(0,0,1000,1000);
  const colors=getLogoDesignColors();
  const bg=ctx.createLinearGradient(0,0,1000,1000);
@@ -1810,6 +1814,10 @@ function drawGreenOutsideBlackCircleBase(ctx){
  glow.addColorStop(1,'rgba(0,80,20,0.18)');
  ctx.fillStyle=glow;
  ctx.fillRect(0,0,1000,1000);
+}
+
+function drawGreenOutsideBlackCircleBase(ctx){
+ drawDesignColorBackground(ctx);
 
  const cx=500, cy=500, r=475;
  const blackCircle=ctx.createRadialGradient(cx,cy,80,cx,cy,r);
@@ -1820,6 +1828,14 @@ function drawGreenOutsideBlackCircleBase(ctx){
  ctx.arc(cx,cy,r,0,Math.PI*2);
  ctx.closePath();
  ctx.fill();
+}
+
+function canvasHasTransparentPixels(canvas){
+ const pixels=canvas.getContext('2d',{willReadFrequently:true}).getImageData(0,0,canvas.width,canvas.height).data;
+ for(let i=3;i<pixels.length;i+=4){
+   if(pixels[i]<245) return true;
+ }
+ return false;
 }
 
 function drawWhiteMixOutsideCircleBase(ctx,color){
@@ -1856,6 +1872,42 @@ function drawCircleFrameAndFlag(ctx){
  ctx.fillRect(fx,fy,fw,fh);
  ctx.fillStyle='#FFE600';
  drawVietnamStar(ctx,fx+fw/2,fy+fh/2,fh*0.28);
+}
+
+function drawGoldCornerFrame(ctx){
+ const inset=13, arm=202;
+ const cornerColor=document.getElementById('goldCornerColor')?.value||'#FFD447';
+ ctx.save();
+ ctx.lineCap='square';
+ ctx.lineJoin='miter';
+ ctx.shadowColor=cornerColor;
+ ctx.shadowBlur=26;
+ ctx.strokeStyle=cornerColor;
+ ctx.lineWidth=22;
+ const corners=[
+   [[inset+arm,inset],[inset,inset],[inset,inset+arm]],
+   [[1000-inset-arm,inset],[1000-inset,inset],[1000-inset,inset+arm]],
+   [[inset,1000-inset-arm],[inset,1000-inset],[inset+arm,1000-inset]],
+   [[1000-inset,1000-inset-arm],[1000-inset,1000-inset],[1000-inset-arm,1000-inset]]
+ ];
+ corners.forEach(points=>{
+   ctx.beginPath();
+   ctx.moveTo(points[0][0],points[0][1]);
+   ctx.lineTo(points[1][0],points[1][1]);
+   ctx.lineTo(points[2][0],points[2][1]);
+   ctx.stroke();
+ });
+ ctx.shadowBlur=0;
+ ctx.strokeStyle='rgba(255,255,255,.88)';
+ ctx.lineWidth=3.5;
+ corners.forEach(points=>{
+   ctx.beginPath();
+   ctx.moveTo(points[0][0],points[0][1]);
+   ctx.lineTo(points[1][0],points[1][1]);
+   ctx.lineTo(points[2][0],points[2][1]);
+   ctx.stroke();
+ });
+ ctx.restore();
 }
 
 async function buildLogoZip(removeBg=false){
@@ -1985,7 +2037,7 @@ function drawVietnamStar(ctx,cx,cy,r){
   ctx.fill();
 }
 
-async function buildDesignedLogoZip(useWhitePalette=false){
+async function buildDesignedLogoZip(useWhitePalette=false,useGoldCorners=false){
  const fs=logoFileStore;
  const zip=new JSZip();
  const sels=map.querySelectorAll('.logo-picker');
@@ -2018,7 +2070,9 @@ async function buildDesignedLogoZip(useWhitePalette=false){
   // Bên ngoài vòng tròn là xanh lá; phần trong giữ nguyên ảnh logo gốc.
   // Nhờ vậy logo đen trên nền trắng vẫn rõ, không bị chìm vào nền đen.
   const logoCanvas=makeLogoCanvasForBlackCircle(img,false);
+  const isTransparentLogo=canvasHasTransparentPixels(logoCanvas);
   if(useWhitePalette) drawWhiteMixOutsideCircleBase(ctx,whiteMixColors[count]||whiteMixColors[count%whiteMixColors.length]);
+  else if(isTransparentLogo) drawDesignColorBackground(ctx);
   else drawGreenOutsideBlackCircleBase(ctx);
 
   const cx=500, cy=500, r=475;
@@ -2031,6 +2085,7 @@ async function buildDesignedLogoZip(useWhitePalette=false){
   ctx.restore();
 
   drawCircleFrameAndFlag(ctx);
+  if(useGoldCorners) drawGoldCornerFrame(ctx);
 
   const blob=await new Promise(res=>c.toBlob(res,'image/png'));
   zip.file(codes[i]+'.png',blob);
@@ -2050,7 +2105,7 @@ async function buildDesignedLogoZip(useWhitePalette=false){
  const out=await zip.generateAsync({type:'blob'});
  const a=document.createElement('a');
  a.href=URL.createObjectURL(out);
- a.download=useWhitePalette?'TeamLogo_15MauTrang.zip':'TeamLogo_CoThietKe.zip';
+ a.download=useWhitePalette?'TeamLogo_15MauTrang.zip':(useGoldCorners?'TeamLogo_4GocVang.zip':'TeamLogo_CoThietKe.zip');
  a.click();
 
  if(status) status.textContent=useWhitePalette?('Đã xuất '+count+' logo, mỗi logo một màu pha trắng.'):('Đã xuất '+count+' logo có thiết kế.');
@@ -2062,6 +2117,10 @@ async function exportZipDesign(){
 
 async function exportZipDesignWhite15(){
  await buildDesignedLogoZip(true);
+}
+
+async function exportZipGoldCorner(){
+ await buildDesignedLogoZip(false,true);
 }
 
 async function exportZip(){
