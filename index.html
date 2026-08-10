@@ -2109,12 +2109,11 @@ async function buildDesignedLogoZip(useWhitePalette=false,useGoldCorners=false){
   });
 
   const c=document.createElement('canvas');
-  c.width=2000;
-  c.height=2000;
+  c.width=1000;
+  c.height=1000;
   const ctx=c.getContext('2d');
   ctx.imageSmoothingEnabled=true;
   ctx.imageSmoothingQuality='high';
-  ctx.scale(2,2);
 
   // Bên ngoài vòng tròn là xanh lá; phần trong giữ nguyên ảnh logo gốc.
   // Nhờ vậy logo đen trên nền trắng vẫn rõ, không bị chìm vào nền đen.
@@ -2189,11 +2188,10 @@ async function exportZipBlackFrame(){
   const url=URL.createObjectURL(file);
   await new Promise((resolve,reject)=>{img.onload=resolve;img.onerror=reject;img.src=url;});
   const c=document.createElement('canvas');
-  c.width=2000;c.height=2000;
+  c.width=1000;c.height=1000;
   const ctx=c.getContext('2d');
   ctx.imageSmoothingEnabled=true;
   ctx.imageSmoothingQuality='high';
-  ctx.scale(2,2);
   ctx.fillStyle='#020202';
   ctx.fillRect(0,0,1000,1000);
   const logoCanvas=makeLogoCanvasForBlackCircle(img,false);
