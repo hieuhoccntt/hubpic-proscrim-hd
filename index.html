@@ -1353,7 +1353,7 @@ window.addEventListener('DOMContentLoaded',()=>{
 <div id="logoMemoryStatus" style="margin:-7px 0 13px;padding:9px 12px;border:1px solid #16d9bd;border-radius:12px;background:#071f22;color:#a9fff0;font-size:13px;font-weight:700;">🧠 Web sẽ nhớ team và logo đã gán trên trình duyệt này.</div>
 <div id='logoMap'></div>
 <div class="design-color-controls"><label for="designColorStart">🎨 Màu bìa ngoài</label><input type="color" id="designColorStart" value="#00FF66" title="Màu bìa ngoài thứ nhất" oninput="updateDesignColorReadout()"><span class="color-code" id="designColorStartCode">#00FF66</span><span class="color-arrow">→</span><input type="color" id="designColorEnd" value="#00B83F" title="Màu bìa ngoài thứ hai" oninput="updateDesignColorReadout()"><span class="color-code" id="designColorEndCode">#00B83F</span><label for="goldCornerColor">👑 Viền 4 góc</label><input type="color" id="goldCornerColor" value="#FFD447" title="Màu viền 4 góc" oninput="updateDesignColorReadout()"><span class="color-code" id="goldCornerColorCode">#FFD447</span><span class="color-actions-break" aria-hidden="true"></span><button type="button" class="color-mode-btn base-color-btn" onclick="resetDesignGreen()">↺ Màu gốc xanh</button><button type="button" class="color-mode-btn solid-color-btn" onclick="randomizeOneDesignColor()">🎲 Random 1 màu</button><button type="button" class="color-mode-btn random-color-btn" onclick="randomizeDesignColors()">🎲 Random pha màu</button><small>Mã màu hiển thị rõ ở các ô đen. Random chỉ đổi màu bìa ngoài; màu viền 4 góc do bạn chọn riêng.</small></div>
-<div class="logo-export-actions"><button class="zip-btn" onclick='exportZip()'>📦 Logo gốc</button><button class="remove-bg-btn" onclick='exportZipRemoveBg()'>✨ Logo xóa nền</button><button class="design-zip-btn" onclick='exportZipDesign()'>🎨 Logo 1 màu nền</button><button class="white-palette-logo-btn" onclick='exportZipDesignWhite15()'>🌈 Logo random 15 màu</button><button class="white-palette-corner-btn" onclick='exportZipDesignWhite15Corners()'>🌈 Logo random 15 màu có viền vuông</button><button class="gold-corner-logo-btn" onclick='exportZipGoldCorner()'>👑 Logo viền</button><button class="black-frame-logo-btn" onclick='exportZipBlackFrame()'>🖼️ Logo khung</button></div>
+<div class="logo-export-actions"><button class="zip-btn" onclick='exportZip()'>📦 Logo gốc</button><button class="design-zip-btn" onclick='exportZipDesign()'>🎨 Logo 1 màu nền</button><button class="white-palette-logo-btn" onclick='exportZipDesignWhite15()'>🌈 Logo random 15 màu</button><button class="white-palette-corner-btn" onclick='exportZipDesignWhite15Corners()'>🌈 Logo random 15 màu có viền vuông</button><button class="gold-corner-logo-btn" onclick='exportZipGoldCorner()'>👑 Logo viền</button><button class="black-frame-logo-btn" onclick='exportZipBlackFrame()'>🖼️ Logo khung</button></div>
 <div id='logoExportStatus' style='margin-top:8px;color:#00ff99;font-weight:800;'></div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
@@ -1559,12 +1559,15 @@ const av=document.createElement('img');
  });
  refreshLogoLists();
 }
+// Bấm ra ngoài vùng chọn logo sẽ tự đóng danh sách đang mở.
+document.addEventListener('click',function(event){
+ if(event.target.closest('.logo-picker')) return;
+ document.querySelectorAll('.logo-picker-list').forEach(list=>{list.style.display='none';});
+});
 logoFilesInput.onchange=function(){
-  // Mỗi lần chọn bộ logo mới, thay toàn bộ danh sách cũ để ô chọn không lẫn logo của lần trước.
+  // Mỗi lần chọn thêm file chỉ bổ sung logo mới, giữ nguyên logo cũ và các gán hiện có.
   if(!this.files || this.files.length===0) return;
   rememberCurrentLogoAssignments();
-  logoFileStore.splice(0,logoFileStore.length);
-  logoAssignments.fill('');
   addLogoFiles(this.files);
   this.value='';
   autoAssignKnownTeamLogos();
