@@ -1719,6 +1719,8 @@ function makeLogoCanvasForBlackCircle(img,applyLegacyRemoval=true){
  logoCanvas.width=1000;
  logoCanvas.height=1000;
  const lctx=logoCanvas.getContext('2d');
+ lctx.imageSmoothingEnabled=true;
+ lctx.imageSmoothingQuality='high';
  const side=Math.min(img.width,img.height);
  const sx=(img.width-side)/2;
  const sy=(img.height-side)/2;
@@ -1872,16 +1874,17 @@ function drawWhiteMixOutsideCircleBase(ctx,color){
 
 function drawCircleFrameAndFlag(ctx){
  const cx=500, cy=500, r=475;
- ctx.lineWidth=8;
- ctx.strokeStyle='rgba(20,20,20,.85)';
+ // Viền đơn, dày và liền nét để game thu nhỏ vẫn không bị vỡ hạt.
+ ctx.lineWidth=18;
+ ctx.strokeStyle='#151513';
  ctx.beginPath();
- ctx.arc(cx,cy,r-2,0,Math.PI*2);
+ ctx.arc(cx,cy,r-1,0,Math.PI*2);
  ctx.stroke();
 
- ctx.lineWidth=4;
- ctx.strokeStyle='rgba(120,120,120,.75)';
+ ctx.lineWidth=7;
+ ctx.strokeStyle='#5f5e58';
  ctx.beginPath();
- ctx.arc(cx,cy,r-9,0,Math.PI*2);
+ ctx.arc(cx,cy,r-4,0,Math.PI*2);
  ctx.stroke();
 
  const fx=828, fy=32, fw=120, fh=82;
@@ -1915,7 +1918,7 @@ function drawGoldCornerFrame(ctx){
    ctx.stroke();
  });
  ctx.shadowBlur=0;
- ctx.strokeStyle='rgba(255,255,255,.88)';
+ ctx.strokeStyle='rgba(255,249,200,.95)';
  ctx.lineWidth=3.5;
  corners.forEach(points=>{
    ctx.beginPath();
@@ -2100,9 +2103,12 @@ async function buildDesignedLogoZip(useWhitePalette=false,useGoldCorners=false){
   });
 
   const c=document.createElement('canvas');
-  c.width=1000;
-  c.height=1000;
+  c.width=2000;
+  c.height=2000;
   const ctx=c.getContext('2d');
+  ctx.imageSmoothingEnabled=true;
+  ctx.imageSmoothingQuality='high';
+  ctx.scale(2,2);
 
   // Bên ngoài vòng tròn là xanh lá; phần trong giữ nguyên ảnh logo gốc.
   // Nhờ vậy logo đen trên nền trắng vẫn rõ, không bị chìm vào nền đen.
@@ -2171,8 +2177,11 @@ async function exportZipBlackFrame(){
   const url=URL.createObjectURL(file);
   await new Promise((resolve,reject)=>{img.onload=resolve;img.onerror=reject;img.src=url;});
   const c=document.createElement('canvas');
-  c.width=1000;c.height=1000;
+  c.width=2000;c.height=2000;
   const ctx=c.getContext('2d');
+  ctx.imageSmoothingEnabled=true;
+  ctx.imageSmoothingQuality='high';
+  ctx.scale(2,2);
   ctx.fillStyle='#020202';
   ctx.fillRect(0,0,1000,1000);
   const logoCanvas=makeLogoCanvasForBlackCircle(img,false);
