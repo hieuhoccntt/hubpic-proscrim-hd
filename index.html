@@ -1559,6 +1559,11 @@ const av=document.createElement('img');
  refreshLogoLists();
 }
 logoFilesInput.onchange=function(){
+  // Mỗi lần chọn bộ logo mới, thay toàn bộ danh sách cũ để ô chọn không lẫn logo của lần trước.
+  if(!this.files || this.files.length===0) return;
+  rememberCurrentLogoAssignments();
+  logoFileStore.splice(0,logoFileStore.length);
+  logoAssignments.fill('');
   addLogoFiles(this.files);
   this.value='';
   autoAssignKnownTeamLogos();
