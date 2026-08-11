@@ -1025,16 +1025,25 @@ async function downloadAvatarPreviewImage(colorMode=false){
 }
 
 async function copyAvatarPreviewImage(colorMode=false){
+ const button=document.querySelector(colorMode==='white15'?'.white-palette-copy':(colorMode==='classic'?'.classic-template-copy':(colorMode?'.copy-random-preview-btn':'.copy-preview-btn')));
+ const previous=button?.textContent||'📋 Copy ảnh';
  try{
-   const canvas=await captureAvatarPreviewImage(colorMode);
-   const blob=await new Promise(resolve=>canvas.toBlob(resolve,'image/png'));
-   if(!blob || !navigator.clipboard || !window.ClipboardItem) throw new Error('Trình duyệt chưa cho phép copy ảnh. Hãy dùng nút Tải ảnh bảng.');
-   await navigator.clipboard.write([new ClipboardItem({'image/png':blob})]);
-   const button=document.querySelector(colorMode==='white15'?'.white-palette-copy':(colorMode==='classic'?'.classic-template-copy':(colorMode?'.copy-random-preview-btn':'.copy-preview-btn')));
-   const previous=button.textContent;
-   button.textContent='✓ Đã copy ảnh';
-   setTimeout(()=>button.textContent=previous,1800);
- }catch(error){ alert(error.message); }
+   // Gọi clipboard ngay khi bấm nút để không mất quyền copy trong lúc tạo ảnh.
+   const blobPromise=captureAvatarPreviewImage(colorMode).then(canvas=>new Promise((resolve,reject)=>canvas.toBlob(blob=>blob?resolve(blob):reject(new Error('Không tạo được ảnh.')),'image/png')));
+   if(!navigator.clipboard || !window.ClipboardItem) throw new Error('Trình duyệt chưa hỗ trợ copy ảnh.');
+   await navigator.clipboard.write([new ClipboardItem({'image/png':blobPromise})]);
+   if(button){button.textContent='✓ ĐÃ COPY ẢNH';setTimeout(()=>button.textContent=previous,1800);}
+ }catch(error){
+   // Một số trình duyệt không cho copy ảnh: tự tải file thay vì hiện lỗi.
+   try{
+    const canvas=await captureAvatarPreviewImage(colorMode);
+    const link=document.createElement('a');
+    link.download='anh-bang-avatar.png';
+    link.href=canvas.toDataURL('image/png');
+    link.click();
+    if(button){button.textContent='↓ ĐÃ TẢI ẢNH';setTimeout(()=>button.textContent=previous,2200);}
+   }catch(fallbackError){ if(button){button.textContent='KHÔNG TẠO ĐƯỢC ẢNH';setTimeout(()=>button.textContent=previous,2200);} }
+ }
 }
 
 function updateTeams(){
@@ -1890,12 +1899,6 @@ function drawCircleFrameAndFlag(ctx){
  ctx.arc(cx,cy,r-1,0,Math.PI*2);
  ctx.stroke();
 
- ctx.lineWidth=7;
- ctx.strokeStyle='#5f5e58';
- ctx.beginPath();
- ctx.arc(cx,cy,r-4,0,Math.PI*2);
- ctx.stroke();
-
  const fx=828, fy=32, fw=120, fh=82;
  ctx.fillStyle='#E62117';
  ctx.fillRect(fx,fy,fw,fh);
@@ -1904,37 +1907,29 @@ function drawCircleFrameAndFlag(ctx){
 }
 
 function drawGoldCornerFrame(ctx){
- const inset=13, arm=202;
+ // Góc dài và dày hơn để vẫn rõ nét khi logo được thu nhỏ trong game.
+ const inset=0, arm=347;
  const cornerColor=document.getElementById('goldCornerColor')?.value||'#FFD447';
  ctx.save();
- ctx.lineCap='square';
- ctx.lineJoin='miter';
  ctx.shadowColor=cornerColor;
  ctx.shadowBlur=26;
- ctx.strokeStyle=cornerColor;
- ctx.lineWidth=22;
- const corners=[
-   [[inset+arm,inset],[inset,inset],[inset,inset+arm]],
-   [[1000-inset-arm,inset],[1000-inset,inset],[1000-inset,inset+arm]],
-   [[inset,1000-inset-arm],[inset,1000-inset],[inset+arm,1000-inset]],
-   [[1000-inset,1000-inset-arm],[1000-inset,1000-inset],[1000-inset-arm,1000-inset]]
+ ctx.fillStyle=cornerColor;
+ const width=27, bevel=18;
+ const base=[
+   [inset+arm,inset],
+   [inset,inset],
+   [inset,inset+arm],
+   [inset+width,inset+arm-bevel],
+   [inset+width,inset+width],
+   [inset+arm-bevel,inset+width]
  ];
- corners.forEach(points=>{
+ [[1,1],[-1,1],[1,-1],[-1,-1]].forEach(([flipX,flipY])=>{
+   const points=base.map(([x,y])=>[flipX===1?x:1000-x,flipY===1?y:1000-y]);
    ctx.beginPath();
    ctx.moveTo(points[0][0],points[0][1]);
-   ctx.lineTo(points[1][0],points[1][1]);
-   ctx.lineTo(points[2][0],points[2][1]);
-   ctx.stroke();
- });
- ctx.shadowBlur=0;
- ctx.strokeStyle='rgba(255,249,200,.95)';
- ctx.lineWidth=3.5;
- corners.forEach(points=>{
-   ctx.beginPath();
-   ctx.moveTo(points[0][0],points[0][1]);
-   ctx.lineTo(points[1][0],points[1][1]);
-   ctx.lineTo(points[2][0],points[2][1]);
-   ctx.stroke();
+   for(let i=1;i<points.length;i++)ctx.lineTo(points[i][0],points[i][1]);
+   ctx.closePath();
+   ctx.fill();
  });
  ctx.restore();
 }
