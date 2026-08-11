@@ -22,6 +22,7 @@ select,input[type=range]{width:100%;margin-top:7px;background:#101832;color:whit
 .chips{display:grid;grid-template-columns:1fr 1fr;gap:6px;max-height:260px;overflow:auto;margin-top:8px}
 .chip{border:1px solid #ffffff22;background:#0d1730;color:#eaf2ff;border-radius:10px;padding:8px;font-size:11px;font-weight:800;cursor:pointer;text-align:left;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .chip:hover{border-color:#00eaff;box-shadow:0 0 12px #00eaff44}
+.template-chips{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin:8px 0 4px}.template-chip{min-height:54px;border:1px solid #ffffff2e;border-radius:12px;padding:9px 8px;background:linear-gradient(135deg,#111d37,#0a0e1d);color:#eff8ff;text-align:left;font-size:11px;font-weight:950;cursor:pointer;transition:.18s}.template-chip span{display:block;margin-top:4px;color:#b6c7ec;font-size:9px;font-weight:700}.template-chip:hover,.template-chip.active{transform:translateY(-2px);border-color:#ffe266;box-shadow:0 0 16px #00e6a055;background:linear-gradient(135deg,#243961,#12122a)}
 .badge{display:inline-block;padding:5px 9px;margin:4px 4px 0 0;border-radius:99px;background:#ffffff10;border:1px solid #ffffff1d;color:#d9e7ff;font-size:12px}
 .previewTop{display:grid;grid-template-columns:1fr 1fr;gap:14px}
 .big{height:220px;background:#020511;border:1px solid #ffffff17;border-radius:18px;display:flex;align-items:center;justify-content:center;overflow:hidden}
@@ -48,6 +49,96 @@ h1{font-weight:950!important;background:linear-gradient(90deg,#fff,#ffe08a,#00e6
 .theme{font-weight:950!important;text-shadow:0 0 18px #00e6a055}.card{border-color:#ffffff22!important;background:#0b1023e8!important}.badge{border-color:#00e6a066!important;background:#00e6a012!important;color:#d7fff1!important}.progress{background:#080b18!important}.bar{background:linear-gradient(90deg,#ff4b8b,#ffbd00,#00e6a0,#6b7cff)!important}
 @media(max-width:900px){.wrap{width:min(1380px,96vw)!important}.hero{padding:16px!important}.chips{grid-template-columns:1fr 1fr!important}}
 </style>
+<script>
+window.addEventListener('DOMContentLoaded',()=>{
+ let hp5Palette={bg:'#130b2a',c1:'#8b3dff',c2:'#00c8ff'};
+ let scoreboardTabPalette={bg:'#2a1004',c1:'#ff7a00',c2:'#ffcf3d'};
+ function randomizeHp5Palette(){
+  const hue=Math.floor(Math.random()*360),hue2=(hue+70+Math.floor(Math.random()*110))%360;
+  hp5Palette={bg:`hsl(${hue},55%,12%)`,c1:`hsl(${hue},92%,53%)`,c2:`hsl(${hue2},94%,55%)`};
+ }
+ function randomizeScoreboardTabPalette(){
+  const value=(theme&&theme[2]||'#00d5ff').replace('#','');
+  const r=parseInt(value.slice(0,2),16)/255,g=parseInt(value.slice(2,4),16)/255,b=parseInt(value.slice(4,6),16)/255;
+  const max=Math.max(r,g,b),min=Math.min(r,g,b),delta=max-min;
+  let currentHue=0;if(delta){currentHue=max===r?60*(((g-b)/delta)%6):max===g?60*((b-r)/delta+2):60*((r-g)/delta+4);if(currentHue<0)currentHue+=360}
+  const hue=(currentHue+130+Math.floor(Math.random()*80))%360,hue2=(hue+80+Math.floor(Math.random()*70))%360;
+  scoreboardTabPalette={bg:`hsl(${hue},58%,11%)`,c1:`hsl(${hue},94%,54%)`,c2:`hsl(${hue2},92%,56%)`};
+ }
+ const templates=[
+  ['Neon Arena','Đường chéo neon · góc gaming',2,10,112],
+  ['Royal Crown','Khung đôi hoàng gia · metallic',6,5,118],
+  ['Cyber Grid','Cạnh điện · HUD tương lai',12,9,108],
+  ['Fire Storm','Nền game overlay · glow mạnh',14,8,126],
+  ['Glass Prism','Kính sáng · viền glass',5,4,104],
+  ['Minimal Pro','Sạch chuyên nghiệp · viền mảnh',0,1,96]
+ ];
+ const themeSelect=document.getElementById('themeSelect');
+ if(!themeSelect) return;
+ const label=document.createElement('label'); label.textContent='MẪU THIẾT KẾ';
+ const select=document.createElement('select'); select.id='templateSelect';
+ const chips=document.createElement('div'); chips.className='template-chips';
+ themeSelect.before(chips); themeSelect.before(select); themeSelect.before(label);
+ function chooseTemplate(index){
+  const item=templates[index]; if(!item) return;
+  mode=item[2]; border=item[3]; power=item[4]/100;
+  document.getElementById('modeSelect').value=mode;
+  document.getElementById('borderSelect').value=border;
+  document.getElementById('power').value=item[4];
+  chips.querySelectorAll('.template-chip').forEach((chip,i)=>chip.classList.toggle('active',i===index));
+  render();
+ }
+ templates.forEach((item,index)=>{
+  const option=document.createElement('option'); option.value=index; option.textContent=item[0]; select.appendChild(option);
+  const chip=document.createElement('button'); chip.type='button'; chip.className='template-chip'; chip.innerHTML=item[0]+'<span>'+item[1]+'</span>';
+  chip.onclick=()=>{select.value=index;chooseTemplate(index)}; chips.appendChild(chip);
+ });
+ select.onchange=event=>chooseTemplate(Number(event.target.value));
+ const baseDraw=window.draw;
+ window.draw=function(spec,index){
+  if(/^(TeamRegionBg|NationBg)\.png$/.test(spec[0])){
+   const w=spec[1],h=spec[2],canvas=document.createElement('canvas'),ctx=canvas.getContext('2d'),t=pickNationTheme();
+   canvas.width=w;canvas.height=h;
+   const fill=ctx.createLinearGradient(0,0,w,h);fill.addColorStop(0,t[1]);fill.addColorStop(.42,t[2]);fill.addColorStop(1,t[3]);
+   ctx.beginPath();ctx.moveTo(0,0);ctx.lineTo(w-14,0);ctx.lineTo(w,h);ctx.lineTo(0,h);ctx.closePath();ctx.fillStyle=fill;ctx.fill();
+   const shine=ctx.createLinearGradient(0,0,0,h);shine.addColorStop(0,'rgba(255,255,255,.18)');shine.addColorStop(.5,'rgba(255,255,255,.02)');shine.addColorStop(1,'rgba(0,0,0,.30)');ctx.fillStyle=shine;ctx.fill();
+   ctx.strokeStyle=rgba(t[4],.68);ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(.5,.5);ctx.lineTo(w-14,.5);ctx.lineTo(w-.5,h-.5);ctx.lineTo(.5,h-.5);ctx.stroke();return canvas;
+  }
+  if(spec[0]==='ScoreboardTab.png'){
+   const w=spec[1],h=spec[2],canvas=document.createElement('canvas'),ctx=canvas.getContext('2d'),p=scoreboardTabPalette;
+   canvas.width=w;canvas.height=h;
+   const fill=ctx.createLinearGradient(0,0,w,0);fill.addColorStop(0,p.bg);fill.addColorStop(.25,p.c1);fill.addColorStop(.72,p.c2);fill.addColorStop(1,p.bg);ctx.fillStyle=fill;ctx.fillRect(0,0,w,h);
+   const shine=ctx.createLinearGradient(0,0,0,h);shine.addColorStop(0,'rgba(255,255,255,.28)');shine.addColorStop(.48,'rgba(255,255,255,.02)');shine.addColorStop(1,'rgba(0,0,0,.35)');ctx.fillStyle=shine;ctx.fillRect(0,0,w,h);
+   ctx.strokeStyle='rgba(255,255,255,.82)';ctx.lineWidth=1;ctx.strokeRect(.5,.5,w-1,h-1);return canvas;
+  }
+  if(spec[0]==='hp5.png'){
+   const w=spec[1],h=spec[2],canvas=document.createElement('canvas'),ctx=canvas.getContext('2d');
+   canvas.width=w;canvas.height=h;
+   const bg=hp5Palette.bg,c1=hp5Palette.c1,c2=hp5Palette.c2,frame='#FFFFFF';
+   const fill=ctx.createLinearGradient(0,0,w,h);fill.addColorStop(0,bg);fill.addColorStop(.46,c1);fill.addColorStop(1,c2);ctx.fillStyle=fill;ctx.fillRect(0,0,w,h);
+   const shade=ctx.createLinearGradient(0,0,0,h);shade.addColorStop(0,'rgba(255,255,255,.14)');shade.addColorStop(.5,'rgba(0,0,0,.03)');shade.addColorStop(1,'rgba(0,0,0,.28)');ctx.fillStyle=shade;ctx.fillRect(0,0,w,h);
+   const inset=17,arm=76,width=17;
+   const corners=[[[inset+arm,inset],[inset,inset],[inset,inset+arm]],[[w-inset-arm,inset],[w-inset,inset],[w-inset,inset+arm]],[[inset,h-inset-arm],[inset,h-inset],[inset+arm,h-inset]],[[w-inset,h-inset-arm],[w-inset,h-inset],[w-inset-arm,h-inset]]];
+   ctx.save();ctx.lineCap='square';ctx.lineJoin='miter';ctx.strokeStyle=frame;ctx.lineWidth=width;ctx.shadowColor='#071326';ctx.shadowBlur=12;
+   corners.forEach(points=>{ctx.beginPath();ctx.moveTo(points[0][0],points[0][1]);ctx.lineTo(points[1][0],points[1][1]);ctx.lineTo(points[2][0],points[2][1]);ctx.stroke()});ctx.restore();
+   return canvas;
+  }
+  if(spec[0]!=='LastTeamBackground.png') return baseDraw(spec,index);
+  const w=spec[1],h=spec[2],canvas=document.createElement('canvas'),ctx=canvas.getContext('2d');
+  canvas.width=w;canvas.height=h;
+  const bg=theme[1],c1=theme[2],c2=theme[3],hot=theme[4];
+  const left=50, cutTop=182, cutBottom=164;
+  const vertical=ctx.createLinearGradient(0,0,0,h);vertical.addColorStop(0,'rgba(255,255,255,.26)');vertical.addColorStop(.45,'rgba(255,255,255,.02)');vertical.addColorStop(1,'rgba(0,0,0,.36)');
+  const leftFill=ctx.createLinearGradient(0,0,left,0);leftFill.addColorStop(0,bg);leftFill.addColorStop(1,c1);ctx.fillStyle=leftFill;ctx.fillRect(1,1,left-2,h-2);ctx.fillStyle=vertical;ctx.fillRect(1,1,left-2,h-2);
+  const middle=ctx.createLinearGradient(left,0,cutTop,h);middle.addColorStop(0,c1);middle.addColorStop(.7,c2);middle.addColorStop(1,bg);ctx.beginPath();ctx.moveTo(left,1);ctx.lineTo(cutTop,1);ctx.lineTo(cutBottom,h-1);ctx.lineTo(left,h-1);ctx.closePath();ctx.fillStyle=middle;ctx.fill();ctx.fillStyle=vertical;ctx.fill();
+  const right=ctx.createLinearGradient(cutBottom,0,w,0);right.addColorStop(0,mix(c1,c2,.45));right.addColorStop(1,bg);ctx.beginPath();ctx.moveTo(cutTop,1);ctx.lineTo(w-1,1);ctx.lineTo(w-1,h-1);ctx.lineTo(cutBottom,h-1);ctx.closePath();ctx.fillStyle=right;ctx.fill();ctx.fillStyle=vertical;ctx.fill();
+  ctx.strokeStyle=hot;ctx.globalAlpha=.86;ctx.lineWidth=1.2;ctx.strokeRect(.6,.6,left-1.2,h-1.2);ctx.beginPath();ctx.moveTo(left,1);ctx.lineTo(cutTop,1);ctx.lineTo(cutBottom,h-1);ctx.lineTo(left,h-1);ctx.closePath();ctx.stroke();ctx.beginPath();ctx.moveTo(cutTop,1);ctx.lineTo(w-1,1);ctx.lineTo(w-1,h-1);ctx.lineTo(cutBottom,h-1);ctx.closePath();ctx.stroke();ctx.globalAlpha=1;
+  return canvas;
+ };
+ document.getElementById('randomBtn').addEventListener('click',()=>{randomizeHp5Palette();randomizeScoreboardTabPalette();render()});
+ chooseTemplate(0);
+});
+</script>
 </head><body><div class="wrap"><div class="hero"><h1>HUD PIC Studio v7 Group Colors</h1><div class="sub">Giữ nguyên bản v7: Random vẫn chạy. TeamPlayer1–4 cùng màu, WinRate một màu riêng, NationBg + TeamRegionBg cùng một màu riêng.</div><div class="layout"><aside class="box"><button class="btn" id="randomBtn">🎲 RANDOM 150+ STYLE</button><button class="btn alt" id="exportBtn">📦 TẠO TẤT CẢ PNG + ZIP</button><label>Banner giải đấu</label><input id="bannerInput" type="file" accept="image/*" multiple><button class="btn banner" id="bannerBtn">📸 TẠO STYLE TỪ BANNER</button><div class="bannerPreview" id="bannerPreview"></div><div class="colorDots" id="colorDots"></div><p class="stat">Tải 1 hoặc nhiều banner giải lên, web sẽ tự lấy màu chính để tạo gradient/viền sạch, không lấy họa tiết nên không che chữ.</p><label>Style màu</label><select id="themeSelect"></select><label>Kiểu gradient</label><select id="modeSelect"></select><label>Kiểu viền</label><select id="borderSelect"></select><label>Độ sáng màu</label><input id="power" type="range" min="65" max="145" value="100"><div class="progress"><div class="bar" id="bar"></div></div><p class="stat">Xuất đúng tên file gốc trong thư mục <b>HUD_PIC/</b>. Bản v4 có nhiều preset màu/gradient/viền hơn. Random cả bộ cùng một style, nền sạch không họa tiết để chữ trong game rõ.</p><span class="badge">No texture</span><span class="badge">No pattern</span><span class="badge">Clean text</span><span class="badge">43 PNG</span><span class="badge">TeamPlayer cùng màu</span><span class="badge">WinRate riêng màu</span><span class="badge">Nation/Region cùng màu</span><label>Preset nhanh</label><div id="styleChips" class="chips"></div></aside><main><div class="previewTop"><div class="box"><div class="theme" id="themeName"></div><p class="stat" id="desc"></p><div class="big" id="big1"></div></div><div class="box"><div class="theme">Preview HUD</div><p class="stat">Xem trước file lớn và file nhỏ để test độ rõ chữ.</p><div class="big" id="big2"></div></div></div><div class="grid" id="grid"></div></main></div></div></div><script>
 const SPECS=[['AchievementFarthestBg.png',574,114],['AchievementFarthestIcon.png',140,140],['AchievementGrenadeKillLeaderBg.png',574,114],['AchievementGrenadeKillLeaderIcon.png',140,140],['AchievementHealMaxBg.png',574,114],['AchievementHealMaxIcon.png',140,140],['AchievementHighestDamageBg.png',574,114],['AchievementHighestDamageIcon.png',140,140],['AchievementKillLeaderBg.png',574,114],['AchievementKillLeaderIcon.png',140,140],['AchievementMoveFarthestBg.png',574,114],['AchievementMoveFarthestIcon.png',140,140],['AchievementResureBg.png',574,114],['AchievementResureIcon.png',140,140],['ArmorBackground.png',26,38],['GloowallBackground.png',54,38],['GrenadeBackground.png',54,38],['hp1.png',1105,207],['hp12.png',989,374],['hp13.png',989,374],['hp2.png',1105,207],['hp3.png',813,376],['hp4.png',813,376],['hp5.png',1037,372],['KillFeedsBackground.png',227,54],['LastTeamBackground.png',286,53],['MapTeamBG.png',292,122],['MedkitBackground.png',54,38],['NationBg.png',157,39],['ReviveFeedsBackground.png',227,54],['ScoreboardBackground.png',1105,207],['ScoreboardTab.png',169,22],['TeamPlayer1.png',37,30],['TeamPlayer2.png',37,30],['TeamPlayer3.png',37,30],['TeamPlayer4.png',37,30],['TeamPlayerBackground1.png',297,30],['TeamPlayerBackground2.png',297,30],['TeamPlayerBackground3.png',297,30],['TeamPlayerBackground4.png',297,30],['TeamRegionBg.png',174,39],['WeaponBackground.png',110,38],['WinRateBackground.png',149,33]];
 const THEMES=[['Cyber Blue','#061728','#00eaff','#245bff','#ffffff'],['Ocean Aqua','#042126','#00ffd5','#008cff','#e7ffff'],['Royal Purple','#13061f','#a54dff','#ff37d6','#fff1ff'],['Inferno Red','#260606','#ff2d2d','#ff9b00','#fff0c8'],['Gold Premium','#1d1304','#ffd36b','#ff7a00','#ffffff'],['Emerald','#031d12','#00ff88','#0aa34f','#ecfff2'],['Ice Crystal','#071622','#a8ffff','#6b8cff','#ffffff'],['Pink Sakura','#230817','#ff5ab7','#ff9dcc','#fff2fb'],['Titan Silver','#0a0d12','#dfe8ff','#6c7a96','#ffffff'],['Carbon Blue','#03060d','#1b62ff','#00d5ff','#eaf8ff'],['Sunset','#220910','#ff5f6d','#ffc371','#fff1d7'],['Lime Neon','#081c08','#a6ff00','#00ff88','#f5ffe6'],['Deep Space','#08051b','#7c4dff','#00c2ff','#ffffff'],['Rose Gold','#1a0b09','#ffb199','#ff0844','#fff1e9'],['White Pearl','#151719','#ffffff','#9fd7ff','#ffffff'],['Orange Fire','#201006','#ff8a00','#ff2d00','#fff0d0'],['Mint Glass','#062018','#9affd8','#00c896','#ffffff'],['Violet Gold','#100616','#bf5fff','#ffd36b','#fff5d6'],['Sky Blue','#061725','#5ee7ff','#1b6cff','#ffffff'],['Dark Red','#150205','#b90022','#ff5e00','#ffe0d0'],['Aqua Pink','#06151d','#00f0ff','#ff4fd8','#ffffff'],['Green Gold','#0b1604','#7dff3a','#ffd000','#ffffdc'],['Blue Silver','#050d1c','#4ba3ff','#dfe8ff','#ffffff'],['Purple Ice','#0c061d','#7d5cff','#b7ffff','#ffffff'],['Red Gold','#1c0505','#ff3131','#ffd36b','#fff0c0'],['Black Gold','#070605','#ffcc4d','#8b5a00','#fff2bd'],['Neon RGB','#050615','#00eaff','#ff2dda','#ffffff'],['Lavender','#11081d','#d69cff','#8d65ff','#fff8ff'],['Teal Night','#031616','#00d2b8','#0057ff','#e9fffb'],['Candy','#170914','#ff7ad9','#7afcff','#fff'],['Zeus Blue','#05091a','#0ab6ff','#001dff','#eaffff'],['Neon Green','#061604','#10ff00','#00a2ff','#ffffff'],['Purple Match','#12051f','#8f37ff','#29ff7a','#ffffff'],['Pro Scrim HD','#071122','#138bff','#792fff','#ffffff'],['Victory Gold','#151006','#ffcf43','#875cff','#fff7d8'],['Elite Cyan','#03151c','#00ffff','#0068ff','#ffffff'],['Ruby Dark','#170308','#e40039','#7e2bff','#ffe8ee'],['Booyah Lime','#071706','#65ff21','#00d5ff','#ffffff'],['Midnight Navy','#030814','#183bff','#00c8ff','#f0fbff'],['Aqua Violet','#061222','#00ffd8','#a14dff','#ffffff'],['Royal Blue','#020d22','#006dff','#00eaff','#ffffff'],['Plasma Pink','#1c0417','#ff2bd6','#7d4dff','#fff3ff'],['Lava Gold','#190604','#ff3d00','#ffc400','#fff4c8'],['Chrome Cyan','#0b1018','#d7f7ff','#00a6ff','#ffffff'],['Matte Purple','#0d0615','#6f42ff','#ad77ff','#faf0ff'],['Soft Peach','#1b0b08','#ff9a76','#ffd0a6','#ffffff'],['Arctic Blue','#07151e','#69f0ff','#a8c8ff','#ffffff'],['Toxic Lime','#071303','#c7ff00','#28ff6a','#f8ffe8'],['Royal Wine','#160313','#ba2cff','#ff477e','#fff0f7'],['Electric Sky','#05101e','#00aaff','#73ffef','#ffffff'],['Black Ice','#05070b','#86f7ff','#365eff','#ffffff'],['Bronze','#171007','#d98a2b','#ffd08a','#fff0d5'],['Minimal Gray','#0c0f15','#aab4c8','#465062','#ffffff'],['Future Tech','#051320','#00e0ff','#0066ff','#ffffff'],['Galaxy Purple','#08051c','#563bff','#ff4df0','#ffffff'],['Diamond Blue','#03121c','#76ffff','#008cff','#ffffff'],['Evo Purple','#11051d','#8d20ff','#24ffbb','#ffffff'],['Scrim Green','#031307','#00e35c','#14a8ff','#ffffff'],['FFPL Orange','#190b03','#ff7b00','#ffcf2e','#fff7d0'],['Night Sakura','#160516','#ff4ecb','#754dff','#fff4ff'],['Premium White','#101419','#f9fbff','#73cfff','#ffffff'],['Dark Carbon','#02040a','#2a66ff','#00d5ff','#ffffff'],['Blue Purple','#04091d','#0066ff','#b300ff','#ffffff'],['Green Purple','#051207','#00ff72','#7d4dff','#ffffff'],['Red Purple','#150409','#ff1744','#a64dff','#ffffff'],['Yellow Green','#101505','#ffe600','#16ff72','#ffffef'],['Cyan Gold','#041519','#00f0ff','#ffd04d','#ffffff'],['Pink Gold','#180916','#ff3ec8','#ffd36b','#fff2fb'],['Ice Gold','#07151d','#9af8ff','#ffd56b','#ffffff'],['Blood Neon','#120105','#ff003c','#ff7a00','#ffe5e5'],['Sea Glass','#041819','#2fffd2','#3a8dff','#ffffff'],['Violet Cyber','#0b041c','#5a2dff','#ff2df7','#ffffff'],['Green Cyber','#031009','#00ff99','#00a3ff','#ffffff'],['Orange Cyber','#180903','#ff8a00','#00d5ff','#fff2d9'],['Blue Lime','#04121a','#008cff','#95ff00','#ffffff'],['Purple Lime','#100619','#a020ff','#b6ff00','#fffaff'],['Cherry','#19060c','#ff2d7a','#ff8a8a','#fff0f5'],['Cobalt','#030d1e','#165dff','#00d5ff','#ffffff'],['Azure','#031524','#16c7ff','#005dff','#ffffff'],['Matrix Green','#021208','#00ff41','#007a2b','#eefff4'],['Solar','#190e02','#ffcc00','#ff5400','#fff5cc'],['Amethyst','#0e061a','#9966ff','#ff66f2','#ffffff'],['Moonlight','#080c16','#ccd7ff','#4e73ff','#ffffff'],['Neon Mint','#031713','#00ffc8','#3dff6b','#ffffff'],['Hot Magenta','#170214','#ff00cc','#ff5a00','#fff1fb'],['Royal Cyan','#06101f','#00e1ff','#375dff','#ffffff'],['Purple Flame','#110411','#d600ff','#ff5a00','#fff0ff'],['Cyber Gold','#0c0a04','#ffd000','#00c8ff','#fff8d0'],['Emerald Gold','#061406','#00d85f','#ffd34f','#f3ffe8'],['Steel Blue','#07101a','#789cff','#d8e6ff','#ffffff'],['Frost Purple','#0a061a','#b58cff','#cfffff','#ffffff'],['Storm Blue','#050b17','#1d6dff','#6bffef','#ffffff'],['Thunder Yellow','#151005','#ffe600','#ff8a00','#fffbd0'],['Mint Pink','#071513','#6fffd8','#ff75c8','#ffffff'],['Ocean Gold','#041420','#00aaff','#ffc857','#ffffff'],['Carbon Red','#080305','#ff214f','#393d4f','#ffe8ee'],['Carbon Green','#030806','#22ff79','#293b33','#effff5'],['Carbon Purple','#07040d','#a855ff','#303047','#ffffff'],['Glass Blue','#081320','#7bdfff','#3973ff','#ffffff'],['Glass Purple','#10091b','#d493ff','#754dff','#ffffff'],['Glass Green','#071812','#a4ffd8','#00b76b','#ffffff'],['Glass Red','#1a0808','#ff8b8b','#ff245a','#ffffff'],['Pearl Gold','#16120a','#fff0a8','#ffc04d','#ffffff'],['Pearl Pink','#160d15','#ffd1f1','#ff65c7','#ffffff'],['Pearl Blue','#0a111a','#c9f6ff','#5ab7ff','#ffffff'],['Pearl Green','#0a1510','#c7ffe6','#33d17a','#ffffff'],['Ultra Violet','#080319','#6d00ff','#00eaff','#ffffff'],['Hyper Blue','#020817','#0047ff','#00ffff','#ffffff'],['Hyper Red','#150205','#ff0033','#ffcc00','#ffffff'],['Hyper Green','#021004','#00ff55','#bfff00','#ffffff'],['Royal Gold 2','#0e0902','#f7b500','#fff0a2','#ffffff'],['Ocean Purple','#06101b','#00a6ff','#8e44ff','#ffffff'],['Sakura Blue','#130817','#ff68c8','#4ac7ff','#ffffff'],['Aqua Orange','#051517','#00ffd5','#ff8a00','#ffffff'],['Blue Fire','#050918','#00a8ff','#ff5a00','#ffffff'],['Green Fire','#061105','#00ff6a','#ff7a00','#ffffff'],['Pink Fire','#160615','#ff2bc8','#ffb000','#ffffff'],['Purple Gold Pro','#100519','#8f37ff','#ffd24d','#ffffff'],['Cyan Purple Pro','#06121d','#00d5ff','#be2dff','#ffffff'],['Lime Purple Pro','#091307','#9dff00','#a64dff','#ffffff'],['Orange Purple Pro','#160803','#ff7b00','#8f37ff','#ffffff'],['Silver Cyan Pro','#0c1016','#dce8ff','#00d5ff','#ffffff'],['Blue Clean Pro','#031022','#0c7dff','#65e7ff','#ffffff'],['Green Clean Pro','#031407','#00c853','#8affc1','#ffffff'],['Red Clean Pro','#180407','#f02445','#ff8a65','#ffffff'],['Purple Clean Pro','#0e0618','#8e44ff','#df9cff','#ffffff']];
@@ -147,24 +238,13 @@ function drawTeamPlayer(spec,i){
   let [file,w,h]=spec,c=document.createElement('canvas'),x=c.getContext('2d');c.width=w;c.height=h;
   // TeamPlayer1-4 luôn dùng cùng 1 màu/style, không random khác nhau.
   const t=pickTeamTheme(), bg=t[1], c1=t[2], c2=t[3], hot=t[4];
-  const innerW=Math.max(1,Math.round(w*0.70));
-  let g=x.createLinearGradient(0,0,innerW,h);
-  g.addColorStop(0,bg);g.addColorStop(.45,c1);g.addColorStop(1,c2);
-  x.fillStyle=g; x.fillRect(0,0,innerW,h);
-  let shade=x.createLinearGradient(0,0,0,h);
-  shade.addColorStop(0,'rgba(255,255,255,.18)');shade.addColorStop(.45,'rgba(0,0,0,.06)');shade.addColorStop(1,'rgba(0,0,0,.38)');
-  x.fillStyle=shade; x.fillRect(0,0,innerW,h);
-  // Viền rõ, nền tối để chữ trắng nổi. Không vẽ họa tiết ở giữa.
-  x.save();
-  x.shadowColor=c1;x.shadowBlur=3;x.strokeStyle=c1;x.lineWidth=1;
-  x.strokeRect(.5,.5,innerW-1,h-1);
-  x.shadowBlur=0;x.strokeStyle='rgba(255,255,255,.45)';x.beginPath();x.moveTo(1,1.5);x.lineTo(innerW-2,1.5);x.stroke();
-  x.strokeStyle='rgba(0,0,0,.45)';x.beginPath();x.moveTo(1,h-1.5);x.lineTo(innerW-2,h-1.5);x.stroke();
-  // Mép kết thúc có glow nhẹ, chừa phần phải trong suốt cho tên player trong game.
-  const edge=x.createLinearGradient(innerW-4,0,innerW+1,0);
-  edge.addColorStop(0,'rgba(0,0,0,0)');edge.addColorStop(.45,rgba(c1,.9));edge.addColorStop(1,rgba(hot,.18));
-  x.fillStyle=edge;x.fillRect(Math.max(0,innerW-4),1,4,h-2);
+  const innerW=Math.max(1,Math.round(w*0.80)), slant=3;
+  // Phần màu chỉ chiếm bên trái; đuôi xiên rõ để đúng mẫu TeamPlayer 37 × 30.
+  x.save();x.beginPath();x.moveTo(0,0);x.lineTo(innerW,0);x.lineTo(innerW-slant,h);x.lineTo(0,h);x.closePath();x.clip();
+  let g=x.createLinearGradient(0,0,innerW,h);g.addColorStop(0,bg);g.addColorStop(.42,c1);g.addColorStop(1,c2);x.fillStyle=g;x.fillRect(0,0,innerW,h);
+  let shade=x.createLinearGradient(0,0,0,h);shade.addColorStop(0,'rgba(255,255,255,.16)');shade.addColorStop(.5,'rgba(0,0,0,.03)');shade.addColorStop(1,'rgba(0,0,0,.34)');x.fillStyle=shade;x.fillRect(0,0,innerW,h);
   x.restore();
+  x.save();x.strokeStyle=rgba(hot,.68);x.lineWidth=1;x.beginPath();x.moveTo(innerW-.5,.5);x.lineTo(innerW-slant+.5,h-.5);x.stroke();x.restore();
   return c;
 }
 
