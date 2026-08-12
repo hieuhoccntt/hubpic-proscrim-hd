@@ -53,6 +53,7 @@ h1{font-weight:950!important;background:linear-gradient(90deg,#fff,#ffe08a,#00e6
 window.addEventListener('DOMContentLoaded',()=>{
  let hp5Palette={bg:'#130b2a',c1:'#8b3dff',c2:'#00c8ff'};
  let scoreboardTabPalette={bg:'#2a1004',c1:'#ff7a00',c2:'#ffcf3d'};
+ let killFeedPalette={bg:'#061d42',c1:'#0088ff',c2:'#7ac8ff'};
  function randomizeHp5Palette(){
   const hue=Math.floor(Math.random()*360),hue2=(hue+70+Math.floor(Math.random()*110))%360;
   hp5Palette={bg:`hsl(${hue},55%,12%)`,c1:`hsl(${hue},92%,53%)`,c2:`hsl(${hue2},94%,55%)`};
@@ -64,6 +65,19 @@ window.addEventListener('DOMContentLoaded',()=>{
   let currentHue=0;if(delta){currentHue=max===r?60*(((g-b)/delta)%6):max===g?60*((b-r)/delta+2):60*((r-g)/delta+4);if(currentHue<0)currentHue+=360}
   const hue=(currentHue+130+Math.floor(Math.random()*80))%360,hue2=(hue+80+Math.floor(Math.random()*70))%360;
   scoreboardTabPalette={bg:`hsl(${hue},58%,11%)`,c1:`hsl(${hue},94%,54%)`,c2:`hsl(${hue2},92%,56%)`};
+ }
+ function randomizeKillFeedPalette(){
+  // Bảng màu riêng, nền luôn đủ tối để chữ trắng trong Kill Feed nổi rõ.
+  const palettes=[
+   {bg:'#071a46',c1:'#075bdb',c2:'#37b9ff'},
+   {bg:'#410715',c1:'#b90d35',c2:'#ff5d71'},
+   {bg:'#250743',c1:'#6d21cb',c2:'#bd6cff'},
+   {bg:'#442006',c1:'#c85209',c2:'#ffb13d'},
+   {bg:'#063522',c1:'#087d4a',c2:'#36d984'},
+   {bg:'#3a091f',c1:'#a31365',c2:'#ff63b7'},
+   {bg:'#07313b',c1:'#087d90',c2:'#4ee8e6'}
+  ];
+  killFeedPalette=palettes[Math.floor(Math.random()*palettes.length)];
  }
  const templates=[
   ['Neon Arena','Đường chéo neon · góc gaming',2,10,112],
@@ -94,8 +108,56 @@ window.addEventListener('DOMContentLoaded',()=>{
   chip.onclick=()=>{select.value=index;chooseTemplate(index)}; chips.appendChild(chip);
  });
  select.onchange=event=>chooseTemplate(Number(event.target.value));
- const baseDraw=window.draw;
+  const achievementIconSources={
+   'AchievementFarthestIcon.png':'assets/AchievementFarthestIcon.png',
+   'AchievementGrenadeKillLeaderIcon.png':'assets/AchievementGrenadeKillLeaderIcon.png',
+   'AchievementHealMaxIcon.png':'assets/AchievementHealMaxIcon.png',
+   'AchievementHighestDamageIcon.png':'assets/AchievementHighestDamageIcon.png',
+   'AchievementKillLeaderIcon.png':'assets/AchievementKillLeaderIcon.png',
+   'AchievementMoveFarthestIcon.png':'assets/AchievementMoveFarthestIcon.png',
+   'AchievementResureIcon.png':'assets/AchievementResureIcon.png'
+  };
+  const achievementOriginalIcons={};
+  Object.entries(achievementIconSources).forEach(([name,source])=>{
+   const image=new Image();
+   image.onload=()=>{achievementOriginalIcons[name]=image;if(typeof render==='function')render();};
+   image.src=source;
+  });
+  const baseDraw=window.draw;
  window.draw=function(spec,index){
+  if(/^Achievement.*Bg\.png$/.test(spec[0])){
+   const w=spec[1],h=spec[2],canvas=document.createElement('canvas'),ctx=canvas.getContext('2d');canvas.width=w;canvas.height=h;
+   const iconBox=Math.round(h*.70),ix=Math.round(h*.18),iy=Math.round((h-iconBox)/2),bandX=Math.round(w*.36),bandW=Math.round(w*.39),cut=Math.round(h*.35);
+   const fill=ctx.createLinearGradient(0,0,w,0);fill.addColorStop(0,theme[1]);fill.addColorStop(.30,mix(theme[1],theme[2],.26));fill.addColorStop(.66,theme[2]);fill.addColorStop(1,theme[3]);ctx.fillStyle=fill;ctx.fillRect(0,0,w,h);
+   const radial=ctx.createRadialGradient(w*.48,h*.25,0,w*.48,h*.4,w*.7);radial.addColorStop(0,rgba(theme[4],.28));radial.addColorStop(1,'rgba(0,0,0,0)');ctx.fillStyle=radial;ctx.fillRect(0,0,w,h);
+   ctx.fillStyle=mix(theme[1],'#000000',.38);ctx.fillRect(ix,iy,iconBox,iconBox);ctx.strokeStyle=rgba(theme[4],.45);ctx.lineWidth=Math.max(2,h*.018);ctx.strokeRect(ix,iy,iconBox,iconBox);
+   ctx.shadowColor=mix(theme[1],'#000000',.60);ctx.shadowBlur=Math.max(7,h*.08);ctx.fillStyle=mix(theme[1],'#000000',.18);ctx.beginPath();ctx.moveTo(bandX,h*.33);ctx.lineTo(bandX+bandW,h*.33);ctx.lineTo(bandX+bandW+cut,h*.76);ctx.lineTo(bandX+cut,h*.76);ctx.closePath();ctx.fill();ctx.shadowBlur=0;
+   ctx.strokeStyle=rgba(theme[4],.26);ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(bandX,h*.33);ctx.lineTo(bandX+bandW,h*.33);ctx.lineTo(bandX+bandW+cut,h*.76);ctx.lineTo(bandX+cut,h*.76);ctx.closePath();ctx.stroke();
+   return canvas;
+  }
+  if(/^Achievement.*Icon\.png$/.test(spec[0])){
+   const w=spec[1],h=spec[2],canvas=document.createElement('canvas'),ctx=canvas.getContext('2d'),original=achievementOriginalIcons[spec[0]];
+   canvas.width=w;canvas.height=h;
+   if(original){
+    // Giữ nguyên silhouette/chi tiết của icon gốc, chỉ đổi sắc màu theo Hubpic đang chọn.
+    ctx.drawImage(original,0,0,w,h);
+    ctx.globalCompositeOperation='source-atop';
+    const tint=ctx.createLinearGradient(0,0,w,h);
+    tint.addColorStop(0,theme[4]);tint.addColorStop(.38,theme[2]);tint.addColorStop(1,theme[3]);
+    // Tô màu vừa phải: ảnh gốc vẫn giữ lại vân, vùng sáng/tối và chi tiết nhỏ.
+    ctx.globalAlpha=.62;ctx.fillStyle=tint;ctx.fillRect(0,0,w,h);
+    ctx.globalAlpha=1;ctx.globalCompositeOperation='source-over';
+   }
+   return canvas;
+  }
+  if(spec[0]==='KillFeedsBackground.png'){
+   const w=spec[1],h=spec[2],canvas=document.createElement('canvas'),ctx=canvas.getContext('2d'),p=killFeedPalette;
+   canvas.width=w;canvas.height=h;
+   const cut=38;ctx.beginPath();ctx.moveTo(0,0);ctx.lineTo(w-cut,0);ctx.lineTo(w,h);ctx.lineTo(0,h);ctx.closePath();
+   const fill=ctx.createLinearGradient(0,0,w,h);fill.addColorStop(0,p.bg);fill.addColorStop(.48,p.c1);fill.addColorStop(1,p.c2);ctx.fillStyle=fill;ctx.fill();
+   const shine=ctx.createLinearGradient(0,0,0,h);shine.addColorStop(0,'rgba(255,255,255,.26)');shine.addColorStop(.45,'rgba(255,255,255,.03)');shine.addColorStop(1,'rgba(0,0,0,.34)');ctx.fillStyle=shine;ctx.fill();
+   ctx.strokeStyle='rgba(255,255,255,.7)';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(.5,.5);ctx.lineTo(w-cut,.5);ctx.lineTo(w-.5,h-.5);ctx.lineTo(.5,h-.5);ctx.stroke();return canvas;
+  }
   if(/^(TeamRegionBg|NationBg)\.png$/.test(spec[0])){
    const w=spec[1],h=spec[2],canvas=document.createElement('canvas'),ctx=canvas.getContext('2d'),t=pickNationTheme();
    canvas.width=w;canvas.height=h;
@@ -135,7 +197,7 @@ window.addEventListener('DOMContentLoaded',()=>{
   ctx.strokeStyle=hot;ctx.globalAlpha=.86;ctx.lineWidth=1.2;ctx.strokeRect(.6,.6,left-1.2,h-1.2);ctx.beginPath();ctx.moveTo(left,1);ctx.lineTo(cutTop,1);ctx.lineTo(cutBottom,h-1);ctx.lineTo(left,h-1);ctx.closePath();ctx.stroke();ctx.beginPath();ctx.moveTo(cutTop,1);ctx.lineTo(w-1,1);ctx.lineTo(w-1,h-1);ctx.lineTo(cutBottom,h-1);ctx.closePath();ctx.stroke();ctx.globalAlpha=1;
   return canvas;
  };
- document.getElementById('randomBtn').addEventListener('click',()=>{randomizeHp5Palette();randomizeScoreboardTabPalette();render()});
+ document.getElementById('randomBtn').addEventListener('click',()=>{randomizeHp5Palette();randomizeScoreboardTabPalette();randomizeKillFeedPalette();render()});
  chooseTemplate(0);
 });
 </script>
@@ -249,11 +311,9 @@ function drawTeamPlayer(spec,i){
 }
 
 function draw(spec,i){let [file,w,h]=spec;if(/^TeamPlayer[1-4]\.png$/.test(file))return drawTeamPlayer(spec,i);let c=document.createElement('canvas'),x=c.getContext('2d');c.width=w;c.height=h;let activeTheme=themeForFile(file);let [name,bg,c1,c2,hot]=activeTheme;x.fillStyle=gradient(x,w,h,activeTheme);x.fillRect(0,0,w,h);
-// phủ mượt, không họa tiết
-let v=x.createLinearGradient(0,0,0,h);v.addColorStop(0,'rgba(255,255,255,.08)');v.addColorStop(.48,'rgba(0,0,0,.06)');v.addColorStop(1,'rgba(0,0,0,.28)');x.fillStyle=v;x.fillRect(0,0,w,h);
-let glow=x.createRadialGradient(w*.18,h*.08,0,w*.18,h*.08,Math.max(w,h)*.8);glow.addColorStop(0,rgba(hot,.12*power));glow.addColorStop(.35,rgba(c1,.08*power));glow.addColorStop(1,'rgba(255,255,255,0)');x.fillStyle=glow;x.fillRect(0,0,w,h);
-// mép sáng tối giản, không nằm giữa chữ
-x.globalAlpha=.22*power;x.fillStyle=rgba(hot,.7);x.fillRect(0,0,w,Math.max(1,h*.08));x.fillStyle=rgba(bg,.9);x.fillRect(0,h-Math.max(1,h*.12),w,Math.max(1,h*.12));x.globalAlpha=1;
+// Lớp màu liền mạch: không tạo dải ngang khiến nền bị chia thành hình hộp.
+let v=x.createRadialGradient(w*.22,h*.18,0,w*.52,h*.52,Math.max(w,h)*.88);v.addColorStop(0,'rgba(255,255,255,.13)');v.addColorStop(.42,'rgba(255,255,255,.025)');v.addColorStop(1,'rgba(0,0,0,.15)');x.fillStyle=v;x.fillRect(0,0,w,h);
+let glow=x.createRadialGradient(w*.18,h*.10,0,w*.30,h*.36,Math.max(w,h)*.75);glow.addColorStop(0,rgba(hot,.13*power));glow.addColorStop(.42,rgba(c1,.055*power));glow.addColorStop(1,'rgba(255,255,255,0)');x.fillStyle=glow;x.fillRect(0,0,w,h);
 let r=Math.min(16,Math.max(3,Math.min(w,h)*.22));if(border!==0){x.save();x.lineJoin='round';let lw=Math.max(1.2,Math.min(w,h)*(border===2||border===6?.07:.045));x.lineWidth=lw;x.strokeStyle=border===5?hot:c1;x.shadowColor=x.strokeStyle;x.shadowBlur=border===2?Math.max(4,Math.min(18,w/45)):border===6?Math.max(8,Math.min(26,w/28)):0;rr(x,lw/2,lw/2,w-lw,h-lw,r,false,true);x.shadowBlur=0;if(border===3||border===4||border===5){x.lineWidth=Math.max(1,Math.min(w,h)*.018);x.strokeStyle=border===5?c1:rgba(hot,.72);rr(x,Math.max(3,w*.015),Math.max(3,h*.04),w-Math.max(6,w*.03),h-Math.max(6,h*.08),Math.max(2,r-3),false,true)}if(border===7){x.lineWidth=Math.max(1,Math.min(w,h)*.025);x.strokeStyle=rgba(hot,.38);rr(x,1,1,w-2,h-2,r,false,true)}
 if(border>=8){drawCleanEdge(x,w,h,c1,c2,hot,bg,border,r)}x.restore()}
 // Riêng TeamPlayer1-4: giữ canvas gốc 37x30 nhưng phần thiết kế chỉ dài 70% chiều ngang
