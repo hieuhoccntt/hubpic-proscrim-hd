@@ -241,9 +241,9 @@ font-size:16px;
  background:#090909;
  box-shadow:0 0 22px rgba(255,179,0,.18);
 }
-.avatar-preview-table{
+.avatar-preview-table{ 
  width:100%;
- min-width:610px;
+ min-width:735px;
  border-collapse:separate;
  border-spacing:0;
  color:#fff;
@@ -273,6 +273,9 @@ font-size:16px;
 .avatar-preview-table .table-number{color:var(--team-color);font-size:23px;line-height:1.15;}
 .avatar-preview-table .table-team{text-align:left;color:#fff;text-transform:uppercase;font-size:23px;line-height:1.15;}
 .avatar-preview-table .table-avatar{width:66px;padding:3px;}
+.avatar-preview-table .table-logo{width:72px;padding:3px;text-align:center;}
+.avatar-preview-table .table-logo img{width:48px;height:48px;object-fit:contain;background:#0a0f18;}
+.avatar-preview-table .table-logo-empty{color:rgba(255,255,255,.35);font-size:18px;}
 .avatar-preview-table img{
  width:43px;
  height:43px;
@@ -381,7 +384,7 @@ font-size:16px;
 .avatar-action-group:last-child{border-right:0;padding-right:0;}
 .avatar-action-group button{width:100%;white-space:nowrap;}
 @media(max-width:760px){.avatar-preview-actions{gap:10px;}.avatar-action-group{width:100%;padding:0 0 10px;border-right:0;border-bottom:1px dashed rgba(99,225,255,.45);}.avatar-action-group:last-child{border-bottom:0;padding-bottom:0;}}
-.avatar-preview-table.avatar-template-classic{min-width:720px;background:#fff;border:1px solid #17202a;border-radius:0;color:#111;}
+.avatar-preview-table.avatar-template-classic{min-width:790px;background:#fff;border:1px solid #17202a;border-radius:0;color:#111;}
 .avatar-preview-table.avatar-template-classic th{height:72px;padding:15px 16px;border-bottom:1px solid #7b8188;background:#f0f2f4;color:#101419;font-size:20px;text-align:center;letter-spacing:.4px;}
 .avatar-preview-table.avatar-template-classic th:first-child{width:80px;}
 .avatar-preview-table.avatar-template-classic th:nth-child(2){text-align:center;}
@@ -392,6 +395,8 @@ font-size:16px;
 .avatar-preview-table.avatar-template-classic .table-team{color:#111;font-size:20px;font-weight:800;text-align:left;text-transform:none;}
 .avatar-preview-table.avatar-template-classic .table-avatar{width:96px;padding:6px;text-align:center;}
 .avatar-preview-table.avatar-template-classic img{width:58px;height:58px;margin:auto;border:0;border-radius:0;box-shadow:none;}
+.avatar-preview-table.avatar-template-classic .table-logo{width:92px;padding:6px;text-align:center;}
+.avatar-preview-table.avatar-template-classic .table-logo img{width:58px;height:58px;object-fit:contain;}
 .avatar-preview-table.avatar-template-classic .table-owner{color:#111;font-size:20px;font-weight:800;text-shadow:none;}
 .team-control-actions,.logo-export-actions{display:flex;flex-wrap:wrap;gap:10px;margin:12px 0;}
 .team-control-actions button,.logo-export-actions button,.scrim-reset-btn,.scrim-json-btn{margin:0;min-height:43px;padding:10px 16px;border:1px solid rgba(255,255,255,.22);border-radius:13px;color:#fff;font-size:14px;font-weight:900;letter-spacing:.15px;box-shadow:0 7px 16px rgba(0,0,0,.27);transition:transform .18s ease,filter .18s ease,box-shadow .18s ease;}
@@ -918,13 +923,21 @@ function downloadJson(){
 let teamNames=[];
 const avatarOwners=['Andrew','Kelly','Olivia','Ford','Nikita','Misha','Maxim','Kla','Paloma','Miguel','Caroline','Antonio','Ngộ Không','Moco','Hayato','Laura','Rafel','A124','Joseph','Shani','Alok','Notora','Alvaro','Jota'];
 const avatarCardColors=['#f3c277','#ff8dcc','#e78589','#67c7ff','#a8dcff','#a9ea73','#ffe06c','#ff9c31','#ff6b72','#ef72ad','#c59aff','#659fff','#ff4c4c','#75f0ca','#ffd25c','#b9e1ff','#d4b3ff','#77d9f4','#ffd28b','#ff9ab8','#c6a66d','#e8b9ff','#ffc278','#a9dbff'];
+const avatarPreviewLogoUrls=new WeakMap();
+function getAvatarPreviewLogoUrl(index){
+ const assignment=logoAssignments[index];
+ const file=assignment!=='' ? logoFileStore[Number(assignment)] : null;
+ if(!file) return '';
+ if(!avatarPreviewLogoUrls.has(file)) avatarPreviewLogoUrls.set(file,URL.createObjectURL(file));
+ return avatarPreviewLogoUrls.get(file);
+}
 function renderAvatarPreview(){
  const preview=document.getElementById('avatarPreview');
  if(!teamNames.length){
    preview.innerHTML='';
    return;
  }
- preview.innerHTML='<div class="avatar-preview-title">Đối chiếu Team &amp; Avatar</div><div class="avatar-preview-actions"><div class="avatar-action-group"><button type="button" class="table-download" onclick="downloadAvatarPreviewImage()">📥 Tải ảnh bảng</button><button type="button" class="copy-preview-btn" onclick="copyAvatarPreviewImage()">📋 Copy ảnh</button></div><div class="avatar-action-group"><button type="button" class="random-download" onclick="downloadAvatarPreviewImage(true)">🎨 Tải ảnh random màu</button><button type="button" class="copy-random-preview-btn" onclick="copyAvatarPreviewImage(true)">🌈 Copy ảnh random màu</button></div><div class="avatar-action-group"><button type="button" class="white-palette-download" onclick="downloadAvatarPreviewImage(\'white15\')">🌈 Tải random 15 màu</button><button type="button" class="white-palette-copy" onclick="copyAvatarPreviewImage(\'white15\')">📋 Copy random 15 màu</button></div><div class="avatar-action-group"><button type="button" class="classic-template-download" onclick="downloadAvatarPreviewImage(\'classic\')">📄 Tải mẫu trắng</button><button type="button" class="classic-template-copy" onclick="copyAvatarPreviewImage(\'classic\')">📋 Copy mẫu trắng</button></div></div><div class="avatar-preview-table-wrap"><table class="avatar-preview-table"><thead><tr><th>STT</th><th>Tên Team</th><th>Avatar</th><th>Chủ Team Mang Avatar</th></tr></thead><tbody></tbody></table></div>';
+ preview.innerHTML='<div class="avatar-preview-title">Đối chiếu Team &amp; Avatar</div><div class="avatar-preview-actions"><div class="avatar-action-group"><button type="button" class="table-download" onclick="downloadAvatarPreviewImage()">📥 Tải ảnh bảng</button><button type="button" class="copy-preview-btn" onclick="copyAvatarPreviewImage()">📋 Copy ảnh</button></div><div class="avatar-action-group"><button type="button" class="random-download" onclick="downloadAvatarPreviewImage(true)">🎨 Tải ảnh random màu</button><button type="button" class="copy-random-preview-btn" onclick="copyAvatarPreviewImage(true)">🌈 Copy ảnh random màu</button></div><div class="avatar-action-group"><button type="button" class="white-palette-download" onclick="downloadAvatarPreviewImage(\'white15\')">🌈 Tải random 15 màu</button><button type="button" class="white-palette-copy" onclick="copyAvatarPreviewImage(\'white15\')">📋 Copy random 15 màu</button></div><div class="avatar-action-group"><button type="button" class="classic-template-download" onclick="downloadAvatarPreviewImage(\'classic\')">📄 Tải mẫu trắng</button><button type="button" class="classic-template-copy" onclick="copyAvatarPreviewImage(\'classic\')">📋 Copy mẫu trắng</button></div></div><div class="avatar-preview-table-wrap"><table class="avatar-preview-table"><thead><tr><th>STT</th><th>Tên Team</th><th>Logo Team</th><th>Avatar</th><th>Chủ Team Mang Avatar</th></tr></thead><tbody></tbody></table></div>';
  const tableBody=preview.querySelector('tbody');
  teamNames.slice(0,codes.length).forEach((teamName,index)=>{
    const row=document.createElement('tr');
@@ -943,13 +956,25 @@ function renderAvatarPreview(){
    const displayTeamName=teamName.toLocaleUpperCase('vi-VN');
    team.textContent=displayTeamName;
    team.title=displayTeamName;
+   const logoCell=document.createElement('td');
+   logoCell.className='table-logo';
+   const logoUrl=getAvatarPreviewLogoUrl(index);
+   if(logoUrl){
+    const logo=document.createElement('img');
+    logo.src=logoUrl;
+    logo.alt='Logo '+displayTeamName;
+    logoCell.appendChild(logo);
+   }else{
+    logoCell.classList.add('table-logo-empty');
+    logoCell.textContent='—';
+   }
    const avatarCell=document.createElement('td');
    avatarCell.className='table-avatar';
    avatarCell.appendChild(avatar);
    const owner=document.createElement('td');
    owner.className='table-owner';
    owner.textContent=avatarOwners[index];
-   row.append(no,team,avatarCell,owner);
+   row.append(no,team,logoCell,avatarCell,owner);
    tableBody.appendChild(row);
  });
 }
@@ -965,7 +990,7 @@ async function captureAvatarPreviewImage(colorMode=false){
    exportInnerTable.classList.add('avatar-template-classic');
    const headers=exportInnerTable.querySelectorAll('th');
    if(headers[0]) headers[0].textContent='NO.';
-   if(headers[3]) headers[3].textContent='TÊN NHÂN VẬT';
+   if(headers[4]) headers[4].textContent='TÊN NHÂN VẬT';
    exportInnerTable.querySelectorAll('.table-number').forEach(cell=>{cell.textContent=String(Number(cell.textContent)||0);});
  }
  const colorPairs=[
@@ -1205,6 +1230,7 @@ async function importScrimLogos(rows){
    imported++;
   }catch(error){ missing++; }
  }
+ renderAvatarPreview();
  render();
  return {imported,missing};
 }
@@ -1523,6 +1549,8 @@ const av=document.createElement('img');
    selectedImg.style.display='none';
    selectedText.textContent='--Chọn ảnh--';
    list.style.display='none';
+   renderAvatarPreview();
+   refreshLogoLists();
  };
  list.appendChild(empty);
 
@@ -1545,9 +1573,10 @@ const av=document.createElement('img');
      rememberTeamLogo(teamNames[idx],f);
      selectedImg.src=im.src;
      selectedImg.style.display='block';
-     selectedText.textContent=f.name;
-     list.style.display='none';
-     refreshLogoLists();
+   selectedText.textContent=f.name;
+   list.style.display='none';
+   renderAvatarPreview();
+   refreshLogoLists();
    };
    list.appendChild(opt);
  });
@@ -1580,6 +1609,7 @@ logoFilesInput.onchange=function(){
   addLogoFiles(this.files);
   this.value='';
   autoAssignKnownTeamLogos();
+  renderAvatarPreview();
   render();
 };
 
