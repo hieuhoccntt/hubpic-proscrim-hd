@@ -1992,11 +1992,13 @@ function drawRoundBadgeBase(ctx){
  const cx=500, cy=500;
  ctx.clearRect(0,0,1000,1000);
 
+ // Viền dạng huy hiệu trong game: mảnh, bo tròn và có chiều sâu thay vì
+ // vòng vàng dày. Màu chính vẫn lấy từ ô "Viền 4 góc" cũ.
  ctx.save();
  ctx.shadowColor='rgba(0,0,0,.55)';
- ctx.shadowBlur=34;
+ ctx.shadowBlur=24;
  ctx.fillStyle='#07111d';
- ctx.beginPath();ctx.arc(cx,cy,482,0,Math.PI*2);ctx.fill();
+ ctx.beginPath();ctx.arc(cx,cy,476,0,Math.PI*2);ctx.fill();
  ctx.restore();
 
  const inner=ctx.createLinearGradient(110,90,890,910);
@@ -2004,22 +2006,25 @@ function drawRoundBadgeBase(ctx){
  inner.addColorStop(.52,colors.end);
  inner.addColorStop(1,colors.start);
  ctx.fillStyle=inner;
- ctx.beginPath();ctx.arc(cx,cy,452,0,Math.PI*2);ctx.fill();
+ ctx.beginPath();ctx.arc(cx,cy,449,0,Math.PI*2);ctx.fill();
 
  const light=ctx.createRadialGradient(365,290,30,cx,cy,500);
  light.addColorStop(0,'rgba(255,255,255,.24)');
  light.addColorStop(.46,'rgba(255,255,255,.035)');
  light.addColorStop(1,'rgba(0,0,0,.22)');
  ctx.fillStyle=light;
- ctx.beginPath();ctx.arc(cx,cy,452,0,Math.PI*2);ctx.fill();
+ ctx.beginPath();ctx.arc(cx,cy,449,0,Math.PI*2);ctx.fill();
 
- // Vòng màu được lấy từ "Viền 4 góc" của tính năng cũ.
+ // Hai nét viền sát nhau mô phỏng vòng cam/vàng của mẫu EVOS.
  ctx.strokeStyle=borderColor;
- ctx.lineWidth=22;
+ ctx.lineWidth=14;
  ctx.beginPath();ctx.arc(cx,cy,462,0,Math.PI*2);ctx.stroke();
- ctx.strokeStyle='rgba(255,255,255,.58)';
+ ctx.strokeStyle='rgba(0,0,0,.38)';
  ctx.lineWidth=3;
- ctx.beginPath();ctx.arc(cx,cy,438,0,Math.PI*2);ctx.stroke();
+ ctx.beginPath();ctx.arc(cx,cy,471,0,Math.PI*2);ctx.stroke();
+ ctx.strokeStyle='rgba(255,255,255,.28)';
+ ctx.lineWidth=3;
+ ctx.beginPath();ctx.arc(cx,cy,454,0,Math.PI*2);ctx.stroke();
 }
 
 function drawContainedOriginalLogo(ctx,logoCanvas){
