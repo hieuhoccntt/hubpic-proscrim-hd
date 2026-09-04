@@ -2043,8 +2043,8 @@ function drawRoundBadgeBase(ctx){
  // Hai nét viền sát nhau mô phỏng vòng cam/vàng của mẫu EVOS.
  ctx.strokeStyle=borderColor;
  // Vòng màu vừa dày, sát logo và có vân ánh kim nhẹ.
- ctx.lineWidth=64;
- ctx.beginPath();ctx.arc(cx,cy,444,0,Math.PI*2);ctx.stroke();
+ ctx.lineWidth=32;
+ ctx.beginPath();ctx.arc(cx,cy,460,0,Math.PI*2);ctx.stroke();
  ctx.strokeStyle='rgba(0,0,0,.38)';
  ctx.lineWidth=3;
  ctx.beginPath();ctx.arc(cx,cy,471,0,Math.PI*2);ctx.stroke();
@@ -2061,11 +2061,11 @@ function drawContainedOriginalLogo(ctx,logoCanvas){
  const sw=right-left+1,sh=bottom-top+1;
  // Ảnh logo luôn bị cắt theo vòng tròn, nên không còn ô vuông trắng/đen
  // như bản trước. Nếu PNG trong suốt, nền màu huy hiệu ở dưới sẽ hiện ra.
- const scale=Math.min(840/sw,840/sh);
+ const scale=Math.min(910/sw,910/sh);
  const dw=sw*scale,dh=sh*scale;
  ctx.save();
  ctx.beginPath();
- ctx.arc(500,500,412,0,Math.PI*2);
+ ctx.arc(500,500,444,0,Math.PI*2);
  ctx.closePath();
  ctx.clip();
  ctx.shadowColor='rgba(0,0,0,.22)';ctx.shadowBlur=10;ctx.shadowOffsetY=5;
