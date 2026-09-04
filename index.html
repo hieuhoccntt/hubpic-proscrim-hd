@@ -2017,8 +2017,9 @@ function drawRoundBadgeBase(ctx){
 
  // Hai nét viền sát nhau mô phỏng vòng cam/vàng của mẫu EVOS.
  ctx.strokeStyle=borderColor;
- ctx.lineWidth=58;
- ctx.beginPath();ctx.arc(cx,cy,454,0,Math.PI*2);ctx.stroke();
+ // Vòng màu dày đến sát mép vùng logo, đúng kiểu huy hiệu trong game.
+ ctx.lineWidth=100;
+ ctx.beginPath();ctx.arc(cx,cy,426,0,Math.PI*2);ctx.stroke();
  ctx.strokeStyle='rgba(0,0,0,.38)';
  ctx.lineWidth=3;
  ctx.beginPath();ctx.arc(cx,cy,471,0,Math.PI*2);ctx.stroke();
