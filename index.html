@@ -2031,10 +2031,16 @@ function drawContainedOriginalLogo(ctx,logoCanvas){
  }
  if(right<left){left=0;top=0;right=999;bottom=999;}
  const sw=right-left+1,sh=bottom-top+1;
- const scale=Math.min(650/sw,650/sh);
+ // Ảnh logo luôn bị cắt theo vòng tròn, nên không còn ô vuông trắng/đen
+ // như bản trước. Nếu PNG trong suốt, nền màu huy hiệu ở dưới sẽ hiện ra.
+ const scale=Math.min(790/sw,790/sh);
  const dw=sw*scale,dh=sh*scale;
  ctx.save();
- ctx.shadowColor='rgba(0,0,0,.32)';ctx.shadowBlur=14;ctx.shadowOffsetY=7;
+ ctx.beginPath();
+ ctx.arc(500,500,395,0,Math.PI*2);
+ ctx.closePath();
+ ctx.clip();
+ ctx.shadowColor='rgba(0,0,0,.22)';ctx.shadowBlur=10;ctx.shadowOffsetY=5;
  ctx.drawImage(logoCanvas,left,top,sw,sh,500-dw/2,500-dh/2,dw,dh);
  ctx.restore();
 }
