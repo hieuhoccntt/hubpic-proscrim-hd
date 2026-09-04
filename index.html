@@ -1984,6 +1984,31 @@ function drawBlackFrameAndLargeFlag(ctx){
  drawVietnamStar(ctx,fx+fw/2,fy+fh/2,fh*.32);
 }
 
+function drawRoundBadgeRidges(ctx,innerRadius,outerRadius){
+ // Các vệt cong rất nhẹ tạo cảm giác viền ánh kim/gợn sóng, không đổi màu chính.
+ ctx.save();
+ ctx.beginPath();
+ ctx.arc(500,500,outerRadius,0,Math.PI*2);
+ ctx.arc(500,500,innerRadius,0,Math.PI*2,true);
+ ctx.clip('evenodd');
+ ctx.lineCap='round';
+ for(let y=-180;y<1180;y+=22){
+  ctx.beginPath();
+  for(let x=-120;x<=1120;x+=18){
+   const wave=y+x*.16+Math.sin((x+y)*.026)*7;
+   if(x===-120) ctx.moveTo(x,wave); else ctx.lineTo(x,wave);
+  }
+  ctx.strokeStyle='rgba(255,255,255,.13)';ctx.lineWidth=3;ctx.stroke();
+  ctx.beginPath();
+  for(let x=-120;x<=1120;x+=18){
+   const wave=y+x*.16+5+Math.sin((x+y)*.026)*7;
+   if(x===-120) ctx.moveTo(x,wave); else ctx.lineTo(x,wave);
+  }
+  ctx.strokeStyle='rgba(0,0,0,.10)';ctx.lineWidth=3;ctx.stroke();
+ }
+ ctx.restore();
+}
+
 // Mẫu huy hiệu tròn: dùng đúng hai màu nền và màu viền mà người dùng đã chọn
 // ở phần thiết kế, còn hình logo được giữ nguyên chi tiết/màu gốc.
 function drawRoundBadgeBase(ctx){
@@ -2017,9 +2042,10 @@ function drawRoundBadgeBase(ctx){
 
  // Hai nét viền sát nhau mô phỏng vòng cam/vàng của mẫu EVOS.
  ctx.strokeStyle=borderColor;
- // Vòng màu dày đến sát mép vùng logo, đúng kiểu huy hiệu trong game.
- ctx.lineWidth=100;
- ctx.beginPath();ctx.arc(cx,cy,426,0,Math.PI*2);ctx.stroke();
+ // Vòng màu vừa dày, sát logo và có vân ánh kim nhẹ.
+ ctx.lineWidth=72;
+ ctx.beginPath();ctx.arc(cx,cy,440,0,Math.PI*2);ctx.stroke();
+ drawRoundBadgeRidges(ctx,404,476);
  ctx.strokeStyle='rgba(0,0,0,.38)';
  ctx.lineWidth=3;
  ctx.beginPath();ctx.arc(cx,cy,471,0,Math.PI*2);ctx.stroke();
