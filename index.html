@@ -2392,6 +2392,10 @@ for(let i=0;i<80;i++){
 <div class="code-giai-frame-wrap">
   <iframe class="code-giai-frame" src="code-giai.html" title="Code Giải" loading="lazy" scrolling="no"></iframe>
 </div>
+<div class="player-name-tool-heading"><span>✦</span><div><strong>PLAYER &amp; ẢNH</strong><small>Xuất code tên Player và đổi tên ảnh ngay trong Hubpic</small></div></div>
+<div class="player-name-frame-wrap">
+  <iframe class="player-name-frame" src="PlayerNameTool.html" title="Công cụ Player và đổi tên ảnh" loading="lazy" scrolling="no"></iframe>
+</div>
 
 <hr>
 <h2 class="hubpic-animated">DESIGN HUBPIC</h2>
@@ -2400,8 +2404,10 @@ for(let i=0;i<80;i++){
 </div>
 
 <style>
-.code-giai-frame-wrap,.design-hubpic-frame-wrap{margin:0;overflow:hidden;background:#050713;border-radius:16px;}
+.code-giai-frame-wrap,.player-name-frame-wrap,.design-hubpic-frame-wrap{margin:0;overflow:hidden;background:#050713;border-radius:16px;}
 .code-giai-frame{display:block;width:100%;height:1260px;border:0;background:#050713;overflow:hidden;}
+.player-name-frame{display:block;width:100%;height:1120px;border:0;background:#050713;overflow:hidden;}
+.player-name-tool-heading{display:flex;align-items:center;gap:12px;margin:28px 0 12px;padding:14px 17px;border:1px solid rgba(65,233,179,.42);border-radius:17px;background:linear-gradient(120deg,rgba(4,42,42,.78),rgba(8,17,36,.88));color:#ecfff8;box-shadow:0 12px 26px rgba(0,0,0,.25);}.player-name-tool-heading>span{display:grid;place-items:center;width:34px;height:34px;border-radius:11px;background:linear-gradient(135deg,#00e6a0,#4c9dff);color:#06201d;font-weight:950;box-shadow:0 0 16px rgba(0,230,160,.42);}.player-name-tool-heading strong,.player-name-tool-heading small{display:block;}.player-name-tool-heading strong{font-size:15px;letter-spacing:.7px;}.player-name-tool-heading small{margin-top:3px;color:#afd3dc;font-weight:700;}
 .design-hubpic-frame-wrap{margin:0;overflow:hidden;background:#050713;}
 .design-hubpic-frame{display:block;width:100%;height:3000px;border:0;background:#050713;overflow:hidden;}
 
@@ -2419,7 +2425,7 @@ button:hover{transform:translateY(-2px)!important;filter:brightness(1.1);box-sha
 .json-studio{margin:0 0 34px;padding:clamp(18px,3vw,32px);border:1px solid rgba(87,217,255,.38);border-radius:24px;background:linear-gradient(135deg,rgba(9,22,32,.96),rgba(10,14,30,.98))!important;box-shadow:0 18px 42px rgba(0,0,0,.3);}
 .json-studio:before{display:none;}.json-studio .hubpic-animated{color:#f4fbff!important;-webkit-text-fill-color:initial!important;background:none!important;text-shadow:none!important;animation:none!important;}.json-studio-desc{color:#a9c0d5!important;}.json-config{border-color:rgba(108,187,255,.25)!important;background:rgba(2,8,16,.58)!important;}.json-studio button{background:linear-gradient(135deg,#00b97d,#35d6ca)!important;color:#031510!important;border-color:rgba(145,255,226,.42)!important;}
 .team-label{background:linear-gradient(135deg,#073f42,#0c8f75)!important;color:#ecfff8!important;border:1px solid rgba(99,255,202,.5);box-shadow:0 7px 16px rgba(0,0,0,.24)!important;}.logo-picker-selected{background:#09111e!important;border-color:rgba(112,207,255,.42)!important;border-radius:14px!important;}.logo-picker-list{background:#071019!important;border-color:#34d7aa!important;border-radius:14px!important;}.logo-picker-option:hover{background:rgba(0,208,155,.14)!important;}
-.code-giai-frame-wrap,.design-hubpic-frame-wrap{border:1px solid rgba(98,198,255,.28);border-radius:22px;box-shadow:0 16px 35px rgba(0,0,0,.32);}
+.code-giai-frame-wrap,.player-name-frame-wrap,.design-hubpic-frame-wrap{border:1px solid rgba(98,198,255,.28);border-radius:22px;box-shadow:0 16px 35px rgba(0,0,0,.32);}
 @media(max-width:620px){body{padding:12px;}.container{border-radius:20px;padding:16px;}h2{margin-top:26px;}.team-label{min-width:135px;width:135px;font-size:14px;}.logo-picker,.logo-picker-selected{width:180px;}}
 </style>
 <script>
@@ -2456,6 +2462,21 @@ document.querySelector('.design-hubpic-frame').addEventListener('load',function(
 });
 window.addEventListener('resize',resizeDesignHubpicFrame);
 window.addEventListener('resize',resizeCodeGiaiFrame);
+function resizePlayerNameFrame(){
+ const frame=document.querySelector('.player-name-frame');
+ if(!frame || !frame.contentDocument) return;
+ const doc=frame.contentDocument;
+ frame.style.height=Math.max(doc.body.scrollHeight,doc.documentElement.scrollHeight,1120)+'px';
+}
+document.querySelector('.player-name-frame').addEventListener('load',function(){
+ resizePlayerNameFrame();
+ const doc=this.contentDocument;
+ if(doc && window.ResizeObserver){
+  const observer=new ResizeObserver(resizePlayerNameFrame);
+  observer.observe(doc.body);
+ }
+});
+window.addEventListener('resize',resizePlayerNameFrame);
 </script>
 
 <div class="copyright-neon">

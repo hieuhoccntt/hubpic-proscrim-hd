@@ -1,0 +1,335 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Bộ công cụ Player & Ảnh</title>
+  <style>
+    :root { color-scheme: dark; --bg:#070b14; --card:#101827; --line:#26344b; --text:#edf4ff; --muted:#9aabc2; --blue:#3182f6; --green:#35d39a; --amber:#ffbd59; --red:#ff6b78; }
+    * { box-sizing:border-box }
+    body { margin:0; min-height:100vh; font-family:Inter,"Segoe UI",Arial,sans-serif; background:radial-gradient(circle at 20% 0,#12274a 0,transparent 34%),var(--bg); color:var(--text); }
+    main { width:min(920px,calc(100% - 32px)); margin:48px auto; }
+    .eyebrow { color:#75aaff; font-size:12px; font-weight:800; letter-spacing:.14em; text-transform:uppercase; }
+    h1 { margin:8px 0 10px; font-size:clamp(28px,5vw,45px); line-height:1.08; }
+    .lead { margin:0 0 26px; color:var(--muted); line-height:1.65; }
+    .tool-tabs { display:flex; gap:8px; margin:0 0 18px; padding:6px; border:1px solid var(--line); border-radius:15px; background:#0a111e; }
+    .tool-tab { flex:1; background:transparent; color:var(--muted); box-shadow:none; }
+    .tool-tab.active { color:white; background:var(--blue); box-shadow:0 8px 24px rgba(49,130,246,.25); }
+    .tool-panel[hidden] { display:none; }
+    .card { background:linear-gradient(180deg,rgba(19,30,49,.96),rgba(12,19,32,.96)); border:1px solid var(--line); border-radius:20px; padding:24px; box-shadow:0 24px 70px rgba(0,0,0,.32); }
+    .drop { display:block; border:1.5px dashed #405779; border-radius:15px; padding:22px; cursor:pointer; transition:.2s; background:#0b1220; }
+    .drop:hover,.drop.drag { border-color:var(--blue); background:#0d1b31; transform:translateY(-1px); }
+    .drop strong { display:block; font-size:16px; margin-bottom:6px; }
+    .drop span { color:var(--muted); font-size:13px; }
+    input[type=file] { display:none; }
+    .grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+    .file-name { margin-top:10px; color:#a9c9ff; font-size:13px; min-height:18px; overflow-wrap:anywhere; }
+    .settings { display:grid; grid-template-columns:1.5fr .7fr .8fr; gap:12px; margin-top:18px; padding:16px; border:1px solid var(--line); border-radius:15px; background:#0a111e; }
+    .field label { display:block; margin-bottom:7px; color:var(--muted); font-size:12px; font-weight:700; }
+    .field input { width:100%; height:42px; border:1px solid #31425d; border-radius:10px; padding:0 11px; background:#0e1726; color:var(--text); font:14px inherit; outline:none; }
+    .field input:focus { border-color:var(--blue); box-shadow:0 0 0 3px rgba(49,130,246,.13); }
+    .field input[type=color] { padding:4px; cursor:pointer; }
+    .modes { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:18px; }
+    .mode { position:relative; display:block; padding:15px 16px; border:1px solid #31425d; border-radius:13px; background:#0a111e; cursor:pointer; }
+    .mode:has(input:checked) { border-color:var(--blue); background:#0d1b31; box-shadow:0 0 0 3px rgba(49,130,246,.10); }
+    .mode input { position:absolute; opacity:0; pointer-events:none; }
+    .mode strong { display:block; margin-bottom:5px; }
+    .mode span { color:var(--muted); font-size:12px; line-height:1.45; }
+    .actions { display:flex; gap:12px; align-items:center; margin-top:19px; flex-wrap:wrap; }
+    button { border:0; border-radius:12px; padding:13px 20px; font:700 14px inherit; cursor:pointer; color:white; background:var(--blue); box-shadow:0 8px 24px rgba(49,130,246,.25); }
+    button:hover { filter:brightness(1.1); }
+    button:disabled { opacity:.45; cursor:not-allowed; box-shadow:none; }
+    .hint { color:var(--muted); font-size:13px; }
+    .result { margin-top:18px; border-top:1px solid var(--line); padding-top:18px; }
+    .stats { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:13px; }
+    .stat { background:#0a111e; border:1px solid #1e2b40; border-radius:12px; padding:13px; }
+    .stat b { display:block; font-size:22px; color:var(--green); }
+    .stat span { color:var(--muted); font-size:12px; }
+    #log { margin:0; max-height:210px; overflow:auto; white-space:pre-wrap; font:12px/1.6 Consolas,monospace; color:#b9c8dc; background:#080d17; border-radius:12px; padding:14px; }
+    .ok { color:var(--green) } .warn { color:var(--amber) } .error { color:var(--red) }
+    .photo-drop { display:grid; place-items:center; min-height:240px; border:1.5px dashed #405779; border-radius:18px; background:#0b1220; text-align:center; cursor:pointer; transition:.2s; }
+    .photo-drop:hover,.photo-drop.drag { border-color:var(--green); background:#0d1d25; transform:translateY(-1px); }
+    .photo-drop strong { display:block; margin-bottom:7px; font-size:18px; }
+    .photo-drop span { color:var(--muted); }
+    .photo-note { margin:12px 0 22px; color:var(--muted); font-size:13px; text-align:center; }
+    .photo-summary { display:flex; align-items:center; justify-content:space-between; gap:14px; margin:20px 0 12px; }
+    .photo-summary h2 { margin:0; font-size:17px; }
+    .photo-list { overflow:hidden; border:1px solid var(--line); border-radius:14px; background:#0a111e; }
+    .photo-item { display:grid; grid-template-columns:minmax(0,1fr) 28px minmax(0,1fr); gap:10px; align-items:center; padding:13px 15px; border-bottom:1px solid var(--line); }
+    .photo-item:last-child { border-bottom:0; }
+    .photo-name { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:13px; }
+    .photo-old { color:var(--muted); } .photo-arrow { color:#75aaff; text-align:center; } .photo-new { color:var(--green); font-weight:700; }
+    footer { margin-top:14px; text-align:center; color:#6f819b; font-size:12px; }
+    /* Đồng bộ giao diện neon xanh/đen của Hubpic. */
+    :root { --bg:#050b13; --card:#091721; --line:rgba(89,205,255,.28); --text:#effbff; --muted:#a8c0d0; --blue:#35b9ff; --green:#31e2ae; --amber:#ffd15a; }
+    body { background:radial-gradient(circle at 8% 0,rgba(0,230,160,.13),transparent 30%),radial-gradient(circle at 94% 12%,rgba(67,146,255,.14),transparent 28%),linear-gradient(145deg,#050914,#07111e); }
+    main { width:min(1080px,calc(100% - 30px)); margin:30px auto; }
+    .eyebrow { color:#75ffe0; }.lead { color:#a9c4d1; }
+    .tool-tabs { padding:7px; border-color:rgba(84,225,185,.35); border-radius:17px; background:rgba(3,12,21,.9); }
+    .tool-tab { color:#a8c1cf; background:transparent!important; box-shadow:none!important; }
+    .tool-tab.active { color:#04231c; background:linear-gradient(135deg,#28dfa7,#54b7ff)!important; box-shadow:0 7px 18px rgba(0,220,165,.22)!important; }
+    .card { border-color:rgba(85,213,255,.30); border-radius:22px; background:linear-gradient(145deg,rgba(8,27,35,.97),rgba(8,12,31,.97)); box-shadow:0 20px 50px rgba(0,0,0,.35); }
+    .mode,.settings,.drop,.photo-drop,.photo-list,.stat { border-color:rgba(93,198,255,.28); background:rgba(3,14,24,.72); }
+    .mode:has(input:checked),.drop:hover,.drop.drag { border-color:#35e4b1; background:rgba(7,57,57,.48); box-shadow:0 0 0 3px rgba(53,228,177,.10); }
+    .drop:hover,.drop.drag { transform:translateY(-1px); }.drop strong,.photo-drop strong { color:#effff9; }
+    .file-name { color:#81eecf; }.field label,.mode span,.drop span,.hint,.photo-note,.photo-old { color:#a5bfca; }
+    .field input { border-color:rgba(103,205,255,.4); background:#06111e; }.field input:focus { border-color:#35e4b1; box-shadow:0 0 0 3px rgba(53,228,177,.13); }
+    button { color:#04231c; background:linear-gradient(135deg,#23d99f,#41b8ff); border:1px solid rgba(220,255,245,.32); box-shadow:0 8px 20px rgba(0,190,156,.2); font-weight:900; }
+    .stat b,.photo-new { color:#67ffd0; } #log { border:1px solid rgba(92,211,255,.2); background:#040b14; }.photo-arrow { color:#73e8ff; }
+    footer { color:#84a7b8; }
+    @media(max-width:650px){ main{margin:20px auto}.grid,.settings,.modes{grid-template-columns:1fr}.card{padding:17px}.stats{grid-template-columns:1fr}.photo-summary{align-items:stretch;flex-direction:column}.photo-item{grid-template-columns:1fr 20px 1fr;padding:11px 10px}.photo-name{font-size:11px} }
+  </style>
+</head>
+<body>
+<main>
+  <div class="eyebrow">Bộ công cụ offline</div>
+  <h1>Player code & đổi tên ảnh</h1>
+  <p class="lead">Hai công cụ chạy trực tiếp trên máy, không tải dữ liệu lên mạng.</p>
+  <nav class="tool-tabs" aria-label="Chọn công cụ">
+    <button class="tool-tab active" type="button" data-panel="playerPanel">Code tên Player</button>
+    <button class="tool-tab" type="button" data-panel="photoPanel">Đổi tên ảnh</button>
+  </nav>
+  <section class="tool-panel" id="playerPanel">
+  <div class="card">
+    <div class="modes">
+      <label class="mode"><input type="radio" name="codeMode" value="role" checked><strong>Code tên theo vai trò</strong><span>PlayerNation lấy từ cột Vai trò người chơi như chức năng cũ.</span></label>
+      <label class="mode"><input type="radio" name="codeMode" value="normal"><strong>Code tên bình thường</strong><span>Dành cho form Team, ID 1–5, Ingame 1–5. PlayerNation lấy tên Team.</span></label>
+    </div>
+    <div class="grid">
+      <div>
+        <label class="drop" id="excelDrop" for="excelFile"><strong>① Chọn file Excel</strong><span>Hỗ trợ .xlsx và .xlsm</span></label>
+        <input id="excelFile" type="file" accept=".xlsx,.xlsm">
+        <div class="file-name" id="excelName">Chưa chọn file</div>
+      </div>
+      <div>
+        <label class="drop" id="jsonDrop" for="jsonFile"><strong>② JSON mẫu (không bắt buộc)</strong><span>Không chọn: tự tạo TeamID 1–15, PROSCRIM HD</span></label>
+        <input id="jsonFile" type="file" accept=".json,application/json">
+        <div class="file-name" id="jsonName">Không chọn → tự tạo đủ TeamID 1–15</div>
+      </div>
+    </div>
+    <div class="settings">
+      <div class="field"><label for="teamRegion">Nội dung TeamRegion</label><input id="teamRegion" type="text" value="PROSCRIM HD" maxlength="100"></div>
+      <div class="field"><label for="teamCount">Số lượng team</label><input id="teamCount" type="number" value="15" min="1" max="100"></div>
+      <div class="field"><label for="textColor">Màu chữ</label><input id="textColor" type="color" value="#ffffff"></div>
+    </div>
+    <div class="actions">
+      <button id="convertBtn" disabled>Xuất PlayerNameOverwrite.json</button>
+      <span class="hint">Dữ liệu chỉ được xử lý trên máy của bạn.</span>
+    </div>
+    <div class="result" id="result" hidden>
+      <div class="stats">
+        <div class="stat"><b id="playerCount">0</b><span>người chơi đã xuất</span></div>
+        <div class="stat"><b id="regionCount">0</b><span>mục TeamRegionList</span></div>
+        <div class="stat"><b id="warningCount">0</b><span>cảnh báo dữ liệu</span></div>
+      </div>
+      <pre id="log"></pre>
+    </div>
+  </div>
+  </section>
+  <section class="tool-panel" id="photoPanel" hidden>
+    <div class="card">
+      <div class="eyebrow">Đổi tên ảnh</div>
+      <h2 style="margin:7px 0 8px;font-size:25px">Bỏ “-Photoroom” khỏi tên ảnh</h2>
+      <p class="lead">Chọn hoặc kéo thả nhiều ảnh. Tool giữ nguyên nội dung ảnh và chỉ tạo bản tải xuống với tên mới.</p>
+      <label class="photo-drop" id="photoDrop" for="photoFiles"><div><strong>Kéo ảnh vào đây</strong><span>hoặc bấm để chọn nhiều tệp</span></div></label>
+      <input id="photoFiles" type="file" accept="image/*" multiple>
+      <p class="photo-note">Ảnh được xử lý hoàn toàn trong trình duyệt.</p>
+      <div id="photoResults" hidden>
+        <div class="photo-summary"><h2 id="photoCount"></h2><button id="photoDownload" type="button">Tải tất cả ảnh đã đổi tên</button></div>
+        <div class="photo-list" id="photoList"></div>
+      </div>
+    </div>
+  </section>
+  <footer>Không cần cài đặt • Không tải dữ liệu lên mạng</footer>
+</main>
+<script>
+"use strict";
+const $ = id => document.getElementById(id);
+let excelFile = null, jsonFile = null;
+
+document.querySelectorAll(".tool-tab").forEach(tab => tab.addEventListener("click", () => {
+  document.querySelectorAll(".tool-tab").forEach(item => item.classList.toggle("active", item === tab));
+  document.querySelectorAll(".tool-panel").forEach(panel => panel.hidden = panel.id !== tab.dataset.panel);
+}));
+
+function normalize(value) {
+  return String(value ?? "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, " ").trim().toLowerCase();
+}
+function outputText(value) {
+  return String(value ?? "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[đĐ]/g, match => match === "đ" ? "d" : "D")
+    .replace(/\s+/g, "")
+    .toUpperCase();
+}
+function classifyHeader(header) {
+  const text = normalize(header);
+  const simpleId = text.match(/^id\s*(\d+)$/), simpleName = text.match(/^(?:ingame|in game)\s*(\d+)$/);
+  if (simpleId) return [Number(simpleId[1]), "id"];
+  if (simpleName) return [Number(simpleName[1]), "name"];
+  const match = text.match(/(?:nguoi choi|player)\s*(\d+)/);
+  if (!match) return null;
+  const number = Number(match[1]);
+  if (/\bid\b/.test(text)) return [number, "id"];
+  if (text.includes("vai tro") || text.includes("role")) return [number, "role"];
+  if (text.includes("ingame") || text.includes("in game")) return [number, "name"];
+  return null;
+}
+function cleanId(value) {
+  if (value === null || value === undefined || String(value).trim() === "") return null;
+  if (typeof value === "number") {
+    if (!Number.isSafeInteger(value)) throw new Error("ID không phải số nguyên an toàn: " + value);
+    return value;
+  }
+  let text = String(value).trim().replace(/\s/g, "").replace(/\.0$/, "");
+  if (!/^\d+$/.test(text)) throw new Error("ID không phải số: " + value);
+  const number = Number(text);
+  if (!Number.isSafeInteger(number)) throw new Error("ID quá lớn: " + value);
+  return number;
+}
+function u16(v,o){ return v.getUint16(o,true) } function u32(v,o){ return v.getUint32(o,true) }
+async function inflateRaw(bytes) {
+  if (typeof DecompressionStream === "undefined") throw new Error("Trình duyệt quá cũ. Hãy mở bằng Chrome hoặc Edge mới nhất.");
+  const stream = new Blob([bytes]).stream().pipeThrough(new DecompressionStream("deflate-raw"));
+  return new Uint8Array(await new Response(stream).arrayBuffer());
+}
+async function unzip(buffer) {
+  const bytes = new Uint8Array(buffer), view = new DataView(buffer);
+  let eocd = -1;
+  for (let i = bytes.length - 22; i >= Math.max(0, bytes.length - 65557); i--) if (u32(view,i) === 0x06054b50) { eocd=i; break; }
+  if (eocd < 0) throw new Error("File không phải Excel .xlsx hợp lệ.");
+  const count=u16(view,eocd+10), centralOffset=u32(view,eocd+16), decoder=new TextDecoder("utf-8"), files=new Map();
+  let p=centralOffset;
+  for (let n=0; n<count; n++) {
+    if (u32(view,p)!==0x02014b50) throw new Error("Cấu trúc ZIP của Excel không hợp lệ.");
+    const method=u16(view,p+10), compressedSize=u32(view,p+20), nameLen=u16(view,p+28), extraLen=u16(view,p+30), commentLen=u16(view,p+32), localOffset=u32(view,p+42);
+    const name=decoder.decode(bytes.slice(p+46,p+46+nameLen)).replace(/\\/g,"/");
+    const localNameLen=u16(view,localOffset+26), localExtraLen=u16(view,localOffset+28), start=localOffset+30+localNameLen+localExtraLen;
+    const compressed=bytes.slice(start,start+compressedSize);
+    let data;
+    if (method===0) data=compressed; else if (method===8) data=await inflateRaw(compressed); else throw new Error("Excel dùng kiểu nén chưa hỗ trợ: "+method);
+    files.set(name,data); p+=46+nameLen+extraLen+commentLen;
+  }
+  return files;
+}
+function xml(files,path) {
+  const data=files.get(path); if(!data) return null;
+  const doc=new DOMParser().parseFromString(new TextDecoder("utf-8").decode(data),"application/xml");
+  if(doc.querySelector("parsererror")) throw new Error("Không đọc được XML: "+path);
+  return doc;
+}
+function localElements(root,name){ return [...root.getElementsByTagNameNS("*",name)] }
+function attrNS(el,local){ for(const a of el.attributes) if(a.localName===local) return a.value; return null }
+function columnIndex(ref){ let n=0; for(const ch of (ref.match(/[A-Z]+/i)||[""])[0].toUpperCase()) n=n*26+ch.charCodeAt(0)-64; return n-1 }
+async function readXlsx(file) {
+  const files=await unzip(await file.arrayBuffer());
+  const sharedDoc=xml(files,"xl/sharedStrings.xml"), shared=sharedDoc ? localElements(sharedDoc,"si").map(si=>localElements(si,"t").map(t=>t.textContent).join("")) : [];
+  const workbook=xml(files,"xl/workbook.xml"), rels=xml(files,"xl/_rels/workbook.xml.rels");
+  if(!workbook||!rels) throw new Error("Thiếu cấu trúc workbook trong Excel.");
+  const targets=new Map(localElements(rels,"Relationship").map(r=>[r.getAttribute("Id"),r.getAttribute("Target")]));
+  const candidates=[];
+  for(const sheet of localElements(workbook,"sheet")) {
+    const id=attrNS(sheet,"id"), target=targets.get(id); if(!target) continue;
+    const path=("xl/"+target.replace(/^\//,"").replace(/^xl\//,"")).replace(/\/\.\//g,"/");
+    const doc=xml(files,path); if(!doc) continue;
+    const rows=[];
+    for(const row of localElements(doc,"row")) {
+      const arr=[];
+      for(const c of localElements(row,"c")) {
+        const index=columnIndex(c.getAttribute("r")||"A1"), type=c.getAttribute("t"), v=localElements(c,"v")[0]?.textContent ?? "";
+        let value=v;
+        if(type==="s") value=shared[Number(v)]??"";
+        else if(type==="inlineStr") value=localElements(c,"t").map(t=>t.textContent).join("");
+        else if(type==="b") value=v==="1";
+        else if(type!=="str" && v!=="" && Number.isFinite(Number(v))) value=Number(v);
+        arr[index]=value;
+      }
+      rows.push(arr);
+    }
+    const score=(rows[0]||[]).filter(h=>classifyHeader(h)).length;
+    candidates.push({name:sheet.getAttribute("name")||"Sheet",rows,score});
+  }
+  candidates.sort((a,b)=>b.score-a.score);
+  if(!candidates.length||candidates[0].score<3) throw new Error("Không tìm thấy các cột ID, vai trò và tên ingame ở hàng đầu tiên.");
+  return candidates[0];
+}
+function extractPlayers(rows, playerColor, mode) {
+  const columns={};
+  (rows[0]||[]).forEach((header,index)=>{ const info=classifyHeader(header); if(info){ const [number,kind]=info; (columns[number]??={})[kind]=index; } });
+  const teamColumn=(rows[0]||[]).findIndex(header=>["team","ten team","ten team cua ban"].includes(normalize(header)));
+  const required=mode==="normal"?["id","name"]:["id","role","name"];
+  const groups=Object.entries(columns).filter(([,g])=>required.every(k=>k in g)).sort((a,b)=>Number(a[0])-Number(b[0]));
+  if(!groups.length) throw new Error(mode==="normal"?"Không có nhóm cột đầy đủ ID + Ingame.":"Không có nhóm cột đầy đủ ID + vai trò + tên ingame.");
+  if(mode==="normal"&&teamColumn<0) throw new Error("Chế độ Code tên bình thường cần có cột Team.");
+  const players=[],warnings=[],seen=new Set();
+  for(let r=1;r<rows.length;r++) for(const [number,g] of groups) {
+    const rawId=rows[r]?.[g.id], rawName=rows[r]?.[g.name], rawRole=mode==="normal"?rows[r]?.[teamColumn]:rows[r]?.[g.role];
+    if([rawId,rawName,rawRole].every(v=>v==null||String(v).trim()==="")) continue;
+    let id; try{id=cleanId(rawId)}catch(e){warnings.push(`Dòng ${r+1}, người chơi ${number}: ${e.message}; đã bỏ qua.`);continue}
+    const name=outputText(rawName), role=String(rawRole??"").trim();
+    if(id===null||!name||!role){warnings.push(`Dòng ${r+1}, người chơi ${number}: thiếu ID/tên/vai trò; đã bỏ qua.`);continue}
+    if(seen.has(id)){warnings.push(`Dòng ${r+1}: ID ${id} bị trùng; chỉ giữ lần đầu.`);continue}
+    seen.add(id); players.push({PlayerID:id,PlayerNameOverwrite:name,PlayerNation:role,Color:playerColor});
+  }
+  if(!players.length) throw new Error("Không tìm thấy người chơi hợp lệ để xuất.");
+  return {players,warnings};
+}
+function downloadJson(data) {
+  const blob=new Blob([JSON.stringify(data,null,2)+"\n"],{type:"application/json;charset=utf-8"}), url=URL.createObjectURL(blob), a=document.createElement("a");
+  a.href=url;a.download="PlayerNameOverwrite.json";document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
+}
+function bindFile(inputId,nameId,kind){
+  $(inputId).addEventListener("change",e=>{const f=e.target.files[0]||null;if(kind==="excel")excelFile=f;else jsonFile=f;$(nameId).textContent=f?f.name:(kind==="excel"?"Chưa chọn file":"Không chọn → tự tạo đủ TeamID 1–15");$("convertBtn").disabled=!excelFile});
+  const drop=$(kind+"Drop");["dragenter","dragover"].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.add("drag")}));["dragleave","drop"].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.remove("drag")}));
+  drop.addEventListener("drop",e=>{const f=e.dataTransfer.files[0];if(!f)return;if(kind==="excel")excelFile=f;else jsonFile=f;$(nameId).textContent=f.name;$("convertBtn").disabled=!excelFile});
+}
+bindFile("excelFile","excelName","excel"); bindFile("jsonFile","jsonName","json");
+$("convertBtn").addEventListener("click",async()=>{
+  const btn=$("convertBtn");btn.disabled=true;btn.textContent="Đang xử lý…";$("result").hidden=false;$("log").textContent="Đang đọc Excel…";$("log").className="";
+  try{
+    const mode=document.querySelector('input[name="codeMode"]:checked').value;
+    const textColor=$("textColor").value.toUpperCase();
+    const teamRegion=$("teamRegion").value.trim()||"PROSCRIM HD";
+    const teamCount=Math.max(1,Math.min(100,Number.parseInt($("teamCount").value,10)||15));
+    const sheet=await readXlsx(excelFile),{players,warnings}=extractPlayers(sheet.rows,textColor,mode);
+    let regions=Array.from({length:teamCount},(_,index)=>({TeamID:index+1,TeamRegion:teamRegion,Color:textColor}));
+    if(jsonFile){const template=JSON.parse(await jsonFile.text().then(t=>t.replace(/^\uFEFF/,"")));if(Array.isArray(template.TeamRegionList))regions=template.TeamRegionList.map(item=>({...item,Color:textColor}));else warnings.push("JSON mẫu không có TeamRegionList hợp lệ.")}
+    downloadJson({PlayerNameList:players,TeamRegionList:regions});
+    $("playerCount").textContent=players.length;$("regionCount").textContent=regions.length;$("warningCount").textContent=warnings.length;
+    const nationSource=mode==="normal"?"tên Team":"vai trò người chơi";
+    $("log").className=warnings.length?"warn":"ok";$("log").textContent=`✓ Chế độ: ${mode==="normal"?"Code tên bình thường":"Code tên theo vai trò"}\n✓ Đã đọc sheet: ${sheet.name}\n✓ PlayerNation = ${nationSource}\n✓ PlayerNameOverwrite đã IN HOA, bỏ dấu và xóa khoảng trắng\n✓ Màu chữ: ${textColor}\n✓ TeamRegion: ${jsonFile?"lấy theo JSON mẫu":teamRegion}\n✓ Đã tải PlayerNameOverwrite.json`+(warnings.length?"\n\n⚠ "+warnings.slice(0,40).join("\n⚠ "):"");
+  }catch(error){$("playerCount").textContent="0";$("regionCount").textContent="0";$("warningCount").textContent="1";$("log").className="error";$("log").textContent="✗ "+error.message;}
+  finally{btn.disabled=!excelFile;btn.textContent="Xuất PlayerNameOverwrite.json";}
+});
+
+const photoInput=$("photoFiles"),photoDrop=$("photoDrop"),photoResults=$("photoResults"),photoList=$("photoList"),photoCount=$("photoCount"),photoDownload=$("photoDownload");
+let selectedPhotos=[];
+const cleanPhotoName=name=>name.replace(/-Photoroom/gi,"");
+function showPhotos(files){
+  selectedPhotos=[...files].filter(file=>file.type.startsWith("image/"));
+  photoResults.hidden=selectedPhotos.length===0;
+  photoCount.textContent=`${selectedPhotos.length} ảnh đã sẵn sàng`;
+  photoList.replaceChildren(...selectedPhotos.map(file=>{
+    const row=document.createElement("div");row.className="photo-item";
+    for(const [value,className] of [[file.name,"photo-name photo-old"],["→","photo-arrow"],[cleanPhotoName(file.name),"photo-name photo-new"]]){
+      const cell=document.createElement("div");cell.className=className;cell.textContent=value;row.append(cell);
+    }
+    return row;
+  }));
+}
+photoInput.addEventListener("change",event=>showPhotos(event.target.files));
+["dragenter","dragover"].forEach(event=>photoDrop.addEventListener(event,e=>{e.preventDefault();photoDrop.classList.add("drag")}));
+["dragleave","drop"].forEach(event=>photoDrop.addEventListener(event,e=>{e.preventDefault();photoDrop.classList.remove("drag")}));
+photoDrop.addEventListener("drop",event=>showPhotos(event.dataTransfer.files));
+photoDownload.addEventListener("click",async()=>{
+  photoDownload.disabled=true;photoDownload.textContent="Đang chuẩn bị tải…";
+  for(const file of selectedPhotos){
+    const link=document.createElement("a"),url=URL.createObjectURL(file);link.href=url;link.download=cleanPhotoName(file.name);document.body.appendChild(link);link.click();link.remove();
+    setTimeout(()=>URL.revokeObjectURL(url),1500);await new Promise(resolve=>setTimeout(resolve,180));
+  }
+  photoDownload.disabled=false;photoDownload.textContent="Tải tất cả ảnh đã đổi tên";
+});
+</script>
+</body>
+</html>
