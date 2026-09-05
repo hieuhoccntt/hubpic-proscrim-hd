@@ -52,7 +52,14 @@
   }
 
   function normalizePlayerName(value) {
-    return normalizeText(value).toLocaleUpperCase("vi-VN");
+    // Chuẩn hoá tên hiển thị game: bỏ dấu, bỏ khoảng trắng và viết HOA.
+    // Ví dụ: "hiếu mino" → "HIEUMINO".
+    return normalizeText(value)
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/[đĐ]/g, (letter) => letter === "đ" ? "d" : "D")
+      .replace(/\s+/g, "")
+      .toUpperCase();
   }
 
   function normalizePlayerNation(value) {
