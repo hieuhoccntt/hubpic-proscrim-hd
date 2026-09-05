@@ -52,9 +52,11 @@
   }
 
   function normalizePlayerName(value) {
-    // Chuẩn hoá tên hiển thị game: bỏ dấu, bỏ khoảng trắng và viết HOA.
-    // Ví dụ: "hiếu mino" → "HIEUMINO".
-    return normalizeText(value)
+    // Chỉ lấy tên đệm cuối và tên, rồi bỏ dấu/khoảng trắng, viết HOA.
+    // Ví dụ: "Trần Phan Đức Tiến" → "DUCTIEN".
+    const nameParts = normalizeText(value).split(/\s+/).filter(Boolean);
+    const displayName = nameParts.length > 2 ? nameParts.slice(-2).join(" ") : nameParts.join(" ");
+    return displayName
       .normalize("NFD")
       .replace(/[\u0300-\u036f]/g, "")
       .replace(/[đĐ]/g, (letter) => letter === "đ" ? "d" : "D")
