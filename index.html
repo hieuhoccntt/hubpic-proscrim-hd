@@ -768,7 +768,9 @@ function generate(){
  }
 
  function normalizePlayerName(name){
-   return (name || "")
+   const words=cleanText(name).split(/\s+/).filter(Boolean);
+   const shortName=words.length>2 ? words.slice(-2).join(" ") : words.join(" ");
+   return shortName
      .normalize("NFD")
      .replace(/[\u0300-\u036f]/g, "")
      .replace(/đ/g, "d")
