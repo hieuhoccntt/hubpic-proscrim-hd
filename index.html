@@ -2468,6 +2468,12 @@ async function createDriveFolder(token,label=''){
  });
 }
 
+async function makeDriveFolderPublic(folderId,token){
+ return driveApi('https://www.googleapis.com/drive/v3/files/'+encodeURIComponent(folderId)+'/permissions?sendNotificationEmail=false',token,{
+   method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({type:'anyone',role:'reader'})
+ });
+}
+
 async function uploadLogoToDrive(file,folderId,token){
  const boundary='hubpic_'+crypto.getRandomValues(new Uint32Array(1))[0].toString(16);
  const metadata=JSON.stringify({name:file.fileName,parents:[folderId],mimeType:'image/png'});
@@ -2534,9 +2540,11 @@ async function uploadTeamLogosToDrive(){
      if(status) status.textContent='Đang đẩy lên Drive '+(i+1)+'/'+driveLogoCapture.length+'...';
      await uploadLogoToDrive(driveLogoCapture[i],folder.id,token);
    }
+   if(status) status.textContent='Đang mở công khai link Drive...';
+   await makeDriveFolderPublic(folder.id,token);
    const link=folder.webViewLink||('https://drive.google.com/drive/folders/'+folder.id);
    try{await navigator.clipboard.writeText(link);}catch(error){console.warn('Không tự copy được link Drive:',error);}
-   showDriveLink(status,'Đã đẩy '+driveLogoCapture.length+' logo lên Drive. Bấm nút bên dưới để copy link:',link);
+   showDriveLink(status,'Đã đẩy '+driveLogoCapture.length+' logo lên Drive và mở công khai. Bấm nút bên dưới để copy link:',link);
  }catch(error){
    console.error('Drive upload failed:',error);
    if(status) status.textContent='Chưa đẩy được lên Drive: '+error.message;
