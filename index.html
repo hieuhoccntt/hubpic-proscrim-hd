@@ -1155,7 +1155,9 @@ function findTeamNames(value,parentKey='',found=[]){
      findTeamNames(item,keyLower,found);
    }
  }
- return [...new Set(found.map(name=>String(name).trim()).filter(Boolean))];
+ // Giữ nguyên từng dòng team từ web phụ, kể cả khi hai team cùng tên.
+ // Mỗi dòng vẫn là một slot riêng trong khung giờ.
+ return found.map(name=>String(name).trim()).filter(Boolean);
 }
 function fillTeamsFromScrim(names){
  if(!names.length) throw new Error('Chưa tìm thấy tên team trong khung giờ này.');
@@ -1180,12 +1182,12 @@ function extractTeamRows(payload){
    };
  }).filter(row=>row.name);
  rows.sort((a,b)=>a.order-b.order||a.index-b.index);
- const used=new Set();
+ // Không lọc trùng tên: Pro Scrim có thể đăng ký hai team cùng tên,
+ // và cả hai phải được giữ để danh sách sang Hubpic vẫn đủ 15 team.
  return rows.filter(row=>{
   const name=String(row.name).trim();
-  if(!name||used.has(name)) return false;
+  if(!name) return false;
   row.name=name;
-  used.add(name);
   return true;
  });
 }
