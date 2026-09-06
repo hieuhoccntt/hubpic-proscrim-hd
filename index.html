@@ -274,8 +274,8 @@ font-size:16px;
 .avatar-preview-table .table-team{text-align:left;color:#fff;text-transform:uppercase;font-size:23px;line-height:1.15;}
 .avatar-preview-table .table-avatar{width:66px;padding:3px;}
 .avatar-preview-table .table-logo{width:72px;padding:3px;text-align:center;}
-.avatar-preview-table .logo-badge{width:52px;height:52px;margin:auto;padding:0;overflow:hidden;border:2px solid #f4bd2d;border-radius:50%;background:#fff;box-shadow:0 2px 5px rgba(0,0,0,.32);}
-.avatar-preview-table .logo-badge img{display:block;width:100%;height:100%;object-fit:cover;background:transparent;}
+.avatar-preview-table .logo-badge{width:52px;height:52px;margin:auto;padding:0;overflow:hidden;box-sizing:border-box;border:3px solid #f4bd2d;border-radius:50%;clip-path:circle(50%);background:#fff;box-shadow:0 2px 5px rgba(0,0,0,.32);}
+.avatar-preview-table .logo-badge img{display:block;width:100%;height:100%;box-sizing:border-box;object-fit:cover;border:0!important;border-radius:50%!important;clip-path:circle(50%);box-shadow:none!important;background:#fff;}
 .avatar-preview-table .table-logo-empty{color:rgba(255,255,255,.35);font-size:18px;}
 .avatar-preview-table img{
  width:43px;
@@ -399,7 +399,7 @@ font-size:16px;
 .avatar-preview-table.avatar-template-classic .table-logo{width:92px;padding:6px;text-align:center;}
 .avatar-preview-table.avatar-template-classic .table-logo img{width:58px;height:58px;object-fit:contain;}
 .avatar-preview-table.avatar-template-classic .logo-badge{width:62px;height:62px;}
-.avatar-preview-table.avatar-template-classic .logo-badge img{width:100%;height:100%;object-fit:cover;}
+.avatar-preview-table.avatar-template-classic .logo-badge img{width:100%;height:100%;object-fit:cover;border-radius:50%!important;clip-path:circle(50%);}
 .avatar-preview-table.avatar-template-classic .table-owner{color:#111;font-size:20px;font-weight:800;text-shadow:none;}
 .team-control-actions,.logo-export-actions{display:flex;flex-wrap:wrap;gap:10px;margin:12px 0;}
 .team-control-actions button,.logo-export-actions button,.scrim-reset-btn,.scrim-json-btn{margin:0;min-height:43px;padding:10px 16px;border:1px solid rgba(255,255,255,.22);border-radius:13px;color:#fff;font-size:14px;font-weight:900;letter-spacing:.15px;box-shadow:0 7px 16px rgba(0,0,0,.27);transition:transform .18s ease,filter .18s ease,box-shadow .18s ease;}
