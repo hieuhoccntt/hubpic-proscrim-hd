@@ -429,6 +429,7 @@ font-size:16px;
 .design-color-controls .base-color-btn{background:linear-gradient(135deg,#33e9a7,#0bb77f)!important;color:#042117!important;}.design-color-controls .solid-color-btn{background:linear-gradient(135deg,#7fffe0,#27d5ba)!important;}.design-color-controls .random-color-btn{background:linear-gradient(135deg,#ffb9e9,#e879ff)!important;}
 .design-color-controls .color-mode-btn:hover{transform:translateY(-3px) scale(1.025)!important;box-shadow:0 11px 22px rgba(32,238,181,.2),inset 0 1px rgba(255,255,255,.55)!important;}
 .design-color-controls small{margin-top:1px;padding-top:8px;border-top:1px dashed rgba(107,245,205,.26);color:#bdebd7!important;}
+.background-image-picker{display:flex!important;align-items:center;gap:8px!important;min-height:40px!important;cursor:pointer;}.background-image-picker input{display:none;}.background-image-picker em{max-width:130px;overflow:hidden;color:#8fffd5;font-size:11px;font-style:normal;text-overflow:ellipsis;white-space:nowrap;}.clear-background-image-btn{min-height:34px!important;padding:7px 10px!important;border:1px solid rgba(255,255,255,.3)!important;border-radius:10px!important;background:#263847!important;color:#fff!important;font-size:11px!important;cursor:pointer;}
 .logo-export-actions{gap:12px!important;margin:14px 0 10px!important;padding:4px 0!important;}
 .logo-export-actions button{position:relative;overflow:hidden;min-height:51px!important;padding:12px 18px!important;border:1px solid rgba(255,255,255,.3)!important;border-radius:16px!important;font-family:Arial,Helvetica,sans-serif!important;font-size:15px!important;font-weight:800!important;letter-spacing:.45px!important;line-height:1.15!important;text-transform:uppercase!important;box-shadow:0 9px 20px rgba(0,0,0,.32),inset 0 1px rgba(255,255,255,.4)!important;}
 .logo-export-actions button:before{content:'';position:absolute;inset:1px;border-radius:14px;background:linear-gradient(110deg,rgba(255,255,255,.24),transparent 30%,transparent 72%,rgba(255,255,255,.12));pointer-events:none;}
@@ -1395,7 +1396,7 @@ window.addEventListener('DOMContentLoaded',()=>{
   </div>
   <div id="scrimImportStatus" style="margin-top:8px;color:#ffd166;font-weight:700;"></div>
 </div>
-<div class="design-color-controls"><label for="designColorStart">🎨 Màu bìa ngoài</label><input type="color" id="designColorStart" value="#00FF66" title="Màu bìa ngoài thứ nhất" oninput="updateDesignColorReadout()"><span class="color-code" id="designColorStartCode">#00FF66</span><span class="color-arrow">→</span><input type="color" id="designColorEnd" value="#00B83F" title="Màu bìa ngoài thứ hai" oninput="updateDesignColorReadout()"><span class="color-code" id="designColorEndCode">#00B83F</span><label for="goldCornerColor">👑 Viền 4 góc</label><input type="color" id="goldCornerColor" value="#FFD447" title="Màu viền 4 góc" oninput="updateDesignColorReadout()"><span class="color-code" id="goldCornerColorCode">#FFD447</span><span class="color-actions-break" aria-hidden="true"></span><button type="button" class="color-mode-btn base-color-btn" onclick="resetDesignGreen()">↺ Màu gốc xanh</button><button type="button" class="color-mode-btn solid-color-btn" onclick="randomizeOneDesignColor()">🎲 Random 1 màu</button><button type="button" class="color-mode-btn random-color-btn" onclick="randomizeDesignColors()">🎲 Random pha màu</button><small>Mã màu hiển thị rõ ở các ô đen. Random chỉ đổi màu bìa ngoài; màu viền 4 góc do bạn chọn riêng.</small></div>
+<div class="design-color-controls"><label for="designColorStart">🎨 Màu bìa ngoài</label><input type="color" id="designColorStart" value="#00FF66" title="Màu bìa ngoài thứ nhất" oninput="updateDesignColorReadout()"><span class="color-code" id="designColorStartCode">#00FF66</span><span class="color-arrow">→</span><input type="color" id="designColorEnd" value="#00B83F" title="Màu bìa ngoài thứ hai" oninput="updateDesignColorReadout()"><span class="color-code" id="designColorEndCode">#00B83F</span><label for="goldCornerColor">👑 Viền 4 góc</label><input type="color" id="goldCornerColor" value="#FFD447" title="Màu viền 4 góc" oninput="updateDesignColorReadout()"><span class="color-code" id="goldCornerColorCode">#FFD447</span><span class="color-actions-break" aria-hidden="true"></span><label class="background-image-picker" for="designBackgroundImage">🖼️ Ảnh nền logo <input type="file" id="designBackgroundImage" accept="image/*" onchange="setDesignBackgroundImage(this)"><em id="designBackgroundImageName">Chưa chọn ảnh</em></label><button type="button" class="clear-background-image-btn" onclick="clearDesignBackgroundImage()">✕ Bỏ ảnh nền</button><button type="button" class="color-mode-btn base-color-btn" onclick="resetDesignGreen()">↺ Màu gốc xanh</button><button type="button" class="color-mode-btn solid-color-btn" onclick="randomizeOneDesignColor()">🎲 Random 1 màu</button><button type="button" class="color-mode-btn random-color-btn" onclick="randomizeDesignColors()">🎲 Random pha màu</button><small>Ảnh nền chỉ hiện phía sau logo PNG tách nền. Không chọn ảnh thì web dùng màu nền bạn đã chọn.</small></div>
 <div class="logo-export-actions"><button class="zip-btn" onclick='exportZip()'>📦 Logo gốc</button><button class="design-zip-btn" onclick='exportZipDesign()'>🎨 Logo 1 màu nền</button><button class="white-palette-logo-btn" onclick='exportZipDesignWhite15()'>🌈 Logo random 15 màu</button><button class="white-palette-corner-btn" onclick='exportZipDesignWhite15Corners()'>🌈 Logo random 15 màu có viền vuông</button><button class="gold-corner-logo-btn" onclick='exportZipGoldCorner()'>👑 Logo viền</button><button class="black-frame-logo-btn" onclick='exportZipBlackFrame()'>🖼️ Logo khung</button><button class="round-badge-logo-btn" onclick='exportZipRoundBadge()'>⭕ Logo tròn kiểu mới</button><button class="team-name-download-btn" type="button" onclick="exportZipWithTeamNames()">📥 Tải logo theo Team</button><span class="drive-row-break" aria-hidden="true"></span><button class="team-drive-upload-btn" type="button" onclick="uploadTeamLogosToDrive()">☁️ Đẩy lên Drive &amp; copy link</button><label class="team-name-export-picker">🏷️ Mẫu tải theo Team <select id="teamNamedLogoStyle"><option value="design">Logo 1 màu nền</option><option value="white15">Logo random 15 màu</option><option value="white15Corners">Random 15 màu + viền</option><option value="goldCorner">Logo viền</option><option value="blackFrame">Logo khung</option><option value="roundBadge">Logo tròn kiểu mới</option><option value="original">Logo gốc</option></select></label></div>
 <div id='logoExportStatus' style='margin-top:8px;color:#00ff99;font-weight:800;'></div>
 <textarea id="teamInput" placeholder="Mỗi dòng là một team..."></textarea><br>
@@ -1818,6 +1819,42 @@ function getLogoDesignColors(){
  return {start,end};
 }
 
+let designBackgroundImage=null;
+let designBackgroundObjectUrl='';
+
+function setDesignBackgroundImage(input){
+ const file=input?.files?.[0];
+ const name=document.getElementById('designBackgroundImageName');
+ if(!file) return;
+ if(!file.type.startsWith('image/')){
+   if(name) name.textContent='Hãy chọn tệp ảnh';
+   input.value='';
+   return;
+ }
+ if(designBackgroundObjectUrl) URL.revokeObjectURL(designBackgroundObjectUrl);
+ designBackgroundObjectUrl=URL.createObjectURL(file);
+ const image=new Image();
+ image.onload=()=>{designBackgroundImage=image;if(name) name.textContent=file.name;};
+ image.onerror=()=>{designBackgroundImage=null;if(name) name.textContent='Không đọc được ảnh';};
+ image.src=designBackgroundObjectUrl;
+ if(name) name.textContent='Đang tải ảnh...';
+}
+
+function clearDesignBackgroundImage(){
+ if(designBackgroundObjectUrl) URL.revokeObjectURL(designBackgroundObjectUrl);
+ designBackgroundObjectUrl='';designBackgroundImage=null;
+ const input=document.getElementById('designBackgroundImage');
+ const name=document.getElementById('designBackgroundImageName');
+ if(input) input.value='';
+ if(name) name.textContent='Chưa chọn ảnh';
+}
+
+function drawImageCover(ctx,image,x=0,y=0,width=1000,height=1000){
+ const scale=Math.max(width/image.width,height/image.height);
+ const drawWidth=image.width*scale,drawHeight=image.height*scale;
+ ctx.drawImage(image,x+(width-drawWidth)/2,y+(height-drawHeight)/2,drawWidth,drawHeight);
+}
+
 function updateDesignColorReadout(){
  const start=document.getElementById('designColorStart');
  const end=document.getElementById('designColorEnd');
@@ -1883,6 +1920,10 @@ function randomizeDesignColors(){
 
 function drawDesignColorBackground(ctx){
  ctx.clearRect(0,0,1000,1000);
+ if(designBackgroundImage?.complete && designBackgroundImage.naturalWidth){
+  drawImageCover(ctx,designBackgroundImage);
+  return;
+ }
  const colors=getLogoDesignColors();
  const bg=ctx.createLinearGradient(0,0,1000,1000);
  bg.addColorStop(0,colors.start);
@@ -2042,12 +2083,17 @@ function drawRoundBadgeBase(ctx){
  ctx.beginPath();ctx.arc(cx,cy,476,0,Math.PI*2);ctx.fill();
  ctx.restore();
 
- const inner=ctx.createLinearGradient(110,90,890,910);
- inner.addColorStop(0,colors.start);
- inner.addColorStop(.52,colors.end);
- inner.addColorStop(1,colors.start);
- ctx.fillStyle=inner;
- ctx.beginPath();ctx.arc(cx,cy,441,0,Math.PI*2);ctx.fill();
+ if(designBackgroundImage?.complete && designBackgroundImage.naturalWidth){
+  ctx.save();ctx.beginPath();ctx.arc(cx,cy,441,0,Math.PI*2);ctx.clip();
+  drawImageCover(ctx,designBackgroundImage,59,59,882,882);ctx.restore();
+ }else{
+  const inner=ctx.createLinearGradient(110,90,890,910);
+  inner.addColorStop(0,colors.start);
+  inner.addColorStop(.52,colors.end);
+  inner.addColorStop(1,colors.start);
+  ctx.fillStyle=inner;
+  ctx.beginPath();ctx.arc(cx,cy,441,0,Math.PI*2);ctx.fill();
+ }
 
  const light=ctx.createRadialGradient(365,290,30,cx,cy,500);
  light.addColorStop(0,'rgba(255,255,255,.24)');
@@ -2303,7 +2349,8 @@ async function buildDesignedLogoZip(useWhitePalette=false,useGoldCorners=false){
   // Nhờ vậy logo đen trên nền trắng vẫn rõ, không bị chìm vào nền đen.
   const logoCanvas=makeLogoCanvasForBlackCircle(img,false);
   const isTransparentLogo=canvasHasTransparentPixels(logoCanvas);
-  if(useWhitePalette) drawWhiteMixOutsideCircleBase(ctx,whiteMixColors[count]||whiteMixColors[count%whiteMixColors.length]);
+  if(isTransparentLogo && designBackgroundImage?.complete && designBackgroundImage.naturalWidth) drawDesignColorBackground(ctx);
+  else if(useWhitePalette) drawWhiteMixOutsideCircleBase(ctx,whiteMixColors[count]||whiteMixColors[count%whiteMixColors.length]);
   else if(isTransparentLogo) drawDesignColorBackground(ctx);
   else drawGreenOutsideBlackCircleBase(ctx);
 
