@@ -2112,7 +2112,7 @@ function drawRoundBadgeBase(ctx){
  ctx.beginPath();ctx.arc(cx,cy,471,0,Math.PI*2);ctx.stroke();
 }
 
-function drawContainedOriginalLogo(ctx,logoCanvas,safeRadius=430){
+function drawContainedOriginalLogo(ctx,logoCanvas){
  const source=logoCanvas.getContext('2d',{willReadFrequently:true}).getImageData(0,0,1000,1000);
  const pixels=source.data;
  let left=1000,top=1000,right=-1,bottom=-1;
@@ -2123,14 +2123,11 @@ function drawContainedOriginalLogo(ctx,logoCanvas,safeRadius=430){
  const sw=right-left+1,sh=bottom-top+1;
  // Ảnh logo luôn bị cắt theo vòng tròn, nên không còn ô vuông trắng/đen
  // như bản trước. Nếu PNG trong suốt, nền màu huy hiệu ở dưới sẽ hiện ra.
- // Dùng đường chéo của vùng logo để cả bốn góc (đặc biệt chữ ở mép)
- // luôn nằm trong vòng tròn. Cách scale theo ngang/dọc cũ có thể làm
- // các logo PNG rộng bị cắt mất chữ khi bo tròn.
- const scale=(safeRadius*2)/Math.hypot(sw,sh);
+ const scale=Math.min(910/sw,910/sh);
  const dw=sw*scale,dh=sh*scale;
  ctx.save();
  ctx.beginPath();
- ctx.arc(500,500,safeRadius,0,Math.PI*2);
+ ctx.arc(500,500,444,0,Math.PI*2);
  ctx.closePath();
  ctx.clip();
  ctx.shadowColor='rgba(0,0,0,.22)';ctx.shadowBlur=10;ctx.shadowOffsetY=5;
@@ -2357,20 +2354,14 @@ async function buildDesignedLogoZip(useWhitePalette=false,useGoldCorners=false){
   else if(isTransparentLogo) drawDesignColorBackground(ctx);
   else drawGreenOutsideBlackCircleBase(ctx);
 
-  if(isTransparentLogo){
-   // Logo PNG tách nền có thể có chữ sát mép. Thu gọn theo đường chéo
-   // để không bao giờ bị vòng tròn cắt mất nội dung.
-   drawContainedOriginalLogo(ctx,logoCanvas,430);
-  }else{
-   const cx=500, cy=500, r=475;
-   ctx.save();
-   ctx.beginPath();
-   ctx.arc(cx,cy,r,0,Math.PI*2);
-   ctx.closePath();
-   ctx.clip();
-   ctx.drawImage(logoCanvas,0,0,1000,1000);
-   ctx.restore();
-  }
+  const cx=500, cy=500, r=475;
+  ctx.save();
+  ctx.beginPath();
+  ctx.arc(cx,cy,r,0,Math.PI*2);
+  ctx.closePath();
+  ctx.clip();
+  ctx.drawImage(logoCanvas,0,0,1000,1000);
+  ctx.restore();
 
   drawCircleFrameAndFlag(ctx);
   if(useGoldCorners) drawGoldCornerFrame(ctx);
