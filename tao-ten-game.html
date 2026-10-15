@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Tạo tên game theo đội</title>
+  <style>
+    :root { color-scheme: dark; --bg:#0b1020; --panel:#141c30; --line:#293653; --muted:#9aa9c5; --text:#eef3ff; --accent:#8b7cff; --green:#39d6a2; }
+    * { box-sizing:border-box }
+    body { margin:0; background:radial-gradient(ellipse at 80% 0,#24204d 0,transparent 42%),var(--bg); color:var(--text); font:16px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif; }
+    main { width:min(940px, calc(100% - 32px)); margin:48px auto; }
+    header { margin-bottom:25px } h1 { margin:0 0 7px; font-size:clamp(27px,5vw,40px); letter-spacing:-.04em }
+    header p,.hint { color:var(--muted); margin:0 }
+    .card { background:color-mix(in srgb,var(--panel) 94%,transparent); border:1px solid var(--line); border-radius:18px; padding:22px; margin:16px 0; box-shadow:0 14px 50px #0002 }
+    .topline { display:flex; justify-content:space-between; gap:12px; align-items:center; margin-bottom:12px }
+    h2 { font-size:19px; margin:0 } label { display:block; font-weight:650; margin:15px 0 7px }
+    textarea,select,input { width:100%; color:var(--text); background:#0d1425; border:1px solid var(--line); border-radius:11px; padding:12px 14px; font:inherit; outline:none }
+    textarea:focus,select:focus,input:focus { border-color:var(--accent); box-shadow:0 0 0 3px #8b7cff28 }
+    textarea { min-height:145px; resize:vertical } #players { min-height:130px }
+    .hint { font-size:13px; margin-top:7px }
+    button { border:0; border-radius:10px; padding:10px 15px; background:var(--accent); color:white; font:700 14px system-ui; cursor:pointer }
+    button:hover { filter:brightness(1.1) } button.secondary { background:#26324c; border:1px solid var(--line); color:var(--text) } button.small { padding:7px 11px; font-size:13px }
+    .team-list { display:grid; gap:9px; margin-top:15px }
+    .team-row { display:grid; grid-template-columns:minmax(0,1fr) 150px; align-items:center; gap:12px; padding:10px 12px; border:1px solid var(--line); border-radius:11px; background:#10182a }
+    .team-name { overflow-wrap:anywhere } .team-name small { display:block; color:var(--muted); font-weight:400 }
+    .team-row input { padding:8px 10px; text-transform:uppercase; font-weight:750; letter-spacing:.04em }
+    .actions { display:flex; justify-content:flex-end; gap:9px; margin-top:13px; flex-wrap:wrap }
+    .result-head { display:flex; justify-content:space-between; align-items:center; gap:10px }
+    pre { white-space:pre-wrap; overflow-wrap:anywhere; background:#0d1425; border:1px solid var(--line); border-radius:11px; padding:15px; min-height:54px; margin:14px 0 0; font:600 16px/1.8 ui-monospace,SFMono-Regular,Consolas,monospace }
+    .status { min-height:20px; color:var(--green); font-size:13px; margin-top:7px }
+    @media(max-width:560px) { main{margin:25px auto} .card{padding:16px} .team-row{grid-template-columns:1fr 105px;gap:8px} }
+  </style>
+</head>
+<body>
+<main>
+  <header><h1>Tạo tên game hoàn chỉnh</h1><p>Dùng lần lượt hai phần dưới đây: tạo mã đội trước, sau đó chuẩn hóa tên game theo dạng <strong>MÃĐỘI.TÊNNGƯỜI CHƠI</strong>.</p></header>
+
+  <section class="card">
+    <h2>1. Tạo mã viết tắt đội</h2>
+    <label for="teamNames">Dán danh sách tên đội (mỗi đội một dòng)</label>
+    <textarea id="teamNames" placeholder="PAPERREX ESP&#10;MT ESPORTS&#10;FERRARI ESP&#10;JET CẦN THƠ"></textarea>
+    <p class="hint">Mã viết tắt tự hiện ở ô kết quả bên dưới khi bạn dán.</p>
+    <div class="actions"><button id="copyTeams" class="secondary">Sao chép mã đội</button></div>
+    <pre id="teamResult" aria-live="polite">Mã đội sẽ hiện ở đây…</pre>
+  </section>
+
+  <section class="card">
+    <h2>2. Tạo tên game hoàn chỉnh</h2>
+    <label for="gameNames">Dán tên game (mỗi tên một dòng, dạng MÃĐỘI.TÊN)</label>
+    <textarea id="gameNames" placeholder="PRX.GodCruZ&#10;MTE.TNGHIA&#10;ĐT.VinĐầuTo"></textarea>
+    <p class="hint">Mỗi dòng tên game sẽ ghép với đội cùng thứ tự ở phần 1. Mã cũ trước dấu chấm sẽ được thay bằng mã đội đúng; dòng trống vẫn giữ vị trí. Chỉ xử lý tối đa bằng số đội đã dán.</p>
+    <div class="actions"><button id="copyGames" class="secondary">Sao chép tên hoàn chỉnh</button></div>
+    <pre id="gameResult" aria-live="polite">Tên game hoàn chỉnh sẽ hiện ở đây…</pre>
+    <div class="status" id="status" role="status"></div>
+  </section>
+</main>
+<script>
+  const $ = (id) => document.getElementById(id);
+  const clean = (value) => value.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/đ/gi, 'd').toUpperCase().replace(/[^A-Z0-9]/g, '');
+  function teamAbbreviation(value) {
+    const words = (value.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/đ/gi, 'd').toUpperCase().match(/[A-Z0-9]+/g) || [])
+      .filter(word => !['ESP', 'ESPORT', 'ESPORTS'].includes(word));
+    if (!words.length) return '';
+    if (words[0] === 'FERRARI') return 'FRR';
+    if (words.length >= 3) return words.map(word => word[0]).join('');
+    return words[0].slice(0, 3);
+  }
+  function normalizeEntry(line) {
+    const value = line.trim();
+    if (!value) return '';
+    const parts = value.split('.');
+    if (parts.length < 2) return clean(value);
+    const team = clean(parts.shift());
+    const player = clean(parts.join(''));
+    return team && player ? `${team}.${player}` : team || player;
+  }
+  function renderTeams() {
+    const codes = getTeamCodes();
+    $('teamResult').textContent = codes.length ? codes.join('\n') : 'Mã đội sẽ hiện ở đây…';
+  }
+  function getTeamCodes() {
+    return $('teamNames').value.split(/\r?\n/).map(line => {
+      let value = line.trim();
+      if (!value) return '';
+      if (value.startsWith('|')) value = value.slice(1);
+      if (value.endsWith('|')) value = value.slice(0, -1);
+      if (value.includes('|')) value = value.split('|').map(part => part.trim()).filter(Boolean)[0] || '';
+      if (!value || /^[-:]+$/.test(value) || /^team$/i.test(value)) return '';
+      return teamAbbreviation(value);
+    }).filter(Boolean);
+  }
+  function renderGames() {
+    const codes = getTeamCodes();
+    const lines = $('gameNames').value.split(/\r?\n/).slice(0, codes.length);
+    const names = lines.map((line, index) => {
+      const value = line.trim();
+      if (!value) return '';
+      const playerName = value.includes('.') ? value.slice(value.indexOf('.') + 1) : value;
+      const player = clean(playerName);
+      return player ? `${codes[index]}.${player}` : '';
+    });
+    $('gameResult').textContent = names.length ? names.join('\n') : (codes.length ? 'Tên game hoàn chỉnh sẽ hiện ở đây…' : 'Dán danh sách đội ở phần 1 trước.');
+  }
+  function setStatus(message) { $('status').textContent = message; }
+  async function copy(text, success) {
+    if (!text.trim()) { setStatus('Chưa có nội dung để sao chép.'); return; }
+    try { await navigator.clipboard.writeText(text); setStatus(success); }
+    catch { const area=document.createElement('textarea'); area.value=text; document.body.append(area); area.select(); document.execCommand('copy'); area.remove(); setStatus(success); }
+  }
+  $('teamNames').addEventListener('input',()=>{ renderTeams(); renderGames(); });
+  $('gameNames').addEventListener('input',renderGames);
+  $('copyTeams').addEventListener('click',()=>copy($('teamResult').textContent.startsWith('Mã đội sẽ')?'':$('teamResult').textContent,'Đã sao chép mã đội.'));
+  $('copyGames').addEventListener('click',()=>copy($('gameResult').textContent.startsWith('Tên game hoàn chỉnh sẽ')?'':$('gameResult').textContent,'Đã sao chép tên game hoàn chỉnh.'));
+</script>
+</body>
+</html>
