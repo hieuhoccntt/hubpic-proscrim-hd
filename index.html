@@ -1620,9 +1620,11 @@ document.addEventListener('click',function(event){
  document.querySelectorAll('.logo-picker-list').forEach(list=>{list.style.display='none';});
 });
 logoFilesInput.onchange=function(){
-  // Mỗi lần chọn thêm file chỉ bổ sung logo mới, giữ nguyên logo cũ và các gán hiện có.
+  // Một lần chọn file là một bộ logo mới: bỏ toàn bộ logo/gán của lượt trước
+  // để danh sách mới không thể lẫn logo cũ.
   if(!this.files || this.files.length===0) return;
-  rememberCurrentLogoAssignments();
+  logoFileStore.splice(0,logoFileStore.length);
+  logoAssignments.fill('');
   addLogoFiles(this.files);
   this.value='';
   autoAssignKnownTeamLogos();
