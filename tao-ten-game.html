@@ -33,7 +33,7 @@
 </head>
 <body>
 <main>
-  <header><h1>Tạo tên game hoàn chỉnh</h1><p>Dùng lần lượt hai phần dưới đây: tạo mã đội trước, sau đó chuẩn hóa tên game theo dạng <strong>MÃĐỘI.TÊNNGƯỜI CHƠI</strong>.</p></header>
+  <header><h1>Tạo tên game hoàn chỉnh</h1><p>Dùng lần lượt hai phần dưới đây: tạo mã đội trước, sau đó chuẩn hóa tên game theo dạng <strong>MÃĐỘI.TÊNNGƯỜI CHƠI</strong> hoặc <strong>MÃĐỘI_TÊNNGƯỜI CHƠI</strong>.</p></header>
 
   <section class="card">
     <h2>1. Tạo mã viết tắt đội</h2>
@@ -46,9 +46,14 @@
 
   <section class="card">
     <h2>2. Tạo tên game hoàn chỉnh</h2>
-    <label for="gameNames">Dán tên game (mỗi tên một dòng, dạng MÃĐỘI.TÊN)</label>
+    <label for="gameNames">Dán tên game (mỗi tên một dòng, dạng MÃĐỘI.TÊN hoặc MÃĐỘI_TÊN)</label>
     <textarea id="gameNames" placeholder="PRX.GodCruZ&#10;MTE.TNGHIA&#10;ĐT.VinĐầuTo"></textarea>
-    <p class="hint">Mỗi dòng tên game sẽ ghép với đội cùng thứ tự ở phần 1. Mã cũ trước dấu chấm sẽ được thay bằng mã đội đúng; dòng trống vẫn giữ vị trí. Chỉ xử lý tối đa bằng số đội đã dán.</p>
+    <label for="nameSeparator">Ký tự ngăn cách khi xuất tên</label>
+    <select id="nameSeparator">
+      <option value=".">Dấu chấm (MÃĐỘI.TÊN)</option>
+      <option value="_">Dấu gạch dưới (MÃĐỘI_TÊN)</option>
+    </select>
+    <p class="hint">Mỗi dòng tên game sẽ ghép với đội cùng thứ tự ở phần 1. Mã cũ trước dấu chấm hoặc dấu gạch dưới sẽ được thay bằng mã đội đúng; dòng trống vẫn giữ vị trí. Chỉ xử lý tối đa bằng số đội đã dán.</p>
     <div class="actions"><button id="copyGames" class="secondary">Sao chép tên hoàn chỉnh</button></div>
     <pre id="gameResult" aria-live="polite">Tên game hoàn chỉnh sẽ hiện ở đây…</pre>
     <div class="status" id="status" role="status"></div>
@@ -131,13 +136,15 @@
   }
   function renderGames() {
     const codes = getTeamCodes();
+    const separator = $('nameSeparator').value;
     const lines = $('gameNames').value.split(/\r?\n/).slice(0, codes.length);
     const names = lines.map((line, index) => {
       const value = line.trim();
       if (!value) return '';
-      const playerName = value.includes('.') ? value.slice(value.indexOf('.') + 1) : value;
+      const splitAt = value.search(/[._]/);
+      const playerName = splitAt >= 0 ? value.slice(splitAt + 1) : value;
       const player = clean(playerName);
-      return player ? `${codes[index]}.${player}` : '';
+      return player ? `${codes[index]}${separator}${player}` : '';
     });
     $('gameResult').textContent = names.length ? names.join('\n') : (codes.length ? 'Tên game hoàn chỉnh sẽ hiện ở đây…' : 'Dán danh sách đội ở phần 1 trước.');
   }
@@ -149,6 +156,7 @@
   }
   $('teamNames').addEventListener('input',()=>{ renderTeams(); renderGames(); });
   $('gameNames').addEventListener('input',renderGames);
+  $('nameSeparator').addEventListener('change',renderGames);
   $('copyTeams').addEventListener('click',()=>copy($('teamResult').textContent.startsWith('Mã đội sẽ')?'':$('teamResult').textContent,'Đã sao chép mã đội.'));
   $('copyGames').addEventListener('click',()=>copy($('gameResult').textContent.startsWith('Tên game hoàn chỉnh sẽ')?'':$('gameResult').textContent,'Đã sao chép tên game hoàn chỉnh.'));
 </script>
