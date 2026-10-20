@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Ghép ảnh HUD 106×160</title>
+  <style>
+    :root{color-scheme:dark;--bg:#07101b;--panel:#0d1928;--line:#24425b;--text:#edf8ff;--muted:#a2bdcc;--accent:#35dfb2;}
+    *{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 85% 0,#123c4a 0,transparent 36%),var(--bg);color:var(--text);font:15px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif}main{width:min(940px,calc(100% - 28px));margin:34px auto}.card{background:linear-gradient(135deg,rgba(13,30,43,.96),rgba(7,15,26,.98));border:1px solid var(--line);border-radius:18px;padding:20px;margin:16px 0;box-shadow:0 14px 36px #0005}h1{margin:0 0 4px;font-size:clamp(25px,4vw,34px)}h2{font-size:18px;margin:0 0 9px}.hint{margin:0;color:var(--muted);font-size:13px}.upload-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:16px}.upload{display:block;min-height:132px;border:1px dashed #4b91a6;border-radius:14px;padding:17px;background:#071420;cursor:pointer}.upload strong,.upload small{display:block}.upload small{color:var(--muted);margin-top:5px}input[type=file]{display:none}button{margin-top:16px;border:0;border-radius:10px;padding:11px 16px;background:linear-gradient(135deg,#19c896,#4fe4c4);color:#052017;font-weight:850;cursor:pointer}button:disabled{opacity:.5;cursor:not-allowed}.status{min-height:22px;color:#75f6ce;margin-top:10px;font-size:13px}.preview-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px;margin-top:16px}.preview{display:grid;grid-template-columns:106px 1fr;gap:11px;align-items:center;padding:10px;border:1px solid var(--line);border-radius:13px;background:#081321}.preview canvas{width:106px;height:160px;image-rendering:auto;border-radius:4px;background:#111}.preview strong{overflow-wrap:anywhere;font-size:13px}.preview small{display:block;color:var(--muted);font-size:12px;margin-top:5px}@media(max-width:620px){main{width:min(100% - 20px,940px);margin:20px auto}.card{padding:15px}.upload-grid{grid-template-columns:1fr}.preview-list{grid-template-columns:1fr}.preview{grid-template-columns:106px 1fr}}
+  </style>
+</head>
+<body>
+<main>
+  <header><h1>Ghép ảnh HUD người chơi</h1><p class="hint">Tạo ảnh 106 × 160 pixel từ một nền và ảnh người chơi đã tách nền. File xuất giữ nguyên tên file ảnh người chơi bạn đã tải lên.</p></header>
+  <section class="card">
+    <h2>1. Chọn ảnh nền</h2>
+    <label class="upload" for="backgroundInput"><strong>🖼️ Tải ảnh nền</strong><small id="backgroundName">Chưa chọn nền. Nền sẽ tự phủ kín khung 106 × 160.</small><input id="backgroundInput" type="file" accept="image/*"></label>
+  </section>
+  <section class="card">
+    <h2>2. Chọn ảnh người chơi đã tách nền</h2>
+    <label class="upload" for="playersInput"><strong>👤 Tải một hoặc nhiều ảnh người chơi</strong><small id="playersName">Nên dùng PNG nền trong suốt. Tên file ảnh sẽ được giữ nguyên khi tải xuống.</small><input id="playersInput" type="file" accept="image/*" multiple></label>
+    <button id="downloadAll" disabled>⬇ Tải toàn bộ ảnh HUD</button>
+    <div class="status" id="status" role="status"></div>
+    <div class="preview-list" id="previewList"></div>
+  </section>
+</main>
+<script>
+  const $=id=>document.getElementById(id);
+  let background=null, players=[];
+  const loadImage=file=>new Promise((resolve,reject)=>{const image=new Image();const url=URL.createObjectURL(file);image.onload=()=>{URL.revokeObjectURL(url);resolve(image)};image.onerror=()=>{URL.revokeObjectURL(url);reject(new Error('Không đọc được ảnh'))};image.src=url});
+  function drawCover(ctx,img,width,height){const scale=Math.max(width/img.width,height/img.height);const w=img.width*scale,h=img.height*scale;ctx.drawImage(img,(width-w)/2,(height-h)/2,w,h)}
+  function drawPlayer(ctx,img,width,height){const padding=2;const scale=Math.min((width-padding*2)/img.width,(height-padding*2)/img.height);const w=img.width*scale,h=img.height*scale;ctx.drawImage(img,(width-w)/2,height-padding-h,w,h)}
+  function createCanvas(player){const canvas=document.createElement('canvas');canvas.width=106;canvas.height=160;const ctx=canvas.getContext('2d');ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';drawCover(ctx,background,106,160);drawPlayer(ctx,player.image,106,160);return canvas}
+  function redraw(){const list=$('previewList');list.replaceChildren();if(!background||!players.length){$('downloadAll').disabled=true;return}$('downloadAll').disabled=false;players.forEach(player=>{const canvas=createCanvas(player);player.canvas=canvas;const item=document.createElement('article');item.className='preview';const info=document.createElement('div');const name=document.createElement('strong');name.textContent=player.file.name;const note=document.createElement('small');note.textContent='Xuất 106 × 160 • giữ nguyên tên file';info.append(name,note);item.append(canvas,info);list.append(item)});$('status').textContent=`Đã ghép sẵn ${players.length} ảnh. Nhấn “Tải toàn bộ ảnh HUD” để lưu.`}
+  $('backgroundInput').addEventListener('change',async event=>{const file=event.target.files[0];if(!file)return;try{background=await loadImage(file);$('backgroundName').textContent=`Đã chọn nền: ${file.name}`;redraw()}catch{$('status').textContent='Không thể đọc ảnh nền này.'}});
+  $('playersInput').addEventListener('change',async event=>{const files=[...event.target.files];if(!files.length)return;try{players=await Promise.all(files.map(async file=>({file,image:await loadImage(file),canvas:null})));$('playersName').textContent=`Đã chọn ${players.length} ảnh người chơi. Tên file sẽ giữ nguyên.`;redraw()}catch{$('status').textContent='Có ảnh người chơi không thể đọc được.'}});
+  $('downloadAll').addEventListener('click',async()=>{if(!players.length||!background)return;const button=$('downloadAll');button.disabled=true;$('status').textContent='Đang chuẩn bị tải ảnh…';for(const player of players){const blob=await new Promise(resolve=>player.canvas.toBlob(resolve,'image/png'));const url=URL.createObjectURL(blob);const link=document.createElement('a');link.href=url;link.download=player.file.name;document.body.append(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);await new Promise(resolve=>setTimeout(resolve,160))}$('status').textContent=`Đã gửi ${players.length} ảnh để tải xuống — tên file vẫn giữ nguyên.`;button.disabled=false});
+</script>
+</body>
+</html>
