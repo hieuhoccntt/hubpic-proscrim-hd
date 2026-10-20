@@ -650,22 +650,6 @@ background:#111;
 
 
 <style>
-.music-btn{display:none !important;
-position:fixed;
-right:18px;
-bottom:18px;
-z-index:999999;
-background:linear-gradient(135deg,#00ff99,#00ccff);
-color:#000;
-font-weight:900;
-border:none;
-border-radius:999px;
-padding:13px 20px;
-box-shadow:0 0 18px rgba(0,255,200,.65);
-cursor:pointer;
-}
-.music-btn:hover{transform:scale(1.06);}
-
 .color-label{
 font-size:30px;
 font-weight:700;
@@ -2794,72 +2778,6 @@ window.addEventListener('resize',resizePlayerHudFrame);
 </div>
 
 
-<script>
-const hubpicYoutubeId="lEWHw-684mM";
-let hubpicMusicOn=false;
-let hubpicYoutubeFrame=null;
-
-function sendHubpicYoutubeCommand(func){
-  if(hubpicYoutubeFrame && hubpicYoutubeFrame.contentWindow){
-    hubpicYoutubeFrame.contentWindow.postMessage(JSON.stringify({event:"command",func:func,args:""}),"https://www.youtube.com");
-  }
-}
-
-function prepareHubpicMusic(){
-  if(!hubpicYoutubeFrame){
-    hubpicYoutubeFrame=document.createElement("iframe");
-    hubpicYoutubeFrame.id="hubpicYoutubeMusic";
-    hubpicYoutubeFrame.width="1";
-    hubpicYoutubeFrame.height="1";
-    hubpicYoutubeFrame.style.cssText="position:fixed;left:-10px;bottom:-10px;border:0;opacity:0;pointer-events:none;";
-    hubpicYoutubeFrame.allow="autoplay; encrypted-media";
-    hubpicYoutubeFrame.src="https://www.youtube.com/embed/"+hubpicYoutubeId+"?enablejsapi=1&autoplay=1&loop=1&playlist="+hubpicYoutubeId+"&playsinline=1&origin="+encodeURIComponent(location.origin);
-    document.body.appendChild(hubpicYoutubeFrame);
-    hubpicYoutubeFrame.addEventListener("load",()=>{
-      sendHubpicYoutubeCommand("playVideo");
-    });
-  }
-}
-
-function startHubpicMusic(){
-  prepareHubpicMusic();
-  sendHubpicYoutubeCommand("unMute");
-  sendHubpicYoutubeCommand("playVideo");
-  hubpicMusicOn=true;
-  const b=document.getElementById("musicBtn"); if(b) b.innerText="🔇 TẮT NHẠC";
-}
-
-function stopHubpicMusic(){
-  hubpicMusicOn=false;
-  sendHubpicYoutubeCommand("pauseVideo");
-  sendHubpicYoutubeCommand("mute");
-  const b=document.getElementById("musicBtn"); if(b) b.innerText="🎵 BẬT NHẠC";
-}
-
-function toggleHubpicMusic(){
-  if(hubpicMusicOn) stopHubpicMusic();
-  else startHubpicMusic();
-}
-</script>
-
-
-
-
-
-<script>
-function forceStartHubpicMusic(){
-  try{
-    if(typeof startHubpicMusic === "function" && !hubpicMusicOn){
-      startHubpicMusic();
-    }
-  }catch(e){}
-}
-window.addEventListener("DOMContentLoaded", prepareHubpicMusic, {once:true});
-["click","pointerdown","touchstart","keydown","mousemove"].forEach(ev=>{
-  document.addEventListener(ev, forceStartHubpicMusic, {once:true});
-});
-</script>
-
 </div>
 <script>
 // Khoá giao diện quản trị. Đây là lớp bảo vệ phía trình duyệt cho website tĩnh.
@@ -2876,7 +2794,6 @@ function setHubpicAdminAccess(allowed){
   hubpicTools.hidden=!allowed;
   hubpicLogout.hidden=!allowed;
   hubpicResetAll.hidden=!allowed;
-  if(allowed) forceStartHubpicMusic();
 }
 function resetEntireHubpicPage(){
   // Tải lại trang sẽ xóa toàn bộ dữ liệu đang nhập, nhưng vẫn giữ phiên đăng nhập admin.
