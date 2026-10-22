@@ -1342,6 +1342,53 @@ async function downloadScrimTimeslotJson(){
   status.textContent='Không tải được JSON: '+error.message;
  }
 }
+
+// Nếu đang dùng khung giờ Pro Scrim, ZIP logo sẽ kèm file này. Làm code riêng
+// mà không chọn khung giờ thì trả về null, nên ZIP vẫn chỉ có logo như trước.
+async function createSelectedScrimPlayerNameFile(){
+ const select=document.getElementById('scrimTimeslot');
+ if(!select || select.value==='' || !scrimTimeSlots.length) return null;
+ const slot=scrimTimeSlots[Number(select.value)];
+ const slotValue=slot && (slot.value||slot.time||slot.name||slot.label);
+ if(!slotValue) return null;
+ const teamsUrl='https://server-ecru-phi-88.vercel.app/api/teams/timeslot/'+encodeURIComponent(slotValue);
+ const rows=extractTeamRows(await fetchScrimJson(teamsUrl));
+ const overrideResults=await Promise.all(rows.map(async row=>{
+  if(!row.team?.id) return [];
+  try{
+   const payload=await fetchScrimJson('https://server-ecru-phi-88.vercel.app/api/teams/'+encodeURIComponent(row.team.id)+'/player-overrides');
+   return Array.isArray(payload?.data) ? payload.data : [];
+  }catch(error){ return []; }
+ }));
+ const jsonColor=(document.getElementById('scrimJsonColor')?.value||'#FFFFFF').toUpperCase();
+ const playerNameList=overrideResults.flat().map(item=>({
+  PlayerID:parseInt(item.player_id,10),
+  PlayerNameOverwrite:item.rename_override,
+  PlayerNation:item.team_full||'CUSTOM SCRIM HD',
+  Color:jsonColor
+ })).filter(item=>Number.isFinite(item.PlayerID)&&item.PlayerNameOverwrite);
+ const teamRegionList=[];
+ for(let teamId=1;teamId<=15;teamId++) teamRegionList.push({TeamID:teamId,TeamRegion:'PRO SCRIM HD',Color:jsonColor});
+ return {
+  fileName:'PlayerNameOverwrite.json',
+  blob:new Blob([JSON.stringify({PlayerNameList:playerNameList,TeamRegionList:teamRegionList},null,2)],{type:'application/json;charset=utf-8'}),
+  playerCount:playerNameList.length
+ };
+}
+
+async function addSelectedScrimPlayerNameToZip(zip,status){
+ try{
+  const playerFile=await createSelectedScrimPlayerNameFile();
+  if(!playerFile) return false;
+  zip.file(playerFile.fileName,playerFile.blob);
+  if(status) status.textContent='Đang thêm PlayerNameOverwrite.json ('+playerFile.playerCount+' người chơi)...';
+  return true;
+ }catch(error){
+  console.warn('Không thể thêm PlayerNameOverwrite vào ZIP:',error);
+  if(status) status.textContent='Logo đã tạo, nhưng chưa lấy được PlayerNameOverwrite.json. Bạn có thể thử lại.';
+  return false;
+ }
+}
 function resetScrimImport(keepSelectedSlot=false){
  const select=document.getElementById('scrimTimeslot');
  const status=document.getElementById('scrimImportStatus');
@@ -2178,6 +2225,7 @@ async function exportZipRoundBadge(){
   await new Promise(resolve=>setTimeout(resolve,0));
  }
  if(!count){if(status) status.textContent='Bạn chưa chọn logo nào để xuất.';alert('Bạn chưa chọn logo nào để xuất.');return;}
+ await addSelectedScrimPlayerNameToZip(zip,status);
  const out=await zip.generateAsync({type:'blob'});
  downloadLogoZip(out,'TeamLogo_HuyHieuTron.zip');
  if(status) status.textContent='Đã xuất '+count+' logo huy hiệu tròn; dùng màu nền và viền đang chọn.';
@@ -2273,6 +2321,7 @@ async function buildLogoZip(removeBg=false){
    return;
  }
 
+ await addSelectedScrimPlayerNameToZip(zip,status);
  const out=await zip.generateAsync({type:'blob'});
  downloadLogoZip(out,removeBg ? 'TeamLogo_XoaNen.zip' : 'TeamLogo_Goc.zip');
 
@@ -2377,6 +2426,7 @@ async function buildDesignedLogoZip(useWhitePalette=false,useGoldCorners=false){
    return;
  }
 
+ await addSelectedScrimPlayerNameToZip(zip,status);
  const out=await zip.generateAsync({type:'blob'});
  downloadLogoZip(out,(useWhitePalette&&useGoldCorners)
   ?'TeamLogo_15MauTrang_4Goc.zip'
@@ -2430,6 +2480,7 @@ async function exportZipBlackFrame(){
   await new Promise(r=>setTimeout(r,0));
  }
  if(!count){if(status) status.textContent='Bạn chưa chọn logo nào để xuất.';alert('Bạn chưa chọn logo nào để xuất.');return;}
+ await addSelectedScrimPlayerNameToZip(zip,status);
  const out=await zip.generateAsync({type:'blob'});
  downloadLogoZip(out,'TeamLogo_KhungDen.zip');
  if(status) status.textContent='Đã xuất '+count+' logo mẫu khung đen.';
