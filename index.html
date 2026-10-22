@@ -2674,7 +2674,86 @@ button:hover{transform:translateY(-2px)!important;filter:brightness(1.1);box-sha
 .team-label{background:linear-gradient(135deg,#073f42,#0c8f75)!important;color:#ecfff8!important;border:1px solid rgba(99,255,202,.5);box-shadow:0 7px 16px rgba(0,0,0,.24)!important;}.logo-picker-selected{background:#09111e!important;border-color:rgba(112,207,255,.42)!important;border-radius:14px!important;}.logo-picker-list{background:#071019!important;border-color:#34d7aa!important;border-radius:14px!important;}.logo-picker-option:hover{background:rgba(0,208,155,.14)!important;}
 .code-giai-frame-wrap,.player-name-frame-wrap,.merge-logo-frame-wrap,.game-name-frame-wrap,.player-hud-frame-wrap,.design-hubpic-frame-wrap{border:1px solid rgba(98,198,255,.28);border-radius:22px;box-shadow:0 16px 35px rgba(0,0,0,.32);}
 @media(max-width:620px){body{padding:12px;}.container{border-radius:20px;padding:16px;}h2{margin-top:26px;}.team-label{min-width:135px;width:135px;font-size:14px;}.logo-picker,.logo-picker-selected{width:180px;}}
+/* Menu từng công cụ: tránh phải cuộn qua toàn bộ Hubpic. */
+.hubpic-tool-home{margin:0;padding:clamp(18px,3vw,32px);border:1px solid rgba(91,207,255,.42);border-radius:24px;background:radial-gradient(circle at 93% 3%,rgba(63,132,255,.18),transparent 32%),linear-gradient(135deg,rgba(8,28,39,.97),rgba(9,12,31,.97));box-shadow:0 18px 44px rgba(0,0,0,.32);}
+.hubpic-tool-home h2{margin:0 0 8px;}.hubpic-tool-home p{margin:0 0 23px;color:#a9c9db;font-weight:700;}
+.hubpic-tool-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:13px;}
+.hubpic-tool-card{display:flex;min-height:112px;margin:0!important;padding:18px!important;flex-direction:column;align-items:flex-start;justify-content:center;gap:8px;border:1px solid rgba(99,231,202,.38)!important;border-radius:17px!important;background:linear-gradient(135deg,rgba(6,78,76,.97),rgba(13,47,78,.98))!important;color:#edfffb!important;text-align:left;box-shadow:0 12px 25px rgba(0,0,0,.25)!important;}
+.hubpic-tool-card:hover{border-color:#6cffd4!important;}.hubpic-tool-card strong{font-size:16px;letter-spacing:.2px;}.hubpic-tool-card small{color:#b7d9e8;font-weight:700;line-height:1.35;}
+.hubpic-tool-page{display:none;}.hubpic-tool-page.is-active{display:block;animation:hubpicToolIn .22s ease both;}.hubpic-tool-page[hidden],.hubpic-tool-home[hidden]{display:none!important;}
+.hubpic-tool-back{display:inline-flex;margin:0 0 18px!important;padding:10px 15px!important;align-items:center;gap:8px;background:linear-gradient(135deg,#174b66,#267ca1)!important;color:#eaffff!important;}
+@keyframes hubpicToolIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+@media(max-width:620px){.hubpic-tool-home{padding:18px 14px;border-radius:19px;}.hubpic-tool-grid{grid-template-columns:1fr;}.hubpic-tool-card{min-height:0;}}
 </style>
+<script>
+// Chia các công cụ dài thành từng trang nhỏ, vẫn giữ nguyên toàn bộ chức năng cũ.
+(function setupHubpicToolPages(){
+  const findHeading=(label)=>Array.from(document.querySelectorAll('h2')).find((heading)=>heading.textContent.trim()===label);
+  const core=document.querySelector('.json-studio');
+  const code=findHeading('CODE GIẢI');
+  const player=document.querySelector('.player-name-tool-heading');
+  const merge=findHeading('GHÉP LOGO THEO BẢNG');
+  const game=findHeading('TẠO TÊN GAME');
+  const hud=findHeading('GHÉP ẢNH HUD NGƯỜI CHƠI');
+  const design=findHeading('DESIGN HUBPIC');
+  const copyright=document.querySelector('.copyright-neon');
+  if(!core || !code || !player || !merge || !game || !hud || !design || !copyright) return;
+
+  const host=core.parentElement;
+  if(!host || [code,player,merge,game,hud,design,copyright].some((node)=>node.parentElement!==host)) return;
+  const children=Array.from(host.children);
+  const withDivider=(node)=>node.previousElementSibling && node.previousElementSibling.tagName==='HR' ? node.previousElementSibling : node;
+  const groups=[
+    {id:'studio',title:'Tạo đội & logo',desc:'Tạo JSON, chọn logo và xuất các mẫu logo.',start:core},
+    {id:'code',title:'Code giải',desc:'Tạo và quản lý code theo giải.',start:withDivider(code)},
+    {id:'player',title:'Player & ảnh',desc:'Xuất code tên người chơi và đổi tên ảnh.',start:player},
+    {id:'merge',title:'Ghép logo theo bảng',desc:'Ghép logo đội vào bảng nhanh.',start:withDivider(merge)},
+    {id:'game',title:'Tạo tên game',desc:'Tạo tên game đúng định dạng đội.',start:withDivider(game)},
+    {id:'hud',title:'Ghép ảnh HUD',desc:'Ghép ảnh người chơi, nền và tải ZIP.',start:withDivider(hud)},
+    {id:'design',title:'Design Hubpic',desc:'Mở bộ công cụ thiết kế Hubpic.',start:withDivider(design)}
+  ];
+  const starts=groups.map((group)=>children.indexOf(group.start));
+  if(starts.some((index)=>index<0)) return;
+
+  const home=document.createElement('section');
+  home.className='hubpic-tool-home';
+  home.innerHTML='<h2>CHỌN CÔNG CỤ HUBPIC</h2><p>Chọn một mục để làm việc. Khi xong có thể quay lại đây để mở công cụ khác.</p><div class="hubpic-tool-grid"></div>';
+  const grid=home.querySelector('.hubpic-tool-grid');
+  host.insertBefore(home,groups[0].start);
+  const pages=[];
+  groups.forEach((group,index)=>{
+    const nextStart=index===groups.length-1 ? children.indexOf(copyright) : starts[index+1];
+    const page=document.createElement('section');
+    page.className='hubpic-tool-page';
+    page.dataset.tool=group.id;
+    page.hidden=true;
+    const back=document.createElement('button');
+    back.type='button'; back.className='hubpic-tool-back'; back.textContent='← Danh sách công cụ';
+    page.append(back);
+    children.slice(starts[index],nextStart).forEach((node)=>page.append(node));
+    pages.push(page);
+
+    const card=document.createElement('button');
+    card.type='button'; card.className='hubpic-tool-card';
+    card.innerHTML='<strong>'+group.title+'</strong><small>'+group.desc+'</small>';
+    card.addEventListener('click',()=>openTool(group.id));
+    grid.append(card);
+    back.addEventListener('click',()=>openTool('home'));
+  });
+  pages.forEach((page)=>host.insertBefore(page,copyright));
+  function openTool(id){
+    const isHome=id==='home';
+    home.hidden=!isHome;
+    pages.forEach((page)=>{
+      const active=page.dataset.tool===id;
+      page.hidden=!active;
+      page.classList.toggle('is-active',active);
+    });
+    window.scrollTo({top:0,behavior:'smooth'});
+  }
+  openTool('home');
+})();
+</script>
 <script>
 // Gộp phần Design Hubpic vào luồng cuộn của trang chính, không tạo thanh cuộn riêng.
 function resizeCodeGiaiFrame(){
