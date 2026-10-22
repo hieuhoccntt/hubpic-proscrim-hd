@@ -2687,7 +2687,7 @@ button:hover{transform:translateY(-2px)!important;filter:brightness(1.1);box-sha
 </style>
 <script>
 // Chia các công cụ dài thành từng trang nhỏ, vẫn giữ nguyên toàn bộ chức năng cũ.
-(function setupHubpicToolPages(){
+function setupHubpicToolPages(){
   const findHeading=(label)=>Array.from(document.querySelectorAll('h2')).find((heading)=>heading.textContent.trim()===label);
   const core=document.querySelector('.json-studio');
   const code=findHeading('CODE GIẢI');
@@ -2699,12 +2699,14 @@ button:hover{transform:translateY(-2px)!important;filter:brightness(1.1);box-sha
   const copyright=document.querySelector('.copyright-neon');
   if(!core || !code || !player || !merge || !game || !hud || !design || !copyright) return;
 
-  const host=core.parentElement;
-  if(!host || [code,player,merge,game,hud,design,copyright].some((node)=>node.parentElement!==host)) return;
+  // Công cụ tạo đội/logo nằm trong .container, các công cụ iframe là con trực tiếp của adminApp.
+  const host=document.getElementById('adminApp');
+  const corePage=core.closest('.container');
+  if(!host || !corePage || [code,player,merge,game,hud,design,copyright].some((node)=>node.parentElement!==host)) return;
   const children=Array.from(host.children);
   const withDivider=(node)=>node.previousElementSibling && node.previousElementSibling.tagName==='HR' ? node.previousElementSibling : node;
   const groups=[
-    {id:'studio',title:'Tạo đội & logo',desc:'Tạo JSON, chọn logo và xuất các mẫu logo.',start:core},
+    {id:'studio',title:'Tạo đội & logo',desc:'Tạo JSON, chọn logo và xuất các mẫu logo.',start:corePage},
     {id:'code',title:'Code giải',desc:'Tạo và quản lý code theo giải.',start:withDivider(code)},
     {id:'player',title:'Player & ảnh',desc:'Xuất code tên người chơi và đổi tên ảnh.',start:player},
     {id:'merge',title:'Ghép logo theo bảng',desc:'Ghép logo đội vào bảng nhanh.',start:withDivider(merge)},
@@ -2752,7 +2754,9 @@ button:hover{transform:translateY(-2px)!important;filter:brightness(1.1);box-sha
     window.scrollTo({top:0,behavior:'smooth'});
   }
   openTool('home');
-})();
+}
+if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',setupHubpicToolPages,{once:true});
+else setupHubpicToolPages();
 </script>
 <script>
 // Gộp phần Design Hubpic vào luồng cuộn của trang chính, không tạo thanh cuộn riêng.
