@@ -2470,8 +2470,8 @@ async function exportZipGameFolders(){
    alert('Bạn chưa chọn logo nào để xuất.');
    return;
  }
- const hadTeamNames=teamNames.length>0;
- forceTeamNameDownloads=hadTeamNames;
+ // ZIP cho game luôn dùng mã số (codes) như các mục tải logo thông thường.
+ forceTeamNameDownloads=false;
  logoExportFolders=['BackPackPics','GloowallPics','HeadPics'];
  logoZipFileNameOverride='TeamLogo_3ThuMucGame.zip';
  try{
