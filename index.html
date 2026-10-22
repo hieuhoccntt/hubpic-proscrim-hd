@@ -2730,18 +2730,25 @@ for(let i=0;i<80;i++){
 </div>
 
 <hr>
+<h2 class="hubpic-animated">TÍNH ĐIỂM</h2>
+<div class="scoring-frame-wrap">
+  <iframe class="scoring-frame" src="https://ff-standings.vercel.app/" title="Tính điểm Free Fire" loading="lazy" scrolling="yes"></iframe>
+</div>
+
+<hr>
 <h2 class="hubpic-animated">DESIGN HUBPIC</h2>
 <div class="design-hubpic-frame-wrap">
   <iframe class="design-hubpic-frame" src="design-hubpic.html" title="Design Hubpic" loading="lazy" scrolling="no"></iframe>
 </div>
 
 <style>
-.code-giai-frame-wrap,.player-name-frame-wrap,.merge-logo-frame-wrap,.game-name-frame-wrap,.player-hud-frame-wrap,.design-hubpic-frame-wrap{margin:0;overflow:hidden;background:#050713;border-radius:16px;}
+.code-giai-frame-wrap,.player-name-frame-wrap,.merge-logo-frame-wrap,.game-name-frame-wrap,.player-hud-frame-wrap,.scoring-frame-wrap,.design-hubpic-frame-wrap{margin:0;overflow:hidden;background:#050713;border-radius:16px;}
 .code-giai-frame{display:block;width:100%;height:1260px;border:0;background:#050713;overflow:hidden;}
 .player-name-frame{display:block;width:100%;height:620px;border:0;background:#050713;overflow:hidden;}
 .merge-logo-frame{display:block;width:100%;height:760px;border:0;background:#f3f6fb;overflow:hidden;}
 .game-name-frame{display:block;width:100%;height:900px;border:0;background:#0b1020;overflow:hidden;}
 .player-hud-frame{display:block;width:100%;height:700px;border:0;background:#07101b;overflow:hidden;}
+.scoring-frame{display:block;width:100%;height:1120px;border:0;background:#050713;overflow:auto;}
 .player-name-tool-heading{display:flex;align-items:center;gap:12px;margin:28px 0 12px;padding:14px 17px;border:1px solid rgba(65,233,179,.42);border-radius:17px;background:linear-gradient(120deg,rgba(4,42,42,.78),rgba(8,17,36,.88));color:#ecfff8;box-shadow:0 12px 26px rgba(0,0,0,.25);}.player-name-tool-heading>span{display:grid;place-items:center;width:34px;height:34px;border-radius:11px;background:linear-gradient(135deg,#00e6a0,#4c9dff);color:#06201d;font-weight:950;box-shadow:0 0 16px rgba(0,230,160,.42);}.player-name-tool-heading strong,.player-name-tool-heading small{display:block;}.player-name-tool-heading strong{font-size:15px;letter-spacing:.7px;}.player-name-tool-heading small{margin-top:3px;color:#afd3dc;font-weight:700;}
 .design-hubpic-frame-wrap{margin:0;overflow:hidden;background:#050713;}
 .design-hubpic-frame{display:block;width:100%;height:3000px;border:0;background:#050713;overflow:hidden;}
@@ -2760,7 +2767,7 @@ button:hover{transform:translateY(-2px)!important;filter:brightness(1.1);box-sha
 .json-studio{margin:0 0 34px;padding:clamp(18px,3vw,32px);border:1px solid rgba(87,217,255,.38);border-radius:24px;background:linear-gradient(135deg,rgba(9,22,32,.96),rgba(10,14,30,.98))!important;box-shadow:0 18px 42px rgba(0,0,0,.3);}
 .json-studio:before{display:none;}.json-studio .hubpic-animated{color:#f4fbff!important;-webkit-text-fill-color:initial!important;background:none!important;text-shadow:none!important;animation:none!important;}.json-studio-desc{color:#a9c0d5!important;}.json-config{border-color:rgba(108,187,255,.25)!important;background:rgba(2,8,16,.58)!important;}.json-studio button{background:linear-gradient(135deg,#00b97d,#35d6ca)!important;color:#031510!important;border-color:rgba(145,255,226,.42)!important;}
 .team-label{background:linear-gradient(135deg,#073f42,#0c8f75)!important;color:#ecfff8!important;border:1px solid rgba(99,255,202,.5);box-shadow:0 7px 16px rgba(0,0,0,.24)!important;}.logo-picker-selected{background:#09111e!important;border-color:rgba(112,207,255,.42)!important;border-radius:14px!important;}.logo-picker-list{background:#071019!important;border-color:#34d7aa!important;border-radius:14px!important;}.logo-picker-option:hover{background:rgba(0,208,155,.14)!important;}
-.code-giai-frame-wrap,.player-name-frame-wrap,.merge-logo-frame-wrap,.game-name-frame-wrap,.player-hud-frame-wrap,.design-hubpic-frame-wrap{border:1px solid rgba(98,198,255,.28);border-radius:22px;box-shadow:0 16px 35px rgba(0,0,0,.32);}
+.code-giai-frame-wrap,.player-name-frame-wrap,.merge-logo-frame-wrap,.game-name-frame-wrap,.player-hud-frame-wrap,.scoring-frame-wrap,.design-hubpic-frame-wrap{border:1px solid rgba(98,198,255,.28);border-radius:22px;box-shadow:0 16px 35px rgba(0,0,0,.32);}
 @media(max-width:620px){body{padding:12px;}.container{border-radius:20px;padding:16px;}h2{margin-top:26px;}.team-label{min-width:135px;width:135px;font-size:14px;}.logo-picker,.logo-picker-selected{width:180px;}}
 /* Menu từng công cụ: tránh phải cuộn qua toàn bộ Hubpic. */
 .hubpic-tool-home{position:sticky;top:12px;z-index:99;display:flex;align-items:center;gap:20px;margin:0 0 22px;padding:12px 17px;border:1px solid rgba(91,207,255,.42);border-radius:18px;background:linear-gradient(100deg,rgba(8,20,42,.98),rgba(8,13,31,.98));box-shadow:0 15px 34px rgba(0,0,0,.36);backdrop-filter:blur(12px);}
@@ -2785,14 +2792,15 @@ function setupHubpicToolPages(){
   const merge=findHeading('GHÉP LOGO THEO BẢNG');
   const game=findHeading('TẠO TÊN GAME');
   const hud=findHeading('GHÉP ẢNH HUD NGƯỜI CHƠI');
+  const scoring=findHeading('TÍNH ĐIỂM');
   const design=findHeading('DESIGN HUBPIC');
   const copyright=document.querySelector('.copyright-neon');
-  if(!core || !code || !player || !merge || !game || !hud || !design || !copyright) return;
+  if(!core || !code || !player || !merge || !game || !hud || !scoring || !design || !copyright) return;
 
   // Công cụ tạo đội/logo nằm trong .container, các công cụ iframe là con trực tiếp của adminApp.
   const host=document.getElementById('adminApp');
   const corePage=core.closest('.container');
-  if(!host || !corePage || [code,player,merge,game,hud,design,copyright].some((node)=>node.parentElement!==host)) return;
+  if(!host || !corePage || [code,player,merge,game,hud,scoring,design,copyright].some((node)=>node.parentElement!==host)) return;
   const children=Array.from(host.children);
   const withDivider=(node)=>node.previousElementSibling && node.previousElementSibling.tagName==='HR' ? node.previousElementSibling : node;
   const groups=[
@@ -2802,6 +2810,7 @@ function setupHubpicToolPages(){
     {id:'merge',title:'Ghép logo theo bảng',desc:'Ghép logo đội vào bảng nhanh.',start:withDivider(merge)},
     {id:'game',title:'Tạo tên game',desc:'Tạo tên game đúng định dạng đội.',start:withDivider(game)},
     {id:'hud',title:'Ghép ảnh HUD',desc:'Ghép ảnh người chơi, nền và tải ZIP.',start:withDivider(hud)},
+    {id:'scoring',title:'Tính điểm',desc:'Nhập Match ID và xem bảng xếp hạng Free Fire.',start:withDivider(scoring)},
     {id:'design',title:'Design Hubpic',desc:'Mở bộ công cụ thiết kế Hubpic.',start:withDivider(design)}
   ];
   const starts=groups.map((group)=>children.indexOf(group.start));
