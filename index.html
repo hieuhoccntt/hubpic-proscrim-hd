@@ -2158,12 +2158,12 @@ function drawContainedOriginalLogo(ctx,logoCanvas){
  const alphaAt=(x,y)=>pixels[(y*1000+x)*4+3]>32;
  const opaqueCorners=[[left+3,top+3],[right-3,top+3],[left+3,bottom-3],[right-3,bottom-3]].filter(([x,y])=>alphaAt(Math.max(0,Math.min(999,x)),Math.max(0,Math.min(999,y)))).length;
  const nearSquare=Math.min(sw,sh)/Math.max(sw,sh)>=.9;
- const targetSize=nearSquare&&opaqueCorners>=3?830:760;
+ const targetSize=nearSquare&&opaqueCorners>=3?882:720;
  const scale=Math.min(targetSize/sw,targetSize/sh);
  const dw=sw*scale,dh=sh*scale;
  ctx.save();
  ctx.beginPath();
- ctx.arc(500,500,444,0,Math.PI*2);
+ ctx.arc(500,500,441,0,Math.PI*2);
  ctx.closePath();
  ctx.clip();
  ctx.shadowColor='rgba(0,0,0,.22)';ctx.shadowBlur=10;ctx.shadowOffsetY=5;
