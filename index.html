@@ -378,7 +378,7 @@ font-size:16px;
 .avatar-preview-actions .white-palette-download{background:linear-gradient(135deg,#1687c5,#47e1be);color:#041d20;}
 .avatar-preview-actions .white-palette-copy{background:linear-gradient(135deg,#6856e8,#b298ff);color:#f8f6ff;}
 .avatar-preview-actions .classic-template-download{background:linear-gradient(135deg,#e9edf1,#aeb8c5);color:#17212b;border-color:#fff;}
-.avatar-preview-actions .classic-template-copy{background:linear-gradient(135deg,#f8f9fb,#c9d1da);color:#17212b;border-color:#fff;}.avatar-preview-actions .hdpl-template-download{background:linear-gradient(135deg,#1c5ed8,#8a38e5 58%,#f15ac4);color:#fff;border-color:#86eaff;}.avatar-preview-actions .hdpl-template-copy{background:linear-gradient(135deg,#0b9eaa,#35e4df);color:#041b2a;border-color:#b5fffa;}
+.avatar-preview-actions .classic-template-copy{background:linear-gradient(135deg,#f8f9fb,#c9d1da);color:#17212b;border-color:#fff;}
 .avatar-preview-actions{align-items:stretch;gap:0;padding:8px 0;border-top:1px solid rgba(90,224,255,.25);border-bottom:1px solid rgba(90,224,255,.25);}
 .avatar-action-group{display:flex;flex-direction:column;gap:8px;padding:0 12px;border-right:1px dashed rgba(99,225,255,.5);}
 .avatar-action-group:first-child{padding-left:0;}
@@ -991,7 +991,7 @@ function renderAvatarPreview(){
    preview.innerHTML='';
    return;
  }
- preview.innerHTML='<div class="avatar-preview-title">Đối chiếu Team &amp; Avatar</div><div class="avatar-preview-actions"><div class="avatar-action-group"><button type="button" class="table-download" onclick="downloadAvatarPreviewImage()">📥 Tải ảnh bảng</button><button type="button" class="copy-preview-btn" onclick="copyAvatarPreviewImage()">📋 Copy ảnh</button></div><div class="avatar-action-group"><button type="button" class="random-download" onclick="downloadAvatarPreviewImage(true)">🎨 Tải ảnh random màu</button><button type="button" class="copy-random-preview-btn" onclick="copyAvatarPreviewImage(true)">🌈 Copy ảnh random màu</button></div><div class="avatar-action-group"><button type="button" class="white-palette-download" onclick="downloadAvatarPreviewImage(\'white15\')">🌈 Tải random 15 màu</button><button type="button" class="white-palette-copy" onclick="copyAvatarPreviewImage(\'white15\')">📋 Copy random 15 màu</button></div><div class="avatar-action-group"><button type="button" class="classic-template-download" onclick="downloadAvatarPreviewImage(\'classic\')">📄 Tải mẫu trắng</button><button type="button" class="classic-template-copy" onclick="copyAvatarPreviewImage(\'classic\')">📋 Copy mẫu trắng</button><div class="avatar-action-group"><button type="button" class="hdpl-template-download" onclick="downloadAvatarPreviewImage('hdpl')">⬇️ Tải ảnh HDPL</button><button type="button" class="hdpl-template-copy" onclick="copyAvatarPreviewImage('hdpl')">📋 Copy ảnh HDPL</button></div></div></div><div class="avatar-preview-table-wrap"><table class="avatar-preview-table"><thead><tr><th>STT</th><th>Tên Team</th><th>Logo Team</th><th>Avatar</th><th>Chủ Team Mang Avatar</th></tr></thead><tbody></tbody></table></div>';
+ preview.innerHTML='<div class="avatar-preview-title">Đối chiếu Team &amp; Avatar</div><div class="avatar-preview-actions"><div class="avatar-action-group"><button type="button" class="table-download" onclick="downloadAvatarPreviewImage()">📥 Tải ảnh bảng</button><button type="button" class="copy-preview-btn" onclick="copyAvatarPreviewImage()">📋 Copy ảnh</button></div><div class="avatar-action-group"><button type="button" class="random-download" onclick="downloadAvatarPreviewImage(true)">🎨 Tải ảnh random màu</button><button type="button" class="copy-random-preview-btn" onclick="copyAvatarPreviewImage(true)">🌈 Copy ảnh random màu</button></div><div class="avatar-action-group"><button type="button" class="white-palette-download" onclick="downloadAvatarPreviewImage(\'white15\')">🌈 Tải random 15 màu</button><button type="button" class="white-palette-copy" onclick="copyAvatarPreviewImage(\'white15\')">📋 Copy random 15 màu</button></div><div class="avatar-action-group"><button type="button" class="classic-template-download" onclick="downloadAvatarPreviewImage(\'classic\')">📄 Tải mẫu trắng</button><button type="button" class="classic-template-copy" onclick="copyAvatarPreviewImage(\'classic\')">📋 Copy mẫu trắng</button></div></div><div class="avatar-preview-table-wrap"><table class="avatar-preview-table"><thead><tr><th>STT</th><th>Tên Team</th><th>Logo Team</th><th>Avatar</th><th>Chủ Team Mang Avatar</th></tr></thead><tbody></tbody></table></div>';
  const tableBody=preview.querySelector('tbody');
  teamNames.slice(0,codes.length).forEach((teamName,index)=>{
    const row=document.createElement('tr');
@@ -1043,38 +1043,7 @@ function renderAvatarPreview(){
 
 document.getElementById('teamNamedLogoStyle')?.addEventListener('change',()=>renderAvatarPreview());
 
-async function captureHdplAvatarBoard(){
- const sourceTable=document.querySelector('#avatarPreview .avatar-preview-table');
- if(!sourceTable) throw new Error('Chưa có bảng để xuất ảnh.');
- if(typeof html2canvas!=='function') throw new Error('Không tải được công cụ tạo ảnh. Hãy kiểm tra kết nối mạng rồi thử lại.');
- await new Promise(resolve=>{const image=new Image();image.onload=resolve;image.onerror=resolve;image.src='hdpl-avatar-board.png';});
- const board=document.createElement('div');
- board.style.cssText='position:fixed;left:-10000px;top:0;width:1200px;height:1200px;overflow:hidden;font-family:Arial,Segoe UI,sans-serif;color:#fff;background-image:linear-gradient(90deg,rgba(7,12,46,.22),rgba(19,4,42,.25)),url("hdpl-avatar-board.png");background-size:cover;background-position:center;z-index:-1;';
- const shade=document.createElement('div');
- shade.style.cssText='position:absolute;inset:0;background:linear-gradient(180deg,rgba(7,10,43,.1),rgba(10,4,38,.45));';
- const header=document.createElement('div');
- header.style.cssText='position:relative;margin:42px 62px 22px;padding:23px 34px;border:2px solid rgba(100,239,255,.92);border-radius:24px;background:linear-gradient(100deg,rgba(16,21,74,.9),rgba(91,24,142,.82));box-shadow:0 0 0 6px rgba(255,87,222,.12),0 0 35px rgba(70,235,255,.55);text-align:center;';
- header.innerHTML='<div style="font-size:52px;font-weight:950;letter-spacing:6px;text-shadow:0 3px 0 #290855,0 0 17px #52efff;">HDPL</div><div style="margin-top:5px;font-size:17px;font-weight:850;letter-spacing:3px;color:#9ffff9;">BẢNG AVATAR • TEAM ROSTER</div>';
- const grid=document.createElement('div');
- grid.style.cssText='position:relative;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));grid-template-rows:repeat(6,112px);gap:16px 20px;margin:0 62px;';
- teamNames.slice(0,codes.length).forEach((teamName,index)=>{
-  const card=document.createElement('div');
-  card.style.cssText='display:flex;align-items:center;gap:15px;padding:11px 14px;border:1px solid rgba(93,235,255,.86);border-radius:17px;background:linear-gradient(105deg,rgba(13,19,65,.9),rgba(52,17,94,.8));box-shadow:inset 0 0 18px rgba(80,238,255,.11),0 7px 17px rgba(0,0,0,.28);';
-  const no=document.createElement('div');no.textContent=String(index+1).padStart(2,'0');no.style.cssText='width:38px;color:#74f9ff;font-size:25px;font-weight:950;text-shadow:0 0 10px #16dbef;';
-  const logo=document.createElement('img');logo.src=getAvatarPreviewLogoUrl(index)||'';logo.style.cssText='width:62px;height:62px;object-fit:cover;border:3px solid #f6cc4b;border-radius:50%;background:#fff;box-shadow:0 0 14px rgba(255,210,77,.55);';
-  const avatar=document.createElement('img');avatar.src=avatarData[index]||extraAvatarData[index-avatarData.length]||'';avatar.style.cssText='width:66px;height:76px;object-fit:cover;border:2px solid #70f5ff;border-radius:12px;background:#111;box-shadow:0 0 13px rgba(82,240,255,.45);';
-  const info=document.createElement('div');info.style.cssText='min-width:0;flex:1;';
-  const team=document.createElement('div');team.textContent=String(teamName||'TEAM '+(index+1)).toUpperCase();team.style.cssText='overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:22px;font-weight:950;letter-spacing:.3px;text-shadow:0 2px 6px #0c0736;';
-  const owner=document.createElement('div');owner.textContent=avatarOwners[index]||'CHỦ TEAM';owner.style.cssText='margin-top:7px;color:#a7fff7;font-size:16px;font-weight:850;letter-spacing:.45px;';
-  info.append(team,owner);card.append(no,logo,avatar,info);grid.appendChild(card);
- });
- const footer=document.createElement('div');footer.textContent='HD PRO LEAGUE • AVATAR BOARD';footer.style.cssText='position:relative;margin:22px 62px 0;padding:15px;border:1px solid rgba(255,114,225,.88);border-radius:15px;background:linear-gradient(90deg,rgba(25,11,68,.86),rgba(120,28,143,.74));text-align:center;font-size:18px;font-weight:950;letter-spacing:3px;color:#fff7ff;box-shadow:0 0 24px rgba(239,78,218,.36);';
- board.append(shade,header,grid,footer);document.body.appendChild(board);
- try{return await html2canvas(board,{backgroundColor:null,scale:1,useCORS:true,logging:false});}finally{board.remove();}
-}
-
 async function captureAvatarPreviewImage(colorMode=false){
- if(colorMode==='hdpl') return captureHdplAvatarBoard();
  const table=document.querySelector('#avatarPreview .avatar-preview-table-wrap');
  if(!table) throw new Error('Chưa có bảng để xuất ảnh.');
  if(typeof html2canvas!=='function') throw new Error('Không tải được công cụ tạo ảnh. Hãy kiểm tra kết nối mạng rồi thử lại.');
@@ -1138,14 +1107,14 @@ async function downloadAvatarPreviewImage(colorMode=false){
  try{
    const canvas=await captureAvatarPreviewImage(colorMode);
    const link=document.createElement('a');
-   link.download=colorMode==='hdpl'?'bang-avatar-hdpl.jpg':(colorMode==='white15'?'doi-chieu-15-mau-trang.jpg':(colorMode==='classic'?'doi-chieu-mau-trang.jpg':'doi-chieu-team-avatar.jpg')); 
+   link.download=colorMode==='white15'?'doi-chieu-15-mau-trang.jpg':(colorMode==='classic'?'doi-chieu-mau-trang.jpg':'doi-chieu-team-avatar.jpg');
    link.href=canvas.toDataURL('image/jpeg',.95);
    link.click();
  }catch(error){ alert(error.message); }
 }
 
 async function copyAvatarPreviewImage(colorMode=false){
- const button=document.querySelector(colorMode==='hdpl'?'.hdpl-template-copy':(colorMode==='white15'?'.white-palette-copy':(colorMode==='classic'?'.classic-template-copy':(colorMode?'.copy-random-preview-btn':'.copy-preview-btn'))));
+ const button=document.querySelector(colorMode==='white15'?'.white-palette-copy':(colorMode==='classic'?'.classic-template-copy':(colorMode?'.copy-random-preview-btn':'.copy-preview-btn')));
  const previous=button?.textContent||'📋 Copy ảnh';
  try{
    // Gọi clipboard ngay khi bấm nút để không mất quyền copy trong lúc tạo ảnh.
