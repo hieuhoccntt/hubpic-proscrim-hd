@@ -2172,6 +2172,7 @@ function drawContainedOriginalLogo(ctx,logoCanvas){
 }
 
 let forceTeamNameDownloads=false;
+let includePlayerNameInZip=false;
 let driveLogoCapture=null;
 let suppressLogoZipDownload=false;
 let logoExportFolders=null;
@@ -2228,7 +2229,7 @@ async function exportZipRoundBadge(){
   await new Promise(resolve=>setTimeout(resolve,0));
  }
  if(!count){if(status) status.textContent='Bạn chưa chọn logo nào để xuất.';alert('Bạn chưa chọn logo nào để xuất.');return;}
- await addSelectedScrimPlayerNameToZip(zip,status);
+ if(includePlayerNameInZip) await addSelectedScrimPlayerNameToZip(zip,status);
  const out=await zip.generateAsync({type:'blob'});
  downloadLogoZip(out,'TeamLogo_HuyHieuTron.zip');
  if(status) status.textContent='Đã xuất '+count+' logo huy hiệu tròn; dùng màu nền và viền đang chọn.';
@@ -2324,7 +2325,7 @@ async function buildLogoZip(removeBg=false){
    return;
  }
 
- await addSelectedScrimPlayerNameToZip(zip,status);
+ if(includePlayerNameInZip) await addSelectedScrimPlayerNameToZip(zip,status);
  const out=await zip.generateAsync({type:'blob'});
  downloadLogoZip(out,removeBg ? 'TeamLogo_XoaNen.zip' : 'TeamLogo_Goc.zip');
 
@@ -2429,7 +2430,7 @@ async function buildDesignedLogoZip(useWhitePalette=false,useGoldCorners=false){
    return;
  }
 
- await addSelectedScrimPlayerNameToZip(zip,status);
+ if(includePlayerNameInZip) await addSelectedScrimPlayerNameToZip(zip,status);
  const out=await zip.generateAsync({type:'blob'});
  downloadLogoZip(out,(useWhitePalette&&useGoldCorners)
   ?'TeamLogo_15MauTrang_4Goc.zip'
@@ -2483,7 +2484,7 @@ async function exportZipBlackFrame(){
   await new Promise(r=>setTimeout(r,0));
  }
  if(!count){if(status) status.textContent='Bạn chưa chọn logo nào để xuất.';alert('Bạn chưa chọn logo nào để xuất.');return;}
- await addSelectedScrimPlayerNameToZip(zip,status);
+ if(includePlayerNameInZip) await addSelectedScrimPlayerNameToZip(zip,status);
  const out=await zip.generateAsync({type:'blob'});
  downloadLogoZip(out,'TeamLogo_KhungDen.zip');
  if(status) status.textContent='Đã xuất '+count+' logo mẫu khung đen.';
@@ -2526,6 +2527,7 @@ async function exportZipGameFolders(){
  }
  // ZIP cho game luôn dùng mã số (codes) như các mục tải logo thông thường.
  forceTeamNameDownloads=false;
+ includePlayerNameInZip=true;
  logoExportFolders=['BackPackPics','GloowallPics','HeadPics'];
  logoZipFileNameOverride='TeamLogo_3ThuMucGame.zip';
  try{
@@ -2540,6 +2542,7 @@ async function exportZipGameFolders(){
    if(status) status.textContent='Đã xuất ZIP gồm BackPackPics, GloowallPics và HeadPics.';
  }finally{
    forceTeamNameDownloads=false;
+   includePlayerNameInZip=false;
    logoExportFolders=null;
    logoZipFileNameOverride='';
  }
