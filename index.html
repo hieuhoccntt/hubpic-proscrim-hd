@@ -2154,9 +2154,9 @@ function drawContainedOriginalLogo(ctx,logoCanvas){
  }
  if(right<left){left=0;top=0;right=999;bottom=999;}
  const sw=right-left+1,sh=bottom-top+1;
- // Ảnh logo luôn bị cắt theo vòng tròn, nên không còn ô vuông trắng/đen
- // như bản trước. Nếu PNG trong suốt, nền màu huy hiệu ở dưới sẽ hiện ra.
- const scale=Math.min(910/sw,910/sh);
+ // Để logo luôn gọn trong viền huy hiệu, chừa khoảng đệm đều cho mọi tỷ lệ ảnh.
+ // PNG trong suốt vẫn hiện nền màu huy hiệu ở phía sau.
+ const scale=Math.min(760/sw,760/sh);
  const dw=sw*scale,dh=sh*scale;
  ctx.save();
  ctx.beginPath();
