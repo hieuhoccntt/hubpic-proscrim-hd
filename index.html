@@ -1049,7 +1049,7 @@ async function captureHdplAvatarBoard(){
  if(typeof html2canvas!=='function') throw new Error('Không tải được công cụ tạo ảnh. Hãy kiểm tra kết nối mạng rồi thử lại.');
  await new Promise(resolve=>{const image=new Image();image.onload=resolve;image.onerror=resolve;image.src='hdpl-avatar-board.png';});
  const board=document.createElement('div');
- board.style.cssText='position:fixed;left:-10000px;top:0;width:1200px;height:1200px;overflow:hidden;font-family:Arial,Segoe UI,sans-serif;color:#fff;background-image:linear-gradient(90deg,rgba(7,12,46,.22),rgba(19,4,42,.25)),url('hdpl-avatar-board.png');background-size:cover;background-position:center;z-index:-1;';
+ board.style.cssText='position:fixed;left:-10000px;top:0;width:1200px;height:1200px;overflow:hidden;font-family:Arial,Segoe UI,sans-serif;color:#fff;background-image:linear-gradient(90deg,rgba(7,12,46,.22),rgba(19,4,42,.25)),url("hdpl-avatar-board.png");background-size:cover;background-position:center;z-index:-1;';
  const shade=document.createElement('div');
  shade.style.cssText='position:absolute;inset:0;background:linear-gradient(180deg,rgba(7,10,43,.1),rgba(10,4,38,.45));';
  const header=document.createElement('div');
