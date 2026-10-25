@@ -2154,9 +2154,12 @@ function drawContainedOriginalLogo(ctx,logoCanvas){
  }
  if(right<left){left=0;top=0;right=999;bottom=999;}
  const sw=right-left+1,sh=bottom-top+1;
- // Để logo luôn gọn trong viền huy hiệu, chừa khoảng đệm đều cho mọi tỷ lệ ảnh.
- // PNG trong suốt vẫn hiện nền màu huy hiệu ở phía sau.
- const scale=Math.min(760/sw,760/sh);
+ // Logo nền vuông được hiển thị lớn hơn; logo tròn/PNG tách nền tự chừa khoảng an toàn.
+ const alphaAt=(x,y)=>pixels[(y*1000+x)*4+3]>32;
+ const opaqueCorners=[[left+3,top+3],[right-3,top+3],[left+3,bottom-3],[right-3,bottom-3]].filter(([x,y])=>alphaAt(Math.max(0,Math.min(999,x)),Math.max(0,Math.min(999,y)))).length;
+ const nearSquare=Math.min(sw,sh)/Math.max(sw,sh)>=.9;
+ const targetSize=nearSquare&&opaqueCorners>=3?830:760;
+ const scale=Math.min(targetSize/sw,targetSize/sh);
  const dw=sw*scale,dh=sh*scale;
  ctx.save();
  ctx.beginPath();
