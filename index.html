@@ -276,6 +276,9 @@ font-size:16px;
 .avatar-preview-table .table-logo{width:72px;padding:3px;text-align:center;}
 .avatar-preview-table .logo-badge{width:52px;height:52px;margin:auto;padding:0;overflow:hidden;box-sizing:border-box;border:3px solid #f4bd2d;border-radius:50%;clip-path:circle(50%);background:#fff;box-shadow:0 2px 5px rgba(0,0,0,.32);}
 .avatar-preview-table .logo-badge img{display:block;width:100%;height:100%;box-sizing:border-box;object-fit:cover;border:0!important;border-radius:50%!important;clip-path:circle(50%);box-shadow:none!important;background:#fff;}
+/* Bảng xem trước của mẫu Logo tròn kiểu mới dùng đúng màu người dùng đang chọn. */
+.avatar-preview-table .logo-badge.is-round-badge{border-color:var(--logo-border,#f4bd2d);background:linear-gradient(135deg,var(--logo-bg-start,#00ff66),var(--logo-bg-end,#00b83f));box-shadow:0 2px 5px rgba(0,0,0,.32),0 0 8px color-mix(in srgb,var(--logo-border,#f4bd2d) 75%,transparent);}
+.avatar-preview-table .logo-badge.is-round-badge img{width:88%;height:88%;margin:6%;object-fit:contain;background:transparent;}
 .avatar-preview-table .table-logo-empty{color:rgba(255,255,255,.35);font-size:18px;}
 .avatar-preview-table img{
  width:43px;
@@ -385,11 +388,6 @@ font-size:16px;
 .avatar-action-group:last-child{border-right:0;padding-right:0;}
 .avatar-action-group button{width:100%;white-space:nowrap;}
 @media(max-width:760px){.avatar-preview-actions{gap:10px;}.avatar-action-group{width:100%;padding:0 0 10px;border-right:0;border-bottom:1px dashed rgba(99,225,255,.45);}.avatar-action-group:last-child{border-bottom:0;padding-bottom:0;}}
-
-/* Khi chọn mẫu logo, ô Logo Team hiển thị đúng ảnh mẫu đã dựng; không chọn thì vẫn là logo tròn mặc định. */
-.avatar-preview-table .logo-badge.is-template{width:60px;height:60px;border:0;border-radius:8px;clip-path:none;background:transparent;box-shadow:0 2px 8px rgba(0,0,0,.38);}
-.avatar-preview-table .logo-badge.is-template img{width:100%;height:100%;object-fit:contain;border-radius:8px!important;clip-path:none!important;background:transparent;}
-
 .avatar-preview-table.avatar-template-classic{min-width:790px;background:#fff;border:1px solid #17202a;border-radius:0;color:#111;}
 .avatar-preview-table.avatar-template-classic th{height:72px;padding:15px 16px;border-bottom:1px solid #7b8188;background:#f0f2f4;color:#101419;font-size:20px;text-align:center;letter-spacing:.4px;}
 .avatar-preview-table.avatar-template-classic th:first-child{width:80px;}
@@ -929,62 +927,6 @@ function getAvatarPreviewLogoUrl(index){
  if(!avatarPreviewLogoUrls.has(file)) avatarPreviewLogoUrls.set(file,URL.createObjectURL(file));
  return avatarPreviewLogoUrls.get(file);
 }
-const avatarStyledLogoPreviewCache=new Map();
-function getAvatarTableLogoStyle(){
- return document.getElementById('teamNamedLogoStyle')?.value||'';
-}
-async function createAvatarTableStyledLogo(index,style){
- const assignment=logoAssignments[index];
- const file=assignment!=='' ? logoFileStore[Number(assignment)] : null;
- if(!file || !style) return getAvatarPreviewLogoUrl(index);
- const cacheKey=String(index)+'|'+style+'|'+file.name+'|'+file.size;
- if(avatarStyledLogoPreviewCache.has(cacheKey)) return avatarStyledLogoPreviewCache.get(cacheKey);
- if(style==='original'){
-  const original=getAvatarPreviewLogoUrl(index);
-  avatarStyledLogoPreviewCache.set(cacheKey,original);
-  return original;
- }
- const img=new Image();const url=URL.createObjectURL(file);
- await new Promise((resolve,reject)=>{img.onload=resolve;img.onerror=reject;img.src=url;});
- const c=document.createElement('canvas');c.width=1000;c.height=1000;
- const ctx=c.getContext('2d');ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';
- const logoCanvas=makeLogoCanvasForBlackCircle(img,false);
- if(style==='roundBadge'){
-  drawRoundBadgeBase(ctx);
-  drawContainedOriginalLogo(ctx,logoCanvas);
- }else if(style==='blackFrame'){
-  ctx.fillStyle='#020202';ctx.fillRect(0,0,1000,1000);
-  ctx.drawImage(logoCanvas,24,24,952,952);
-  drawBlackFrameAndLargeFlag(ctx);
- }else{
-  const transparent=canvasHasTransparentPixels(logoCanvas);
-  const whiteStyle=style==='white15'||style==='white15Corners';
-  const whiteColors=['#009ee8','#00a878','#f2a900','#f15b35','#d73f8c','#7b61ff','#e63946','#3b82f6','#0f9d58','#ff7a00','#9c27b0','#009688','#c62828','#5d8aa8','#8db600'];
-  if(transparent && designBackgroundImage?.complete && designBackgroundImage.naturalWidth) drawDesignColorBackground(ctx);
-  else if(whiteStyle) drawWhiteMixOutsideCircleBase(ctx,whiteColors[index%whiteColors.length]);
-  else if(transparent) drawDesignColorBackground(ctx);
-  else drawGreenOutsideBlackCircleBase(ctx);
-  ctx.save();ctx.beginPath();ctx.arc(500,500,475,0,Math.PI*2);ctx.clip();ctx.drawImage(logoCanvas,0,0,1000,1000);ctx.restore();
-  drawCircleFrameAndFlag(ctx);
-  if(style==='goldCorner'||style==='white15Corners') drawGoldCornerFrame(ctx);
- }
- URL.revokeObjectURL(url);
- const result=c.toDataURL('image/png');
- avatarStyledLogoPreviewCache.set(cacheKey,result);
- return result;
-}
-function applyAvatarTableLogoStyle(preview){
- const style=getAvatarTableLogoStyle();
- if(!style) return;
- preview.querySelectorAll('.logo-badge[data-logo-index]').forEach(async badge=>{
-  const index=Number(badge.dataset.logoIndex);
-  const img=badge.querySelector('img');
-  if(!img) return;
-  badge.classList.add('is-template');
-  try{img.src=await createAvatarTableStyledLogo(index,style);}catch(error){console.warn('Không tạo được xem trước mẫu logo:',error);}
- });
-}
-
 function renderAvatarPreview(){
  const preview=document.getElementById('avatarPreview');
  if(!teamNames.length){
@@ -1020,9 +962,10 @@ function renderAvatarPreview(){
    const badge=document.createElement('div');
    const badgeColors=getLogoDesignColors();
    badge.className='logo-badge';
-   badge.dataset.logoIndex=String(index);
    badge.style.setProperty('--logo-bg-start',badgeColors.start);
    badge.style.setProperty('--logo-bg-end',badgeColors.end);
+   badge.style.setProperty('--logo-border',badgeColors.border);
+   if(document.getElementById('teamNamedLogoStyle')?.value==='roundBadge') badge.classList.add('is-round-badge');
    badge.appendChild(logo);
    logoCell.appendChild(badge);
    }else{
@@ -1038,10 +981,7 @@ function renderAvatarPreview(){
    row.append(no,team,logoCell,avatarCell,owner);
    tableBody.appendChild(row);
  });
- applyAvatarTableLogoStyle(preview);
 }
-
-document.getElementById('teamNamedLogoStyle')?.addEventListener('change',()=>renderAvatarPreview());
 
 async function captureAvatarPreviewImage(colorMode=false){
  const table=document.querySelector('#avatarPreview .avatar-preview-table-wrap');
@@ -1493,7 +1433,7 @@ window.addEventListener('DOMContentLoaded',()=>{
   <div id="scrimImportStatus" style="margin-top:8px;color:#ffd166;font-weight:700;"></div>
 </div>
 <div class="design-color-controls"><label for="designColorStart">🎨 Màu bìa ngoài</label><input type="color" id="designColorStart" value="#00FF66" title="Màu bìa ngoài thứ nhất" oninput="updateDesignColorReadout()"><span class="color-code" id="designColorStartCode">#00FF66</span><span class="color-arrow">→</span><input type="color" id="designColorEnd" value="#00B83F" title="Màu bìa ngoài thứ hai" oninput="updateDesignColorReadout()"><span class="color-code" id="designColorEndCode">#00B83F</span><label for="goldCornerColor">👑 Viền 4 góc</label><input type="color" id="goldCornerColor" value="#FFD447" title="Màu viền 4 góc" oninput="updateDesignColorReadout()"><span class="color-code" id="goldCornerColorCode">#FFD447</span><span class="color-actions-break" aria-hidden="true"></span><label class="background-image-picker" for="designBackgroundImage">🖼️ Ảnh nền logo <input type="file" id="designBackgroundImage" accept="image/*" onchange="setDesignBackgroundImage(this)"><em id="designBackgroundImageName">Chưa chọn ảnh</em></label><button type="button" class="clear-background-image-btn" onclick="clearDesignBackgroundImage()">✕ Bỏ ảnh nền</button><button type="button" class="color-mode-btn base-color-btn" onclick="resetDesignGreen()">↺ Màu gốc xanh</button><button type="button" class="color-mode-btn solid-color-btn" onclick="randomizeOneDesignColor()">🎲 Random 1 màu</button><button type="button" class="color-mode-btn random-color-btn" onclick="randomizeDesignColors()">🎲 Random pha màu</button><small>Ảnh nền chỉ hiện phía sau logo PNG tách nền. Không chọn ảnh thì web dùng màu nền bạn đã chọn.</small></div>
-<div class="logo-export-actions"><button class="zip-btn" onclick='exportZip()'>📦 Logo gốc</button><button class="design-zip-btn" onclick='exportZipDesign()'>🎨 Logo 1 màu nền</button><button class="white-palette-logo-btn" onclick='exportZipDesignWhite15()'>🌈 Logo random 15 màu</button><button class="white-palette-corner-btn" onclick='exportZipDesignWhite15Corners()'>🌈 Logo random 15 màu có viền vuông</button><button class="gold-corner-logo-btn" onclick='exportZipGoldCorner()'>👑 Logo viền</button><button class="black-frame-logo-btn" onclick='exportZipBlackFrame()'>🖼️ Logo khung</button><button class="round-badge-logo-btn" onclick='exportZipRoundBadge()'>⭕ Logo tròn kiểu mới</button><button class="team-name-download-btn" type="button" onclick="exportZipWithTeamNames()">📥 Tải logo theo Team</button><button class="game-folders-logo-btn" type="button" onclick="exportZipGameFolders()">🗂️ Tải 3 thư mục game</button><span class="drive-row-break" aria-hidden="true"></span><button class="team-drive-upload-btn" type="button" onclick="uploadTeamLogosToDrive()">☁️ Đẩy lên Drive &amp; copy link</button><label class="team-name-export-picker">🏷️ Mẫu tải theo Team <select id="teamNamedLogoStyle"><option value="" selected>Giữ logo mặc định trong bảng</option><option value="design">Logo 1 màu nền</option><option value="white15">Logo random 15 màu</option><option value="white15Corners">Random 15 màu + viền</option><option value="goldCorner">Logo viền</option><option value="blackFrame">Logo khung</option><option value="roundBadge">Logo tròn kiểu mới</option><option value="original">Logo gốc</option></select></label></div>
+<div class="logo-export-actions"><button class="zip-btn" onclick='exportZip()'>📦 Logo gốc</button><button class="design-zip-btn" onclick='exportZipDesign()'>🎨 Logo 1 màu nền</button><button class="white-palette-logo-btn" onclick='exportZipDesignWhite15()'>🌈 Logo random 15 màu</button><button class="white-palette-corner-btn" onclick='exportZipDesignWhite15Corners()'>🌈 Logo random 15 màu có viền vuông</button><button class="gold-corner-logo-btn" onclick='exportZipGoldCorner()'>👑 Logo viền</button><button class="black-frame-logo-btn" onclick='exportZipBlackFrame()'>🖼️ Logo khung</button><button class="round-badge-logo-btn" onclick='exportZipRoundBadge()'>⭕ Logo tròn kiểu mới</button><button class="team-name-download-btn" type="button" onclick="exportZipWithTeamNames()">📥 Tải logo theo Team</button><button class="game-folders-logo-btn" type="button" onclick="exportZipGameFolders()">🗂️ Tải 3 thư mục game</button><span class="drive-row-break" aria-hidden="true"></span><button class="team-drive-upload-btn" type="button" onclick="uploadTeamLogosToDrive()">☁️ Đẩy lên Drive &amp; copy link</button><label class="team-name-export-picker">🏷️ Mẫu tải theo Team <select id="teamNamedLogoStyle" onchange="renderAvatarPreview()"><option value="design">Logo 1 màu nền</option><option value="white15">Logo random 15 màu</option><option value="white15Corners">Random 15 màu + viền</option><option value="goldCorner">Logo viền</option><option value="blackFrame">Logo khung</option><option value="roundBadge">Logo tròn kiểu mới</option><option value="original">Logo gốc</option></select></label></div>
 <div id='logoExportStatus' style='margin-top:8px;color:#00ff99;font-weight:800;'></div>
 <textarea id="teamInput" placeholder="Mỗi dòng là một team..."></textarea><br>
 <div class="team-control-actions"><button class="team-update-btn" onclick="updateTeams()">✓ Cập nhật Team</button><button type="button" class="white-palette-download" onclick="downloadAvatarPreviewImage('white15')">🌈 Tải random 15 màu khác nhau</button><button type="button" class="team-clear-btn" onclick="clearAllTeamAndLogos()">🗑 Xóa tất cả</button></div>
@@ -1914,7 +1854,8 @@ async function removeLogoBackgroundWithAI(file){
 function getLogoDesignColors(){
  const start=document.getElementById('designColorStart')?.value||'#00FF66';
  const end=document.getElementById('designColorEnd')?.value||'#00B83F';
- return {start,end};
+ const border=document.getElementById('goldCornerColor')?.value||'#FFD447';
+ return {start,end,border};
 }
 
 let designBackgroundImage=null;
@@ -1963,6 +1904,8 @@ function updateDesignColorReadout(){
  if(start&&startCode) startCode.textContent=start.value.toUpperCase();
  if(end&&endCode) endCode.textContent=end.value.toUpperCase();
  if(goldCorner&&goldCornerCode) goldCornerCode.textContent=goldCorner.value.toUpperCase();
+ // Khi đang xem mẫu logo tròn, màu phải đổi ngay trên bảng, không cần xuất lại ZIP.
+ if(document.getElementById('teamNamedLogoStyle')?.value==='roundBadge' && teamNames.length) renderAvatarPreview();
 }
 
 function useOneDesignColor(){
@@ -2219,16 +2162,13 @@ function drawContainedOriginalLogo(ctx,logoCanvas){
  }
  if(right<left){left=0;top=0;right=999;bottom=999;}
  const sw=right-left+1,sh=bottom-top+1;
- // Logo nền vuông được hiển thị lớn hơn; logo tròn/PNG tách nền tự chừa khoảng an toàn.
- const alphaAt=(x,y)=>pixels[(y*1000+x)*4+3]>32;
- const opaqueCorners=[[left+3,top+3],[right-3,top+3],[left+3,bottom-3],[right-3,bottom-3]].filter(([x,y])=>alphaAt(Math.max(0,Math.min(999,x)),Math.max(0,Math.min(999,y)))).length;
- const nearSquare=Math.min(sw,sh)/Math.max(sw,sh)>=.9;
- const targetSize=nearSquare&&opaqueCorners>=3?882:720;
- const scale=Math.min(targetSize/sw,targetSize/sh);
+ // Ảnh logo luôn bị cắt theo vòng tròn, nên không còn ô vuông trắng/đen
+ // như bản trước. Nếu PNG trong suốt, nền màu huy hiệu ở dưới sẽ hiện ra.
+ const scale=Math.min(910/sw,910/sh);
  const dw=sw*scale,dh=sh*scale;
  ctx.save();
  ctx.beginPath();
- ctx.arc(500,500,441,0,Math.PI*2);
+ ctx.arc(500,500,444,0,Math.PI*2);
  ctx.closePath();
  ctx.clip();
  ctx.shadowColor='rgba(0,0,0,.22)';ctx.shadowBlur=10;ctx.shadowOffsetY=5;
@@ -2237,7 +2177,6 @@ function drawContainedOriginalLogo(ctx,logoCanvas){
 }
 
 let forceTeamNameDownloads=false;
-let includePlayerNameInZip=false;
 let driveLogoCapture=null;
 let suppressLogoZipDownload=false;
 let logoExportFolders=null;
@@ -2294,7 +2233,7 @@ async function exportZipRoundBadge(){
   await new Promise(resolve=>setTimeout(resolve,0));
  }
  if(!count){if(status) status.textContent='Bạn chưa chọn logo nào để xuất.';alert('Bạn chưa chọn logo nào để xuất.');return;}
- if(includePlayerNameInZip) await addSelectedScrimPlayerNameToZip(zip,status);
+ await addSelectedScrimPlayerNameToZip(zip,status);
  const out=await zip.generateAsync({type:'blob'});
  downloadLogoZip(out,'TeamLogo_HuyHieuTron.zip');
  if(status) status.textContent='Đã xuất '+count+' logo huy hiệu tròn; dùng màu nền và viền đang chọn.';
@@ -2390,7 +2329,7 @@ async function buildLogoZip(removeBg=false){
    return;
  }
 
- if(includePlayerNameInZip) await addSelectedScrimPlayerNameToZip(zip,status);
+ await addSelectedScrimPlayerNameToZip(zip,status);
  const out=await zip.generateAsync({type:'blob'});
  downloadLogoZip(out,removeBg ? 'TeamLogo_XoaNen.zip' : 'TeamLogo_Goc.zip');
 
@@ -2495,7 +2434,7 @@ async function buildDesignedLogoZip(useWhitePalette=false,useGoldCorners=false){
    return;
  }
 
- if(includePlayerNameInZip) await addSelectedScrimPlayerNameToZip(zip,status);
+ await addSelectedScrimPlayerNameToZip(zip,status);
  const out=await zip.generateAsync({type:'blob'});
  downloadLogoZip(out,(useWhitePalette&&useGoldCorners)
   ?'TeamLogo_15MauTrang_4Goc.zip'
@@ -2549,7 +2488,7 @@ async function exportZipBlackFrame(){
   await new Promise(r=>setTimeout(r,0));
  }
  if(!count){if(status) status.textContent='Bạn chưa chọn logo nào để xuất.';alert('Bạn chưa chọn logo nào để xuất.');return;}
- if(includePlayerNameInZip) await addSelectedScrimPlayerNameToZip(zip,status);
+ await addSelectedScrimPlayerNameToZip(zip,status);
  const out=await zip.generateAsync({type:'blob'});
  downloadLogoZip(out,'TeamLogo_KhungDen.zip');
  if(status) status.textContent='Đã xuất '+count+' logo mẫu khung đen.';
@@ -2592,7 +2531,6 @@ async function exportZipGameFolders(){
  }
  // ZIP cho game luôn dùng mã số (codes) như các mục tải logo thông thường.
  forceTeamNameDownloads=false;
- includePlayerNameInZip=true;
  logoExportFolders=['BackPackPics','GloowallPics','HeadPics'];
  logoZipFileNameOverride='TeamLogo_3ThuMucGame.zip';
  try{
@@ -2607,7 +2545,6 @@ async function exportZipGameFolders(){
    if(status) status.textContent='Đã xuất ZIP gồm BackPackPics, GloowallPics và HeadPics.';
  }finally{
    forceTeamNameDownloads=false;
-   includePlayerNameInZip=false;
    logoExportFolders=null;
    logoZipFileNameOverride='';
  }
