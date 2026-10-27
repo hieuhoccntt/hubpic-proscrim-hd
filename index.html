@@ -1903,7 +1903,7 @@ function updateDesignColorReadout(){
  const goldCornerCode=document.getElementById('goldCornerColorCode');
  if(start&&startCode) startCode.textContent=start.value.toUpperCase();
  if(end&&endCode) endCode.textContent=end.value.toUpperCase();
- if(goldCorner&&goldCornerCode) goldCornerCode.textContent=goldCorner.value.toUpperCase();
+ 
  // Khi đang xem mẫu logo tròn, màu phải đổi ngay trên bảng, không cần xuất lại ZIP.
  if(document.getElementById('teamNamedLogoStyle')?.value==='roundBadge' && teamNames.length) renderAvatarPreview();
 }
