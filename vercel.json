@@ -1,0 +1,16 @@
+{
+  "rewrites": [
+    {
+      "source": "/scrim-api/timeslots",
+      "destination": "https://proscrim-hd.vercel.app/api/timeslots"
+    },
+    {
+      "source": "/scrim-api/teams/timeslot/:slot",
+      "destination": "https://proscrim-hd.vercel.app/api/teams/timeslot/:slot"
+    },
+    {
+      "source": "/scrim-api/teams/:id/player-overrides",
+      "destination": "https://proscrim-hd.vercel.app/api/teams/:id/player-overrides"
+    }
+  ]
+}

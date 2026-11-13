@@ -1144,8 +1144,8 @@ function updateTeams(){
  render();
 }
 
-const SCRIM_API_BASE='https://proscrim-hd.vercel.app/api';
-const SCRIM_TIMESLOTS_API=SCRIM_API_BASE+'/timeslots/';
+const SCRIM_API_BASE='/scrim-api';
+const SCRIM_TIMESLOTS_API=SCRIM_API_BASE+'/timeslots';
 let scrimTimeSlots=[];
 
 function getApiList(payload){
@@ -1173,16 +1173,9 @@ function sortScrimTimeslots(slots){
  });
 }
 async function fetchScrimJson(url){
- const sources=[url,'https://api.allorigins.win/raw?url='+encodeURIComponent(url)];
- let lastError;
- for(const source of sources){
-   try{
-     const response=await fetch(source);
-     if(!response.ok) throw new Error('Máy chủ trả về '+response.status);
-     return await response.json();
-   }catch(error){ lastError=error; }
- }
- throw lastError||new Error('Không thể kết nối API');
+ const response=await fetch(url,{cache:'no-store'});
+ if(!response.ok) throw new Error('Máy chủ trả về '+response.status);
+ return await response.json();
 }
 function findTeamNames(value,parentKey='',found=[]){
  if(!value) return found;
