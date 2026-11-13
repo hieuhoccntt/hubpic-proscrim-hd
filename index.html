@@ -1144,7 +1144,8 @@ function updateTeams(){
  render();
 }
 
-const SCRIM_TIMESLOTS_API='https://server-ecru-phi-88.vercel.app/api/timeslots/';
+const SCRIM_API_BASE='https://proscrim-hd.vercel.app/api';
+const SCRIM_TIMESLOTS_API=SCRIM_API_BASE+'/timeslots/';
 let scrimTimeSlots=[];
 
 function getApiList(payload){
@@ -1338,7 +1339,7 @@ async function importTeamsFromScrim(){
  try{
    const slotValue=slot.value||slot.time||slot.name||slot.label;
    if(!slotValue) throw new Error('Khung giờ không có mã value.');
-   const teamsUrl='https://server-ecru-phi-88.vercel.app/api/teams/timeslot/'+encodeURIComponent(slotValue);
+   const teamsUrl=SCRIM_API_BASE+'/teams/timeslot/'+encodeURIComponent(slotValue);
    const teamPayload=await fetchScrimJson(teamsUrl);
    const rows=extractTeamRows(teamPayload);
    const names=rows.map(row=>row.name);
@@ -1350,7 +1351,7 @@ async function importTeamsFromScrim(){
    }
    fillTeamsFromScrim(names);
    const logoResult=await importScrimLogos(rows);
-   status.textContent='Đã tự nhập '+names.length+' team và gán '+logoResult.imported+' logo từ '+getSlotLabel(slot,Number(select.value))+(logoResult.missing ? ' ('+logoResult.missing+' team chưa có logo trên web cũ).' : '.');
+   status.textContent='Đã tự nhập '+names.length+' team và gán '+logoResult.imported+' logo từ '+getSlotLabel(slot,Number(select.value))+(logoResult.missing ? ' ('+logoResult.missing+' team chưa có logo trên Pro Scrim HD).' : '.');
  }catch(error){
    status.textContent='Chưa lấy được team: '+error.message;
  }
@@ -1370,7 +1371,7 @@ async function downloadScrimTimeslotJson(){
  }
  status.textContent='Đang tạo file JSON cho '+getSlotLabel(slot,Number(select.value))+'...';
  try{
-  const teamsUrl='https://server-ecru-phi-88.vercel.app/api/teams/timeslot/'+encodeURIComponent(slotValue);
+  const teamsUrl=SCRIM_API_BASE+'/teams/timeslot/'+encodeURIComponent(slotValue);
   const payload=await fetchScrimJson(teamsUrl);
   const rows=extractTeamRows(payload);
   // Dùng đúng format file "code tên" của Pro Scrim HD, không xuất dữ liệu logo/team phụ.
@@ -1378,7 +1379,7 @@ async function downloadScrimTimeslotJson(){
   const overrideResults=await Promise.all(rows.map(async row=>{
    if(!row.team?.id) return [];
    try{
-    const overridePayload=await fetchScrimJson('https://server-ecru-phi-88.vercel.app/api/teams/'+encodeURIComponent(row.team.id)+'/player-overrides');
+    const overridePayload=await fetchScrimJson(SCRIM_API_BASE+'/teams/'+encodeURIComponent(row.team.id)+'/player-overrides');
     return Array.isArray(overridePayload?.data) ? overridePayload.data : [];
    }catch(error){ return []; }
   }));
@@ -1416,12 +1417,12 @@ async function createSelectedScrimPlayerNameFile(){
  const slot=scrimTimeSlots[Number(select.value)];
  const slotValue=slot && (slot.value||slot.time||slot.name||slot.label);
  if(!slotValue) return null;
- const teamsUrl='https://server-ecru-phi-88.vercel.app/api/teams/timeslot/'+encodeURIComponent(slotValue);
+ const teamsUrl=SCRIM_API_BASE+'/teams/timeslot/'+encodeURIComponent(slotValue);
  const rows=extractTeamRows(await fetchScrimJson(teamsUrl));
  const overrideResults=await Promise.all(rows.map(async row=>{
   if(!row.team?.id) return [];
   try{
-   const payload=await fetchScrimJson('https://server-ecru-phi-88.vercel.app/api/teams/'+encodeURIComponent(row.team.id)+'/player-overrides');
+   const payload=await fetchScrimJson(SCRIM_API_BASE+'/teams/'+encodeURIComponent(row.team.id)+'/player-overrides');
    return Array.isArray(payload?.data) ? payload.data : [];
   }catch(error){ return []; }
  }));
