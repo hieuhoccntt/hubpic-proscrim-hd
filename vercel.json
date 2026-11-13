@@ -2,15 +2,19 @@
   "rewrites": [
     {
       "source": "/scrim-api/timeslots",
-      "destination": "https://proscrim-hd.vercel.app/api/timeslots"
+      "destination": "/api/proscrim?resource=timeslots"
     },
     {
       "source": "/scrim-api/teams/timeslot/:slot",
-      "destination": "https://proscrim-hd.vercel.app/api/teams/timeslot/:slot"
+      "destination": "/api/proscrim?resource=teams&slot=:slot"
     },
     {
       "source": "/scrim-api/teams/:id/player-overrides",
-      "destination": "https://proscrim-hd.vercel.app/api/teams/:id/player-overrides"
+      "destination": "/api/proscrim?resource=overrides&id=:id"
+    },
+    {
+      "source": "/scrim-api/teams/:id/logo",
+      "destination": "/api/proscrim?resource=logo&id=:id"
     }
   ]
 }

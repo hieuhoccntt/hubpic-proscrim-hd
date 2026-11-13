@@ -1251,12 +1251,13 @@ function getScrimLogoUrl(team){
  }
  if(logo && typeof logo==='object'){
   const url=logo.secure_url||logo.secureUrl||logo.url||logo.logo_url||logo.logoUrl||logo.image_url||logo.imageUrl||'';
+  if(typeof url==='string' && /^\/scrim-api\/teams\/\d+\/logo$/.test(url)) return url;
   return typeof url==='string' && /^https?:\/\//i.test(url) ? url : '';
  }
  return '';
 }
 async function fetchScrimLogo(url){
- const sources=[url,'https://api.allorigins.win/raw?url='+encodeURIComponent(url)];
+ const sources=url.startsWith('/')?[url]:[url,'https://api.allorigins.win/raw?url='+encodeURIComponent(url)];
  let lastError;
  for(const source of sources){
   try{
